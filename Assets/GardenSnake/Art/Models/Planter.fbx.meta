@@ -7,8 +7,23 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Aqua
+    second: {fileID: 2100000, guid: e52b197636353d542a3ed3f0ed439960, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Bark
+    second: {fileID: 2100000, guid: 26ce8bb09dbb6b944a1b173e4d17156d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Base
     second: {fileID: 2100000, guid: b7c8b8548180df542ba1497fa249fb69, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Blush
+    second: {fileID: 2100000, guid: 5d2c1b02b6dfaa4408b549a630c78faa, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -19,6 +34,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Cream
     second: {fileID: 2100000, guid: ff53a8362f478644d9acd8b3f6d7f744, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Foliage
+    second: {fileID: 2100000, guid: 6da4252ce64f08a418ddb455d9d3351f, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule

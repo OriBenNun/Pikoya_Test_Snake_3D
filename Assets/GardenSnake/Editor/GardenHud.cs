@@ -105,6 +105,7 @@ namespace GardenSnake.Editor
 
             var gaugeRect = Anchored("Speed gauge", root.transform, new Vector2(.5f, 0), new Vector2(0, 26), new Vector2(124, 124));
             gaugeRect.pivot = new Vector2(.5f, 0);
+            gaugeRect.gameObject.AddComponent<CanvasRenderer>();
             var gauge = gaugeRect.gameObject.AddComponent<SpeedGauge>();
             gauge.raycastTarget = false;
             var speedReadout = Label("Cells per second", gaugeRect, "4.0", 19, TextStrong, new Vector2(0, -19), new Vector2(64, 25));

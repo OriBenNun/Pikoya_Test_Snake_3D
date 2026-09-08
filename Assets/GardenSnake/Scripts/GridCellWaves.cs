@@ -86,7 +86,7 @@ namespace GardenSnake
             {
                 active[i].age += Time.unscaledDeltaTime;
                 float maxDistance = columns + Mathf.CeilToInt(CellCount / (float)columns);
-                if (active[i].age > maxDistance / active[i].preset.speed + active[i].preset.duration)
+                if (active[i].age > maxDistance / active[i].preset.speed + active[i].preset.duration + active[i].preset.width / active[i].preset.speed)
                     active[i] = active[--count];
             }
             for (int i = 0; i < rest.Length; i++)
@@ -102,7 +102,7 @@ namespace GardenSnake
         {
             float distance = preset.pattern == Pattern.Sweep ? Mathf.Abs(offset.x + offset.y) * .7071f : offset.magnitude;
             float local = age - distance / Mathf.Max(.1f, preset.speed);
-            float duration = Mathf.Max(.1f, preset.duration);
+            float duration = Mathf.Max(.1f, preset.duration) + Mathf.Max(.1f, preset.width) / Mathf.Max(.1f, preset.speed);
             if (local <= 0 || local >= duration) return 0;
             float t = local / duration;
             float envelope = Mathf.Sin(t * Mathf.PI);

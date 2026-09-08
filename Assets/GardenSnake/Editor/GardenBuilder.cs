@@ -50,6 +50,7 @@ namespace GardenSnake.Editor
             AssetDatabase.Refresh();
             PrepareAudio();
             PrepareMaterials();
+            GardenDecor.Prepare();
             GardenHud.PrepareFont();
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "GardenSnake";
@@ -58,6 +59,7 @@ namespace GardenSnake.Editor
             CreateLighting();
             Transform board = CreateBoard();
             CreateSurroundings();
+            GardenDecor.Create();
 
             var game = new GameObject("Snake Game").AddComponent<SnakeController>();
             var audio = game.gameObject.AddComponent<AudioSource>();
@@ -176,15 +178,15 @@ namespace GardenSnake.Editor
 
             var grading = profile.Add<ColorAdjustments>(true);
             grading.postExposure.Override(-.06f);
-            grading.contrast.Override(8f);
-            grading.saturation.Override(10f);
+            grading.contrast.Override(5f);
+            grading.saturation.Override(4f);
 
             var tone = profile.Add<Tonemapping>(true);
             tone.mode.Override(TonemappingMode.Neutral);
 
             var toning = profile.Add<SplitToning>(true);
-            toning.shadows.Override(Hex("4E7F4A"));
-            toning.highlights.Override(Hex("FFF0CB"));
+            toning.shadows.Override(Hex("788078"));
+            toning.highlights.Override(Hex("89847B"));
             toning.balance.Override(6f);
 
             foreach (var component in profile.components)
@@ -215,12 +217,12 @@ namespace GardenSnake.Editor
             foreach (var component in profile.components.ToArray()) UnityEngine.Object.DestroyImmediate(component, true);
             profile.components.Clear();
             var vignette = profile.Add<Vignette>(true);
-            vignette.intensity.Override(.42f);
+            vignette.intensity.Override(.3f);
             vignette.smoothness.Override(.55f);
             vignette.color.Override(Hex("2C4F26"));
             var grading = profile.Add<ColorAdjustments>(true);
-            grading.saturation.Override(20f);
-            grading.contrast.Override(14f);
+            grading.saturation.Override(8f);
+            grading.contrast.Override(6f);
             foreach (var component in profile.components)
                 if (!AssetDatabase.Contains(component)) AssetDatabase.AddObjectToAsset(component, profile);
             EditorUtility.SetDirty(profile);
@@ -251,9 +253,9 @@ namespace GardenSnake.Editor
             fill.transform.rotation = Quaternion.Euler(24, 148, 0);
 
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = Hex("BBD79C");
-            RenderSettings.ambientEquatorColor = Hex("8DAF74");
-            RenderSettings.ambientGroundColor = Hex("5D7B52");
+            RenderSettings.ambientSkyColor = Hex("E6E7C9");
+            RenderSettings.ambientEquatorColor = Hex("BAC6AB");
+            RenderSettings.ambientGroundColor = Hex("8A9373");
             RenderSettings.ambientIntensity = .85f;
             RenderSettings.skybox = null;
             RenderSettings.fog = false;
@@ -288,6 +290,7 @@ namespace GardenSnake.Editor
                 MakeMaterial("TileC", Color.Lerp(GrassLight, GrassDark, .55f)),
                 MakeMaterial("TileD", Color.Lerp(GrassDark, GrassLight, .18f))
             };
+            GardenDecor.TextureBoard(grass);
             var cells = new Transform[BoardWidth * BoardHeight];
             for (int y = 0; y < BoardHeight; y++)
             for (int x = 0; x < BoardWidth; x++)
@@ -319,19 +322,17 @@ namespace GardenSnake.Editor
             const float height = .34f;
             for (int side = 0; side < 4; side++)
             {
-                var bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                bool horizontal = side % 2 == 0;
+                var bar = Spawn(horizontal ? "RimLong" : "RimShort", board, Vector3.zero);
                 bar.name = "Rim " + side;
                 bar.transform.SetParent(board, false);
                 UnityEngine.Object.DestroyImmediate(bar.GetComponent<Collider>());
-                bool horizontal = side % 2 == 0;
                 float direction = side < 2 ? -1 : 1;
                 bar.transform.localPosition = horizontal
                     ? new Vector3(0, height * .5f - .18f, direction * (BoardHeight + thickness) * .5f)
                     : new Vector3(direction * (BoardWidth + thickness) * .5f, height * .5f - .18f, 0);
-                bar.transform.localScale = horizontal
-                    ? new Vector3(BoardWidth + thickness * 2, height, thickness)
-                    : new Vector3(thickness, height, BoardHeight);
-                bar.GetComponent<Renderer>().sharedMaterial = material;
+                bar.transform.localScale = Vector3.one;
+                foreach(var renderer in bar.GetComponentsInChildren<Renderer>()) renderer.sharedMaterial = material;
                 bar.isStatic = true;
             }
         }
@@ -398,7 +399,8 @@ namespace GardenSnake.Editor
                     float ox = px + ((float)random.NextDouble() - .5f) * 2.1f;
                     float oz = pz + ((float)random.NextDouble() - .5f) * 2.1f;
                     if (!Clear(ox, oz, clearX, clearZ)) continue;
-                    var flower = Spawn("Flower", meadow, new Vector3(ox, -.74f, oz));
+                    string variant = (x.GetHashCode() ^ z.GetHashCode() ^ i) % 4 == 0 ? "Tulip" : i % 3 == 1 ? "Daisy" : i % 3 == 2 ? "Lavender" : "Flower";
+                    var flower = Spawn(variant, meadow, new Vector3(ox, -.74f, oz));
                     flower.transform.localScale = Vector3.one * (.5f + (float)random.NextDouble() * 1.25f);
                     flower.transform.rotation = Quaternion.Euler(0, (float)random.NextDouble() * 360f, 0);
                     Material petal = petals[random.Next(petals.Length)];
@@ -676,7 +678,8 @@ namespace GardenSnake.Editor
             {
                 ("Jade", SnakeBody), ("Lime", SnakeSpot), ("Cream", SnakeCream), ("Ink", Ink),
                 ("Coral", AppleSkin), ("Wood", Stem), ("Leaf", AppleLeaf), ("Stone", Stone),
-                ("Petal", Pollen), ("Tile", GrassLight), ("Base", PlanterRim)
+                ("Petal", Pollen), ("Tile", GrassLight), ("Base", PlanterRim),
+                ("Aqua", Hex("58BBC1")), ("Blush", Hex("F7A1A2")), ("Bark", Hex("996843")), ("Foliage", Hex("6EA447"))
             };
             foreach (var swatch in swatches) MakeMaterial(swatch.Name, swatch.Color);
 

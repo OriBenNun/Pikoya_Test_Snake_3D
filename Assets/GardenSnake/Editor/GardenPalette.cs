@@ -17,7 +17,7 @@ namespace GardenSnake.Editor
         // Board
         public static readonly Color GrassLight = Hex("3E9440");
         public static readonly Color GrassDark = Hex("368539");
-        public static readonly Color PlanterRim = Hex("C96F3B");
+        public static readonly Color PlanterRim = Hex("D98759");
         public static readonly Color PlanterSoil = Hex("245C29");
 
         // Snake
