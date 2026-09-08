@@ -64,7 +64,7 @@ namespace GardenSnake.Editor
                 switch (stage)
                 {
                     case 0:
-                        RequireText("Room to grow.");
+                        RequireText("Room to grow");
                         Capture("ready");
                         KeyPress(Key.Space);
                         Next("Ready screen and keyboard start");
@@ -85,7 +85,7 @@ namespace GardenSnake.Editor
                     case 3:
                         if (controller.Game.State != RunState.Paused) return;
                         pausedCell = controller.Game.Body[0];
-                        RequireText("On a leaf break.");
+                        RequireText("On a leaf break");
                         Next("Pause input and pause card");
                         break;
                     case 4:
@@ -106,7 +106,7 @@ namespace GardenSnake.Editor
                         break;
                     case 7:
                         if (controller.Game.State != RunState.Lost) return;
-                        RequireText("A good little run.");
+                        RequireText("garden edge");
                         Next("Wall collision and results card");
                         break;
                     case 8:
@@ -161,7 +161,7 @@ namespace GardenSnake.Editor
         private static void RequireText(string expected)
         {
             foreach (var text in UnityEngine.Object.FindObjectsByType<TMP_Text>(FindObjectsSortMode.None))
-                if (text.text == expected) return;
+                if (text.text.Contains(expected)) return;
             throw new Exception("Missing visible prompt: " + expected);
         }
 

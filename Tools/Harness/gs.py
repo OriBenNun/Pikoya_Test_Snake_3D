@@ -22,6 +22,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 TMP = os.path.join("Tools", "Harness", "_scratch.cs")
 
 
+class CommandError(RuntimeError):
+    pass
+
+
 def cli(*args, timeout=120):
     result = subprocess.run(
         ["unity", "command", *args, "--no-banner", "--json"],
@@ -34,7 +38,9 @@ def cli(*args, timeout=120):
 
 
 def unwrap(payload):
-    data = payload.get("data", {})
+    data = payload.get("data") or {}
+    if not data and payload.get("errors"):
+        raise CommandError(json.dumps(payload["errors"])[:400])
     result = data.get("result", data)
     if isinstance(result, dict) and "success" in result and "result" in result:
         if not result["success"]:
@@ -50,19 +56,20 @@ def evaluate(code):
     return unwrap(cli("eval_file", "--file", TMP.replace("\\", "/")))
 
 
-PRELUDE = """
-using UnityEngine;using UnityEngine.InputSystem;using UnityEngine.InputSystem.LowLevel;
-static Keyboard Board(){
-  foreach (var device in InputSystem.devices) if (device.name == "HarnessKeyboard") return (Keyboard)device;
-  InputSystem.settings.backgroundBehavior = UnityEngine.InputSystem.InputSettings.BackgroundBehavior.IgnoreFocus;
-  return InputSystem.AddDevice<Keyboard>("HarnessKeyboard");
+KEYBOARD = """
+UnityEngine.InputSystem.Keyboard board = null;
+foreach (var device in UnityEngine.InputSystem.InputSystem.devices)
+  if (device.name == "HarnessKeyboard") board = (UnityEngine.InputSystem.Keyboard)device;
+if (board == null) {
+  UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior = UnityEngine.InputSystem.InputSettings.BackgroundBehavior.IgnoreFocus;
+  board = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>("HarnessKeyboard");
 }
 """
 
 
 def state():
-    return evaluate(PRELUDE + """
-var controller = UnityEngine.Object.FindFirstObjectByType<GardenSnake.SnakeController>();
+    return evaluate("""
+var controller = UnityEngine.Object.FindAnyObjectByType<GardenSnake.SnakeController>();
 if (controller == null) return "no-controller";
 var game = controller.Game;
 return string.Format("state={0} score={1} len={2} head={3},{4} food={5},{6} best={7} step={8:0.000}",
@@ -72,43 +79,85 @@ return string.Format("state={0} score={1} len={2} head={3},{4} food={5},{6} best
 
 
 def press(names, hold=0.09):
-    keys = " | ".join("Key." + name for name in names)
-    evaluate(PRELUDE + f"""
-var board = Board();
-InputSystem.QueueStateEvent(board, new KeyboardState({keys}));
+    keys = " | ".join("UnityEngine.InputSystem.Key." + name for name in names)
+    evaluate(KEYBOARD + f"""
+UnityEngine.InputSystem.InputSystem.QueueStateEvent(board,
+  new UnityEngine.InputSystem.LowLevel.KeyboardState({keys}));
 return "down";
 """)
     time.sleep(hold)
-    evaluate(PRELUDE + """
-InputSystem.QueueStateEvent(Board(), new KeyboardState());
+    evaluate(KEYBOARD + """
+UnityEngine.InputSystem.InputSystem.QueueStateEvent(board,
+  new UnityEngine.InputSystem.LowLevel.KeyboardState());
 return "up";
 """)
 
 
 def click(name):
     return evaluate(f"""
-using UnityEngine;
-foreach (var button in UnityEngine.Object.FindObjectsByType<UnityEngine.UI.Button>(FindObjectsSortMode.None))
+foreach (var button in UnityEngine.Object.FindObjectsByType<UnityEngine.UI.Button>(UnityEngine.FindObjectsSortMode.None))
   if (button.name == "{name}") {{ button.onClick.Invoke(); return "clicked {name}"; }}
 return "missing {name}";
 """)
 
 
 def shot(name, width=1600, height=1000):
-    path = f"Artifacts/shots/{name}.png"
+    # capture_game_view writes under the authoring root, so land it there and
+    # move the PNG into Artifacts/shots to keep the Unity asset database clean.
+    staged = f"_shots/{name}.png"
     cli("capture_game_view", "--source", "screen", "--width", str(width),
-        "--height", str(height), "--save_path", path)
-    return path
+        "--height", str(height), "--save_path", staged)
+    source = os.path.join(ROOT, "Assets", staged.replace("/", os.sep))
+    target = os.path.join(ROOT, "Artifacts", "shots", name + ".png")
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    for _ in range(20):
+        if os.path.exists(source):
+            break
+        time.sleep(.2)
+    if os.path.exists(source):
+        os.replace(source, target)
+    for stale in (source + ".meta",):
+        if os.path.exists(stale):
+            os.remove(stale)
+    return target
 
 
 def playmode(target):
     cli("editor_play" if target else "editor_stop")
+    if target:
+        time.sleep(1)
     for _ in range(60):
         time.sleep(.5)
-        status = unwrap(cli("editor_status"))
+        try:
+            status = unwrap(cli("editor_status"))
+        except CommandError:
+            continue  # the Editor drops requests while it swaps play mode
         if status.get("playMode") == ("playing" if target else "stopped"):
+            if target:
+                # the Editor is not focused while the harness drives it
+                evaluate("UnityEngine.Application.runInBackground = true; return \"ticking\";")
             return status.get("playMode")
     raise SystemExit("play mode did not reach " + str(target))
+
+
+def compile_project():
+    """Force a script compile and surface any C# errors instead of hanging the loop."""
+    cli("recompile")
+    for _ in range(180):
+        time.sleep(1)
+        try:
+            report = unwrap(cli("recompile_status"))
+        except CommandError:
+            continue
+        if isinstance(report, str):
+            report = json.loads(report)
+        status = report.get("status")
+        if status in ("compiling", "pending", "queued", "requested"):
+            continue
+        if report.get("failed") or report.get("errors"):
+            raise SystemExit(json.dumps(report.get("errors"))[:4000])
+        return status
+    raise SystemExit("compile timed out")
 
 
 def logs(level="error", tail=12):
@@ -153,15 +202,27 @@ def main():
         print(logs(*args))
     elif verb == "status":
         print(json.dumps(unwrap(cli("editor_status")), indent=1))
-    elif verb == "recompile":
-        cli("recompile")
-        for _ in range(90):
-            time.sleep(1)
-            status = unwrap(cli("recompile_status"))
-            if status.get("status") in ("idle", "completed", "done"):
-                print(json.dumps(status)[:400])
+    elif verb == "compile":
+        print(compile_project())
+    elif verb == "playtest":
+        label = args[0] if args else "run"
+        seconds = float(args[1]) if len(args) > 1 else 30
+        every = float(args[2]) if len(args) > 2 else 2.5
+        playmode(False)
+        compile_project()
+        playmode(True)
+        time.sleep(1.5)
+        print(evaluate(f'return GardenSnake.Editor.GardenPlaytest.Run("{label}", {seconds}f, {every}f);'))
+        deadline = time.time() + seconds + 40
+        while time.time() < deadline:
+            time.sleep(4)
+            report = evaluate("return GardenSnake.Editor.GardenPlaytest.Status();")
+            if report and not report.startswith("running"):
+                print(report)
                 return
-        raise SystemExit("recompile timed out")
+        raise SystemExit("playtest did not finish")
+    elif verb == "recompile":
+        print(compile_project())
     else:
         raise SystemExit("unknown verb " + verb)
 
