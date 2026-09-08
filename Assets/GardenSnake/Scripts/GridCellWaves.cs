@@ -106,7 +106,7 @@ namespace GardenSnake
             if (local <= 0 || local >= duration) return 0;
             float t = local / duration;
             float envelope = Mathf.Sin(t * Mathf.PI);
-            if (preset.pattern == Pattern.Ripple) envelope *= Mathf.Cos(t * Mathf.PI * 2) * .65f + .35f;
+            if (preset.pattern == Pattern.Ripple) envelope *= .65f + .35f * Mathf.Cos(t * Mathf.PI * 4);
             if (preset.pattern == Pattern.CheckerHop)
                 envelope *= ((Mathf.RoundToInt(offset.x + offset.y) & 1) == 0) ? 1 : .3f;
             float falloff = preset.pattern == Pattern.Bloom ? 1 / (1 + distance * .035f) : 1;

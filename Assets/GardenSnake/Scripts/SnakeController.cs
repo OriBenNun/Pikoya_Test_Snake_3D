@@ -216,7 +216,7 @@ namespace GardenSnake
                 burstAge = 0;
                 burstRing.position = eatenAt + Vector3.up * .05f;
                 Play(pickupSound, 1f + Game.Score % 6 * .045f, .6f);
-                hud.ShowPickup(recordBeat == RecordBeat.Extended ? "+1 best" : "+1", eatenAt);
+                hud.ShowPickup(recordBeat == RecordBeat.Extended ? "+1 <size=55%>best</size>" : "+1", eatenAt, recordBeat == RecordBeat.Extended);
                 if (recordBeat == RecordBeat.Broken)
                 {
                     RecordCelebrations++;

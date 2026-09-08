@@ -49,6 +49,8 @@ namespace GardenSnake
         private RectTransform canvasRect;
         private Vector2 toastAnchor;
         private float toastTime;
+        private float toastDuration = .95f;
+        private bool toastQuiet;
         private float bannerTime;
         private float cardTime;
         private float whisperTime;
@@ -106,7 +108,13 @@ namespace GardenSnake
             pauseGlyph.sprite = game.State == RunState.Paused ? resumeSprite : pauseSprite;
             pauseButton.interactable = game.State == RunState.Playing || game.State == RunState.Paused;
 
-            if (lastState != game.State) { cardTime = 0; lastState = game.State; }
+            if (lastState != game.State)
+            {
+                if (game.State == RunState.Playing && lastState != RunState.Paused)
+                    toastTime = bannerTime = whisperTime = 0;
+                cardTime = 0;
+                lastState = game.State;
+            }
             bool showCard = game.State != RunState.Playing;
             card.SetActive(showCard);
             bool ended = game.State == RunState.Lost || game.State == RunState.Won;
@@ -164,10 +172,13 @@ namespace GardenSnake
         }
 
         /// <summary>A number that pops where the apple was, then drifts up and fades.</summary>
-        public void ShowPickup(string message, Vector3 worldPosition)
+        public void ShowPickup(string message, Vector3 worldPosition, bool quiet = false)
         {
             toast.text = message;
-            toastTime = .95f;
+            toastQuiet = quiet;
+            toast.fontSize = quiet ? 28 : 40;
+            toastDuration = quiet ? .7f : .95f;
+            toastTime = toastDuration;
             toastAnchor = ScreenAnchor(worldPosition);
             toastRoot.anchoredPosition = toastAnchor;
         }
@@ -209,10 +220,10 @@ namespace GardenSnake
         private void AnimateToast(float delta)
         {
             toastTime = Mathf.Max(0, toastTime - delta);
-            float toastProgress = 1 - toastTime / .95f;
+            float toastProgress = 1 - toastTime / toastDuration;
             float toastFade = Mathf.Min(1, toastTime * 3.2f);
             toast.alpha = toastFade;
-            toastHalo.color = FadeTo(toastHalo.color, toastFade * .75f);
+            toastHalo.color = FadeTo(toastHalo.color, toastFade * (toastQuiet ? .22f : .75f));
             Vector2 lift = toastAnchor + new Vector2(0, 64 + toastProgress * 54);
             toastRoot.anchoredPosition = new Vector2(lift.x, Mathf.Min(lift.y, canvasRect.rect.height * .5f - 70));
             toastRoot.localScale = Vector3.one * Mathf.Lerp(1.3f, .95f, Mathf.Clamp01(toastProgress * 3f));
@@ -234,7 +245,7 @@ namespace GardenSnake
         {
             hintGroup.alpha = Mathf.MoveTowards(hintGroup.alpha, hintTarget, delta * 1.6f);
             brandGroup.alpha = Mathf.MoveTowards(brandGroup.alpha,
-                controller.Game.State == RunState.Playing ? .38f : 1f, delta * 1.6f);
+                controller.Game.State == RunState.Playing ? .85f : 1f, delta * 1.6f);
 
         }
 

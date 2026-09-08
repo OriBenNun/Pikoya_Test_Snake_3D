@@ -85,22 +85,24 @@ namespace GardenSnake.Editor
             var bound = new SerializedObject(hud);
 
             // ---- wordmark -------------------------------------------------
-            var brand = Anchored("Brand", root.transform, TopLeft, new Vector2(46, -32), new Vector2(420, 60));
+            var brand = Anchored("Brand", root.transform, TopLeft, new Vector2(30, -20), new Vector2(330, 58));
+            Fill(brand, pill, Paper.With(.94f)).type = Image.Type.Sliced;
             var brandGroup = brand.gameObject.AddComponent<CanvasGroup>();
             var wordmark = Label("Wordmark", brand, "GARDEN SNAKE", 21, TextStrong.With(.9f),
-                Vector2.zero, new Vector2(420, 28), TextAlignmentOptions.TopLeft, TopLeft);
+                new Vector2(18, -12), new Vector2(300, 28), TextAlignmentOptions.TopLeft, TopLeft);
             wordmark.fontStyle = FontStyles.Bold;
             wordmark.characterSpacing = 12;
-            var rule = Anchored("Rule", brand, TopLeft, new Vector2(1, -34), new Vector2(40, 3));
+            var rule = Anchored("Rule", brand, TopLeft, new Vector2(18, -44), new Vector2(40, 3));
             Fill(rule, pill, AccentDeep.With(.95f));
 
             // ---- score ----------------------------------------------------
-            var scoreRoot = Anchored("Score", root.transform, TopRight, new Vector2(-46, -26), new Vector2(300, 92));
+            var scoreRoot = Anchored("Score", root.transform, TopRight, new Vector2(-30, -20), new Vector2(126, 90));
+            Fill(scoreRoot, pill, Paper.With(.94f)).type = Image.Type.Sliced;
             var score = Label("Apples", scoreRoot, "0", 44, TextStrong,
-                Vector2.zero, new Vector2(300, 54), TextAlignmentOptions.TopRight, TopRight);
+                new Vector2(-16, -5), new Vector2(100, 54), TextAlignmentOptions.TopRight, TopRight);
             score.fontStyle = FontStyles.Bold;
             var best = Label("Best", scoreRoot, "BEST 0", 12, TextSoft,
-                new Vector2(0, -52), new Vector2(300, 20), TextAlignmentOptions.TopRight, TopRight);
+                new Vector2(-16, -60), new Vector2(100, 20), TextAlignmentOptions.TopRight, TopRight);
             best.characterSpacing = 10;
 
             var gaugeRect = Anchored("Speed gauge", root.transform, new Vector2(.5f, 0), new Vector2(0, 26), new Vector2(124, 124));

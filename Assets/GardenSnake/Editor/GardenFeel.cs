@@ -42,7 +42,7 @@ namespace GardenSnake.Editor
             MMF_Player best = Player("New best", root);
             Particles(best, burst, 44);
             Shake(best, .3f, .2f, 30f);
-            Flash(best, flash, Paper.With(.55f), .28f);
+            Flash(best, flash, Paper.With(.26f), .18f);
             Bump(best, scoreTransform, 6f, .3f, new Vector3(40, 40, 0));
 
             MMF_Player whisper = Player("Record apple whisper", root);
