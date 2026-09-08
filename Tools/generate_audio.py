@@ -81,24 +81,36 @@ def mix(*layers):
     return output
 
 
-def ambience(duration=12.0, volume=.16):
-    """A slow chord that loops seamlessly: every partial fits the loop exactly."""
+def ambience(duration=16.0, volume=.15):
+    """
+    Two chords breathing into each other. Every partial and every envelope is snapped to a
+    whole number of cycles per loop, so the bed repeats without a seam, and the filter is
+    warmed over a previous pass of the loop so its state wraps too.
+    """
     count = int(duration * RATE)
-    # A minor ninth spread over three octaves, snapped to whole cycles per loop.
-    voices = []
-    for target, gain, sway in ((110, .5, .9), (164.81, .34, .7), (220, .26, 1.3),
-                               (329.63, .16, 1.7), (493.88, .09, 2.1)):
-        cycles = max(1, round(target * duration))
-        voices.append((cycles / duration, gain, max(1, round(sway * duration)) / duration))
+
+    def snap(frequency):
+        return max(1, round(frequency * duration)) / duration
+
+    warm = [(110, .5), (164.81, .34), (220, .24), (329.63, .13)]
+    cool = [(87.31, .5), (130.81, .34), (174.61, .24), (261.63, .13)]
+    warm = [(snap(f), g) for f, g in warm]
+    cool = [(snap(f), g) for f, g in cool]
+    drift = snap(.5) / duration  # one slow swell per loop
+
     samples = []
     for index in range(count):
         time = index / RATE
+        blend = .5 + .5 * math.cos(math.tau * time / duration)
+        shimmer = .82 + .18 * math.sin(math.tau * drift * time)
         value = 0.0
-        for frequency, gain, sway in voices:
-            breath = .72 + .28 * math.sin(math.tau * sway * time)
-            value += math.sin(math.tau * frequency * time) * gain * breath
-        samples.append(value * volume)
-    return low_pass(samples, 1400)
+        for frequency, gain in warm:
+            value += math.sin(math.tau * frequency * time) * gain * blend
+        for frequency, gain in cool:
+            value += math.sin(math.tau * frequency * time) * gain * (1 - blend)
+        samples.append(value * shimmer * volume)
+    # Run the filter over two loops and keep the second, so its memory is periodic.
+    return low_pass(samples + samples, 1300)[count:]
 
 
 save('Pickup', pluck([784, 988, 1319], .2, .42, (1, .3, .16), decay=.95, cutoff=6200))

@@ -3,6 +3,7 @@ using GardenSnake.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 namespace GardenSnake
 {
@@ -32,6 +33,7 @@ namespace GardenSnake
         [SerializeField, Range(0f, .3f)] private float hudBandBottom = .095f;
         [SerializeField, Range(1f, 1.4f)] private float restingZoom = 1.13f;
         [SerializeField, Range(.5f, 8f)] private float zoomSpeed = 3.4f;
+        [SerializeField] private Volume paceVolume;
         [SerializeField] private Transform appleMarker;
         [SerializeField] private Transform burstRing;
         [SerializeField] private ParticleSystem pickupParticles;
@@ -368,6 +370,9 @@ namespace GardenSnake
             AnimateTrail(moving);
             AnimateApple();
             AnimateBurst(delta);
+            float pace = Mathf.InverseLerp(initialStepSeconds, fastestStepSeconds, currentStep);
+            float wanted = Game.State == RunState.Playing ? pace : 0;
+            paceVolume.weight = Mathf.MoveTowards(paceVolume.weight, wanted, delta * 1.2f);
         }
 
         private void AnimateSnake(bool moving, bool dying)

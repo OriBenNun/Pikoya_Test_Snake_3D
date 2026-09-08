@@ -55,7 +55,7 @@ namespace GardenSnake.Editor
             musicSource.clip = Clip("Ambience");
             musicSource.loop = true;
             musicSource.playOnAwake = false;
-            musicSource.volume = .34f;
+            musicSource.volume = .28f;
             musicSource.spatialBlend = 0;
             Transform appleMarker = CreateAppleMarker();
             Transform burstRing = CreateBurstRing();
@@ -71,6 +71,7 @@ namespace GardenSnake.Editor
             Set(settings, "applePrefab", Prefab("Apple"));
             Set(settings, "gameCamera", camera);
             Set(settings, "cameraRig", cameraRig);
+            Set(settings, "paceVolume", GameObject.Find("Pace").GetComponent<Volume>());
             Set(settings, "appleMarker", appleMarker);
             Set(settings, "burstRing", burstRing);
             Set(settings, "pickupParticles", pickupParticles);
@@ -175,6 +176,40 @@ namespace GardenSnake.Editor
             var volume = new GameObject("Garden Grade").AddComponent<Volume>();
             volume.isGlobal = true;
             volume.priority = 1;
+            volume.sharedProfile = profile;
+            CreateSpeedVolume();
+        }
+
+        /// <summary>
+        /// A second, heavier vignette the controller fades in as the run speeds up. It is the
+        /// only cue for pace, and it arrives slowly enough that the player feels it rather than
+        /// reads it.
+        /// </summary>
+        private static void CreateSpeedVolume()
+        {
+            string path = Root + "/Rendering/SpeedVolume.asset";
+            var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(path);
+            if (profile == null)
+            {
+                profile = ScriptableObject.CreateInstance<VolumeProfile>();
+                AssetDatabase.CreateAsset(profile, path);
+            }
+            foreach (var component in profile.components.ToArray()) UnityEngine.Object.DestroyImmediate(component, true);
+            profile.components.Clear();
+            var vignette = profile.Add<Vignette>(true);
+            vignette.intensity.Override(.42f);
+            vignette.smoothness.Override(.55f);
+            vignette.color.Override(Hex("2C4F26"));
+            var grading = profile.Add<ColorAdjustments>(true);
+            grading.saturation.Override(20f);
+            grading.contrast.Override(14f);
+            EditorUtility.SetDirty(profile);
+            AssetDatabase.SaveAssets();
+
+            var volume = new GameObject("Pace").AddComponent<Volume>();
+            volume.isGlobal = true;
+            volume.priority = 2;
+            volume.weight = 0;
             volume.sharedProfile = profile;
         }
 
