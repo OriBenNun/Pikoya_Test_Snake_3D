@@ -58,6 +58,7 @@ namespace GardenSnake.Editor
             musicSource.volume = .34f;
             musicSource.spatialBlend = 0;
             Transform appleMarker = CreateAppleMarker();
+            Transform burstRing = CreateBurstRing();
             ParticleSystem pickupParticles = CreatePickupBurst();
             ParticleSystem trailParticles = CreateSnakeTrail();
             CreateDustMotes();
@@ -71,6 +72,7 @@ namespace GardenSnake.Editor
             Set(settings, "gameCamera", camera);
             Set(settings, "cameraRig", cameraRig);
             Set(settings, "appleMarker", appleMarker);
+            Set(settings, "burstRing", burstRing);
             Set(settings, "pickupParticles", pickupParticles);
             Set(settings, "trailParticles", trailParticles);
             Set(settings, "audioSource", audio);
@@ -366,8 +368,53 @@ namespace GardenSnake.Editor
             var renderer = quad.GetComponent<Renderer>();
             renderer.shadowCastingMode = ShadowCastingMode.Off;
             renderer.receiveShadows = false;
-            renderer.sharedMaterial = Additive("AppleGlow", Accent, GardenSprites.SoftDot("Dot", 128, 2.2f));
+            renderer.sharedMaterial = Glowing("AppleGlow", Accent, GardenSprites.SoftDot("Dot", 128, 2.2f), 3.5f);
             return quad.transform;
+        }
+
+        /// <summary>The ring a picked apple throws out; it expands once and fades.</summary>
+        private static Transform CreateBurstRing()
+        {
+            var quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            quad.name = "Pickup ring";
+            UnityEngine.Object.DestroyImmediate(quad.GetComponent<Collider>());
+            quad.transform.rotation = Quaternion.Euler(90, 0, 0);
+            quad.transform.localScale = Vector3.one;
+            var renderer = quad.GetComponent<Renderer>();
+            renderer.shadowCastingMode = ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            renderer.sharedMaterial = Glowing("PickupRing", Paper,
+                GardenSprites.RingTexture("Ring", 128, .78f, .3f), 7f);
+            quad.SetActive(false);
+            return quad.transform;
+        }
+
+        /// <summary>
+        /// An All In 1 Sprite Shader material with its glow pass on, so these flat quads read as
+        /// emissive light and pick up the scene bloom rather than sitting flat on the grass.
+        /// </summary>
+        private static Material Glowing(string name, Color tint, Texture texture, float glow)
+        {
+            string path = Root + "/Materials/" + name + ".mat";
+            var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+            var shader = Shader.Find("AllIn1SpriteShader/AllIn1SpriteShader");
+            if (material == null)
+            {
+                material = new Material(shader);
+                AssetDatabase.CreateAsset(material, path);
+            }
+            material.shader = shader;
+            material.SetTexture("_MainTex", texture);
+            material.SetTexture("_GlowTex", texture);
+            material.SetColor("_Color", tint);
+            material.SetColor("_GlowColor", tint);
+            material.SetFloat("_Glow", glow);
+            material.SetFloat("_GlowGlobal", 1f);
+            material.SetFloat("_Alpha", 1f);
+            material.EnableKeyword("GLOW_ON");
+            material.renderQueue = (int)RenderQueue.Transparent;
+            EditorUtility.SetDirty(material);
+            return material;
         }
 
         // ---------------------------------------------------------------- particles

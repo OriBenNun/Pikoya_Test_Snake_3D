@@ -59,6 +59,18 @@ namespace GardenSnake.Editor
             return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
 
+        /// <summary>A soft ring, used for the shockwave a picked apple leaves behind.</summary>
+        public static Texture2D RingTexture(string name, int size, float radius, float thickness)
+        {
+            Ensure(name, size, 0, point =>
+            {
+                float distance = Vector2.Distance(point, Half(size)) / (size * .5f);
+                float band = 1 - Mathf.Clamp01(Mathf.Abs(distance - radius) / thickness);
+                return band * band * (distance < 1 ? 1 : 0);
+            });
+            return Texture(name);
+        }
+
         /// <summary>The soft round mote every particle system in the game is drawn with.</summary>
         public static Texture2D SoftDot(string name, int size, float power)
         {

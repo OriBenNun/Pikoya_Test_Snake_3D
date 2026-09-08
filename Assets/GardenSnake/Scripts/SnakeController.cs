@@ -33,14 +33,15 @@ namespace GardenSnake
         [SerializeField, Range(1f, 1.4f)] private float restingZoom = 1.13f;
         [SerializeField, Range(.5f, 8f)] private float zoomSpeed = 3.4f;
         [SerializeField] private Transform appleMarker;
+        [SerializeField] private Transform burstRing;
         [SerializeField] private ParticleSystem pickupParticles;
         [SerializeField] private ParticleSystem trailParticles;
         [SerializeField] private SnakeFeel feel;
         [SerializeField] private SnakeHud hud;
         [Header("Snake proportions")]
         [SerializeField, Range(.8f, 1.6f)] private float headScale = 1.22f;
-        [SerializeField, Range(.8f, 1.6f)] private float bodyScale = 1.2f;
-        [SerializeField, Range(.8f, 1.6f)] private float tailScale = 1.14f;
+        [SerializeField, Range(.8f, 1.6f)] private float bodyScale = 1.3f;
+        [SerializeField, Range(.8f, 1.6f)] private float tailScale = 1.24f;
         [Header("Audio")]
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private AudioSource musicSource;
@@ -63,6 +64,8 @@ namespace GardenSnake
         private float slither;
         private float bank;
         private float appleAge;
+        private float burstAge = 99;
+        private Material burstMaterial;
         private float deathAge;
         private float endTime;
         private float lastAspect;
@@ -88,6 +91,7 @@ namespace GardenSnake
             muted = PlayerPrefs.GetInt("GardenSnake.Muted", 0) == 1;
             ApplyMute();
             cameraHome = gameCamera.transform.localPosition;
+            burstMaterial = burstRing.GetComponent<Renderer>().material;
             segments.Add(Instantiate(headPrefab, transform).transform);
             tail = Instantiate(tailPrefab, transform).transform;
             apple = Instantiate(applePrefab, transform).transform;
@@ -181,6 +185,8 @@ namespace GardenSnake
                 UpdateBest();
                 apple.position = World(Game.Food);
                 feel.Pickup(eatenAt, Game.Score);
+                burstAge = 0;
+                burstRing.position = eatenAt + Vector3.up * .05f;
                 Play(pickupSound, 1f + Game.Score % 6 * .045f, .6f);
                 hud.ShowPickup("+1", eatenAt);
                 if (record && Game.Score > 1)
@@ -290,6 +296,7 @@ namespace GardenSnake
             bank = 0;
             appleAge = 0;
             deathAge = 0;
+            burstAge = 99;
             for (int i = 0; i < Game.Body.Count - 1; i++)
             {
                 segments[i].position = World(Game.Body[i]);
@@ -360,6 +367,7 @@ namespace GardenSnake
             AnimateSnake(moving, dying);
             AnimateTrail(moving);
             AnimateApple();
+            AnimateBurst(delta);
         }
 
         private void AnimateSnake(bool moving, bool dying)
@@ -383,6 +391,12 @@ namespace GardenSnake
                 float basis = i == 0 ? headScale : i == Game.Body.Count - 1 ? tailScale : bodyScale;
                 float bump = pulse * Mathf.Max(0, Mathf.Sin((1 - pulse) * 9 - i * .55f));
                 Vector3 scale = new Vector3(1 + bump * .18f, 1 + bump * .3f, 1 + bump * .18f);
+                if (Game.State == RunState.Ready)
+                {
+                    float breath = Mathf.Sin(Time.unscaledTime * 2.4f - i * .5f) * .035f;
+                    scale += new Vector3(-breath, breath * 2.2f, -breath);
+                    position += Vector3.up * (breath * .5f);
+                }
                 if (dying)
                 {
                     // Each piece swells and pops out of existence, head first, so the board is
@@ -407,6 +421,23 @@ namespace GardenSnake
                     if (toward.sqrMagnitude > .01f) part.rotation = Quaternion.LookRotation(toward);
                 }
             }
+        }
+
+        /// <summary>One expanding ring per apple: the pickup gets a shape, not just particles.</summary>
+        private void AnimateBurst(float delta)
+        {
+            const float life = .42f;
+            if (burstAge >= life)
+            {
+                if (burstRing.gameObject.activeSelf) burstRing.gameObject.SetActive(false);
+                return;
+            }
+            burstAge += delta;
+            if (!burstRing.gameObject.activeSelf) burstRing.gameObject.SetActive(true);
+            float t = Mathf.Clamp01(burstAge / life);
+            float eased = 1 - Mathf.Pow(1 - t, 2.6f);
+            burstRing.localScale = Vector3.one * Mathf.Lerp(.6f, 2.5f, eased);
+            burstMaterial.SetFloat("_Alpha", (1 - t) * (1 - t) * .55f);
         }
 
         private void AnimateTrail(bool moving)
