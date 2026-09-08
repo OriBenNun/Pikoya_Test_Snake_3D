@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Garden Snake</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#e3ead9;color:#233e32;font:16px system-ui,sans-serif;overflow:hidden}
+    #unity-container{position:fixed;inset:0;display:grid;place-items:center}
+    canvas{width:100%;height:100%;display:block;outline:none;touch-action:none}
+    #loading{position:absolute;text-align:center;width:min(80%,360px);pointer-events:none}
+    h1{font-size:36px;letter-spacing:-1.5px;margin-bottom:12px}p{color:#61745f}
+    progress{width:100%;height:7px;accent-color:#32a96a;border:0}
+    #error{position:absolute;max-width:520px;padding:28px;background:#fffbea;display:none;white-space:pre-wrap}
+  </style>
+</head>
+<body>
+  <main id="unity-container">
+    <canvas id="unity-canvas" tabindex="0" aria-label="Garden Snake. Use arrow keys or WASD to steer. Space starts; P pauses; M toggles sound."></canvas>
+    <div id="loading"><h1>garden snake</h1><p>Planting your little garden...</p><progress id="progress" max="1" value="0"></progress></div>
+    <div id="error" role="alert"></div>
+  </main>
+  <script src="Build/{{{ LOADER_FILENAME }}}"></script>
+  <script>
+    const canvas=document.getElementById('unity-canvas');
+    createUnityInstance(canvas,{
+      dataUrl:'Build/{{{ DATA_FILENAME }}}',frameworkUrl:'Build/{{{ FRAMEWORK_FILENAME }}}',
+      codeUrl:'Build/{{{ CODE_FILENAME }}}',streamingAssetsUrl:'StreamingAssets',
+      companyName:'{{{ COMPANY_NAME }}}',productName:'{{{ PRODUCT_NAME }}}',productVersion:'{{{ PRODUCT_VERSION }}}',
+      matchWebGLToCanvasSize:true,devicePixelRatio:Math.min(window.devicePixelRatio||1,2)
+    },value=>document.getElementById('progress').value=value).then(instance=>{
+      document.getElementById('loading').remove();canvas.focus();
+      window.gardenGame=instance;
+    }).catch(error=>{
+      document.getElementById('loading').style.display='none';
+      const box=document.getElementById('error');box.style.display='block';
+      box.textContent='The garden could not load. Use a browser with WebGL 2 support and serve this folder over HTTP.\n\n'+error;
+    });
+    canvas.addEventListener('pointerdown',()=>canvas.focus());
+    window.addEventListener('keydown',event=>{
+      if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(event.code))event.preventDefault();
+    });
+  </script>
+</body>
+</html>

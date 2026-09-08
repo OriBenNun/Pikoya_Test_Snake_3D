@@ -1,0 +1,6 @@
+{
+  "name": "GardenSnake.Tests",
+  "references": ["GardenSnake.Core"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

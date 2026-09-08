@@ -84,6 +84,12 @@ mono_crash.*
 # Crashlytics generated file
 crashlytics-build.properties
 
+# Local tools, generated builds and captures
+/.tools/
+/Builds/
+/Artifacts/
+*.blend1
+
 # TestRunner generated files
 InitTestScene*.unity*
 

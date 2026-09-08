@@ -1,0 +1,5 @@
+{
+  "name": "GardenSnake.Core",
+  "rootNamespace": "GardenSnake.Core",
+  "noEngineReferences": true
+}
