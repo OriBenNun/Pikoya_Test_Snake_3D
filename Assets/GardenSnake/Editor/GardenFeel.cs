@@ -19,10 +19,11 @@ namespace GardenSnake.Editor
             var flash = UnityEngine.Object.FindAnyObjectByType<MMFlash>();
             Transform scoreTransform = hud.ScoreTransform;
 
+            // No freeze frame on a pickup: the snake moves on a fixed grid step, so stopping
+            // time mid-cell reads as a stutter rather than as punch. Death keeps its freeze.
             MMF_Player pickup = Player("Pickup", root);
             Particles(pickup, burst, 26);
-            Shake(pickup, .16f, .13f, 34f);
-            Freeze(pickup, .028f);
+            Shake(pickup, .14f, .09f, 32f);
             Bump(pickup, scoreTransform, 8f, .32f, new Vector3(26, 26, 0));
 
             MMF_Player death = Player("Death", root);
@@ -44,15 +45,11 @@ namespace GardenSnake.Editor
             Flash(best, flash, Paper.With(.55f), .28f);
             Bump(best, scoreTransform, 6f, .3f, new Vector3(40, 40, 0));
 
-            MMF_Player turn = Player("Turn", root);
-            Shake(turn, .08f, .035f, 40f);
-
             var bound = new SerializedObject(feel);
             GardenBuilder.Set(bound, "pickup", pickup);
             GardenBuilder.Set(bound, "death", death);
             GardenBuilder.Set(bound, "runStart", start);
             GardenBuilder.Set(bound, "newBest", best);
-            GardenBuilder.Set(bound, "turn", turn);
             bound.ApplyModifiedPropertiesWithoutUndo();
 
             var controller = new SerializedObject(game);

@@ -190,8 +190,17 @@ namespace GardenSnake
 
         private void Update()
         {
+            // The controller wires the HUD up in its Awake; until then there is nothing to draw.
+            if (controller == null) return;
             float delta = Time.unscaledDeltaTime;
+            AnimateToast(delta);
+            AnimateBanner(delta);
+            AnimateChrome(delta);
+            AnimateCard(delta);
+        }
 
+        private void AnimateToast(float delta)
+        {
             toastTime = Mathf.Max(0, toastTime - delta);
             float toastProgress = 1 - toastTime / .95f;
             float toastFade = Mathf.Min(1, toastTime * 3.2f);
@@ -201,6 +210,10 @@ namespace GardenSnake
             toastRoot.anchoredPosition = new Vector2(lift.x, Mathf.Min(lift.y, canvasRect.rect.height * .5f - 70));
             toastRoot.localScale = Vector3.one * Mathf.Lerp(1.3f, .95f, Mathf.Clamp01(toastProgress * 3f));
 
+        }
+
+        private void AnimateBanner(float delta)
+        {
             bannerTime = Mathf.Max(0, bannerTime - delta);
             float bannerFade = Mathf.Min(1, bannerTime * 2.4f);
             float bannerRise = Mathf.Clamp01((2f - bannerTime) * 6f);
@@ -208,10 +221,18 @@ namespace GardenSnake
             bannerFill.color = FadeTo(bannerFill.color, bannerFade * .96f);
             bannerRoot.localScale = Vector3.one * Mathf.Lerp(.82f, 1f, 1 - Mathf.Pow(1 - bannerRise, 3));
 
+        }
+
+        private void AnimateChrome(float delta)
+        {
             hintGroup.alpha = Mathf.MoveTowards(hintGroup.alpha, hintTarget, delta * 1.6f);
             brandGroup.alpha = Mathf.MoveTowards(brandGroup.alpha,
-                controller != null && controller.Game.State == RunState.Playing ? .38f : 1f, delta * 1.6f);
+                controller.Game.State == RunState.Playing ? .38f : 1f, delta * 1.6f);
 
+        }
+
+        private void AnimateCard(float delta)
+        {
             if (!card.activeSelf) { scrimGroup.alpha = Mathf.MoveTowards(scrimGroup.alpha, 0, delta * 6f); return; }
             cardTime += delta;
             bool ended = lastState == RunState.Lost || lastState == RunState.Won;

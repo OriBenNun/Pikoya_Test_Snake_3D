@@ -27,8 +27,9 @@ class CommandError(RuntimeError):
 
 
 def cli(*args, timeout=120):
+    prefix = [] if args and args[0] == "job" else ["command"]
     result = subprocess.run(
-        ["unity", "command", *args, "--no-banner", "--json"],
+        ["unity", *prefix, *args, "--no-banner", "--json"],
         cwd=ROOT, capture_output=True, text=True, timeout=timeout, shell=False)
     text = result.stdout.strip()
     start = text.find("{")
@@ -162,6 +163,29 @@ def compile_project():
     raise SystemExit("compile timed out")
 
 
+def detached(*args, timeout=600):
+    """Run one Editor command as a detached job.
+
+    Authoring the whole scene takes longer than the Editor will hold a single request open,
+    so anything slow is submitted as a job and polled until it reports back.
+    """
+    payload = cli(*args, "--detach")
+    job = (payload.get("data") or {}).get("jobId")
+    if not job:
+        raise SystemExit("no job id: " + json.dumps(payload)[:300])
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        time.sleep(3)
+        try:
+            status = (cli("job", "status", job).get("data") or {})
+        except CommandError:
+            continue
+        if status.get("state") in ("completed", "failed", "cancelled"):
+            result = status.get("result") or {}
+            return str(result.get("result") or result.get("error") or status.get("state"))
+    raise SystemExit("job timed out: " + job)
+
+
 def logs(level="error", tail=12):
     payload = unwrap(cli("console", "--tail", str(tail), "--level", level))
     lines = []
@@ -207,15 +231,7 @@ def main():
     elif verb == "rebuild":
         playmode(False)
         compile_project()
-        for attempt in range(4):
-            try:
-                print(unwrap(cli("eval_file", "--file", "Tools/Harness/rebuild.cs",
-                                 "--timeout", "300", timeout=360)))
-                return
-            except CommandError as error:
-                if attempt == 3:
-                    raise SystemExit(str(error))
-                time.sleep(4)  # the Editor drops requests while it is busy importing
+        print(detached("eval_file", "--file", "Tools/Harness/rebuild.cs"))
     elif verb == "compile":
         print(compile_project())
     elif verb == "playtest":

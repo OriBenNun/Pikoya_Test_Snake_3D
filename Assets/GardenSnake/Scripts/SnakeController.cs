@@ -68,6 +68,12 @@ namespace GardenSnake
         private float appleAge;
         private float burstAge = 99;
         private Material burstMaterial;
+        private Transform[] eyelids;
+        private Vector3[] eyelidRest;
+        private float blinkAge;
+        private float nextBlink = 2.5f;
+        private int grownIndex = -1;
+        private float grownAge = 99;
         private float deathAge;
         private float endTime;
         private float lastAspect;
@@ -78,6 +84,7 @@ namespace GardenSnake
         private Vector2 pointerStart;
         private bool trackingSwipe;
         private int best;
+        private bool bestUnsaved;
         private bool muted;
         public SnakeGame Game { get; private set; }
         public int Best => best;
@@ -95,6 +102,7 @@ namespace GardenSnake
             cameraHome = gameCamera.transform.localPosition;
             burstMaterial = burstRing.GetComponent<Renderer>().material;
             segments.Add(Instantiate(headPrefab, transform).transform);
+            CollectEyelids();
             tail = Instantiate(tailPrefab, transform).transform;
             apple = Instantiate(applePrefab, transform).transform;
             Prewarm();
@@ -129,7 +137,6 @@ namespace GardenSnake
             if (!Game.QueueTurn(wish)) return;
             bank = turnSign;
             Play(turnSound, Random.Range(.96f, 1.06f), .16f);
-            feel.Turn(World(Game.Body[0]));
         }
 
         public void TogglePause()
@@ -181,6 +188,9 @@ namespace GardenSnake
             EnsureSegments();
             if (result == StepResult.Ate || result == StepResult.Won)
             {
+                // The body grew by one; the piece that just joined is the last live segment.
+                grownIndex = Game.Body.Count - 2;
+                grownAge = 0;
                 pulse = 1;
                 appleAge = 0;
                 bool record = Game.Score > best;
@@ -203,6 +213,7 @@ namespace GardenSnake
             {
                 endTime = Time.unscaledTime;
                 deathAge = 0;
+                SaveBest();
                 if (result == StepResult.Lost)
                 {
                     Play(loseSound, 1, .55f);
@@ -299,6 +310,8 @@ namespace GardenSnake
             appleAge = 0;
             deathAge = 0;
             burstAge = 99;
+            grownIndex = -1;
+            grownAge = 99;
             for (int i = 0; i < Game.Body.Count - 1; i++)
             {
                 segments[i].position = World(Game.Body[i]);
@@ -309,6 +322,41 @@ namespace GardenSnake
             tail.localScale = Vector3.one * tailScale;
             apple.position = World(Game.Food);
             pickupParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
+        /// <summary>
+        /// The head model carries its eyes as separate pieces, so a blink is just a squash on
+        /// those. Collected once; the names come straight from the Blender source.
+        /// </summary>
+        private void CollectEyelids()
+        {
+            var found = new List<Transform>();
+            foreach (Transform part in segments[0].GetComponentsInChildren<Transform>())
+                if (part.name.StartsWith("Eye white") || part.name.StartsWith("Pupil") ||
+                    part.name.StartsWith("Eye glint"))
+                    found.Add(part);
+            eyelids = found.ToArray();
+            eyelidRest = new Vector3[eyelids.Length];
+            for (int i = 0; i < eyelids.Length; i++) eyelidRest[i] = eyelids[i].localScale;
+        }
+
+        private void Blink(float delta)
+        {
+            if (eyelids.Length == 0) return;
+            blinkAge += delta;
+            if (blinkAge > nextBlink + .16f)
+            {
+                blinkAge = 0;
+                nextBlink = Random.Range(2.2f, 5.5f);
+            }
+            float open = blinkAge < nextBlink
+                ? 1
+                : 1 - Mathf.Sin(Mathf.Clamp01((blinkAge - nextBlink) / .16f) * Mathf.PI) * .92f;
+            for (int i = 0; i < eyelids.Length; i++)
+            {
+                Vector3 rest = eyelidRest[i];
+                eyelids[i].localScale = new Vector3(rest.x, rest.y * open, rest.z);
+            }
         }
 
         private void CapturePrevious()
@@ -361,6 +409,8 @@ namespace GardenSnake
             bool moving = Game.State == RunState.Playing;
             bool dying = Game.State == RunState.Lost;
             deathAge = dying ? deathAge + delta : 0;
+            grownAge += delta;
+            Blink(delta);
             pulse = Mathf.MoveTowards(pulse, 0, Time.deltaTime * 3.5f);
             bank = Mathf.MoveTowards(bank, 0, delta * 3.4f);
             appleAge += delta;
@@ -396,11 +446,22 @@ namespace GardenSnake
                 float basis = i == 0 ? headScale : i == Game.Body.Count - 1 ? tailScale : bodyScale;
                 float bump = pulse * Mathf.Max(0, Mathf.Sin((1 - pulse) * 9 - i * .55f));
                 Vector3 scale = new Vector3(1 + bump * .18f, 1 + bump * .3f, 1 + bump * .18f);
+                if (i == grownIndex && grownAge < .2f)
+                {
+                    float birth = grownAge / .2f;
+                    scale *= Mathf.Lerp(.3f, 1f, 1 - Mathf.Pow(1 - birth, 3));
+                }
                 if (Game.State == RunState.Ready)
                 {
                     float breath = Mathf.Sin(Time.unscaledTime * 2.4f - i * .5f) * .035f;
                     scale += new Vector3(-breath, breath * 2.2f, -breath);
                     position += Vector3.up * (breath * .5f);
+                }
+                if (dying && i == 0 && deathAge < .1f)
+                {
+                    // The head shoves into whatever stopped it before the snake gives up.
+                    float recoil = Mathf.Sin(deathAge / .1f * Mathf.PI) * .18f;
+                    position += (World(Game.Body[0]) - World(Game.Body[1])).normalized * recoil;
                 }
                 if (dying)
                 {
@@ -469,18 +530,30 @@ namespace GardenSnake
             appleMarker.localScale = Vector3.one * ((2.1f + breathe * .18f) * arrival);
         }
 
+        /// <summary>Tracks the record in memory; the disk write waits for the run to end.</summary>
         private void UpdateBest()
         {
             if (Game.Score <= best) return;
             best = Game.Score;
+            bestUnsaved = true;
+        }
+
+        private void SaveBest()
+        {
+            if (!bestUnsaved) return;
+            bestUnsaved = false;
             PlayerPrefs.SetInt("GardenSnake.Best", best);
             PlayerPrefs.Save();
         }
 
         private void OnApplicationFocus(bool focused)
         {
-            if (!focused && Game != null && Game.State == RunState.Playing) TogglePause();
+            if (focused) return;
+            SaveBest();
+            if (Game != null && Game.State == RunState.Playing) TogglePause();
         }
+
+        private void OnApplicationQuit() => SaveBest();
 
         private void Play(AudioClip clip, float pitch, float volume)
         {

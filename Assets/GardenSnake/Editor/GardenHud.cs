@@ -29,7 +29,7 @@ namespace GardenSnake.Editor
                     GardenBuilder.Root + "/UI/Resources/TMP Settings.asset");
             string path = GardenBuilder.Root + "/UI/GardenFont.asset";
             font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path);
-            if (font != null) return;
+            if (font != null) { AdoptAsDefault(); return; }
             const string sourcePath = GardenBuilder.Root + "/UI/LiberationSans.ttf";
             var sourceFont = AssetDatabase.LoadAssetAtPath<Font>(sourcePath);
             if (sourceFont == null) throw new InvalidOperationException("The included Liberation Sans font is missing.");
@@ -41,6 +41,24 @@ namespace GardenSnake.Editor
             AssetDatabase.CreateAsset(font, path);
             foreach (var texture in font.atlasTextures) AssetDatabase.AddObjectToAsset(texture, font);
             AssetDatabase.AddObjectToAsset(font.material, font);
+            AssetDatabase.SaveAssets();
+            AdoptAsDefault();
+        }
+
+        /// <summary>
+        /// Point TMP Settings at the generated font. Without this every label warns about a
+        /// missing default font in the moment between AddComponent and the font assignment.
+        /// </summary>
+        private static void AdoptAsDefault()
+        {
+            var settings = Resources.Load<TMP_Settings>("TMP Settings");
+            if (settings == null) return;
+            var bound = new SerializedObject(settings);
+            var property = bound.FindProperty("m_defaultFontAsset");
+            if (property == null || property.objectReferenceValue == font) return;
+            property.objectReferenceValue = font;
+            bound.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(settings);
             AssetDatabase.SaveAssets();
         }
 
