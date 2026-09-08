@@ -223,7 +223,7 @@ def main():
         time.sleep(float(args[0]))
         print(state())
     elif verb == "script":
-        print(unwrap(cli("eval_file", "--file", args[0])))
+        print(detached("eval_file", "--file", args[0], timeout=1800))
     elif verb == "logs":
         print(logs(*args))
     elif verb == "status":

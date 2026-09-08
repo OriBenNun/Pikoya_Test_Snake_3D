@@ -21,13 +21,27 @@ namespace GardenSnake.Editor
         public const string ScenePath = Root + "/Scenes/GardenSnake.unity";
         // The board matches the shape of a widescreen window, so the garden fills it instead
         // of leaving two empty gutters either side.
+        /// <summary>Set by automation (the playtest harness) to skip the destructive-rebuild prompt.</summary>
+        public static bool SkipConfirmation;
+
         public const int BoardWidth = 21;
         public const int BoardHeight = 12;
 
+        /// <summary>
+        /// Regenerates the scene from scratch. This is destructive: anything authored by hand in
+        /// the Garden Snake scene, and the generated prefabs and materials, are replaced. Once a
+        /// scene is being edited by hand, tune from the Inspector instead and leave this alone.
+        /// </summary>
         [MenuItem("Garden Snake/Rebuild game scene")]
         public static void CreateScene()
         {
             if (EditorApplication.isPlaying) throw new InvalidOperationException("Stop Play mode before rebuilding.");
+            if (!Application.isBatchMode && !SkipConfirmation &&
+                !EditorUtility.DisplayDialog("Rebuild the Garden Snake scene?",
+                    "This replaces " + ScenePath + " and the generated prefabs and materials.\n\n" +
+                    "Any hand-authored changes in that scene will be lost.",
+                    "Rebuild", "Cancel"))
+                return;
             for (int i = 0; i < SceneManager.sceneCount; i++)
                 if (SceneManager.GetSceneAt(i).isDirty)
                     throw new InvalidOperationException("Save or discard your unsaved scene changes before rebuilding.");
@@ -735,14 +749,9 @@ namespace GardenSnake.Editor
         {
             if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.WebGL, BuildTarget.WebGL))
                 throw new InvalidOperationException("Install Web Build Support for Unity 6000.6.0f1, then restart the Editor.");
-            PlayerSettings.companyName = "Pikoya Demo";
-            PlayerSettings.productName = "Garden Snake";
-            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled;
-            PlayerSettings.WebGL.template = "PROJECT:Garden";
-            PlayerSettings.WebGL.dataCaching = true;
-            PlayerSettings.defaultWebScreenWidth = 1440;
-            PlayerSettings.defaultWebScreenHeight = 900;
-            PlayerSettings.runInBackground = true;
+            // The shipping configuration lives in Project Settings so Build And Run from the
+            // toolbar produces exactly this player too; applying it here only keeps them in step.
+            GardenSettings.Apply();
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
                 scenes = new[] { ScenePath },

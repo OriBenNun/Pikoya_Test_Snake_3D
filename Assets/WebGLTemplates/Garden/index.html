@@ -4,14 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Garden Snake</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='19' r='11' fill='%23e8402f'/%3E%3Cpath d='M16 9c2-4 6-5 8-5-1 4-4 6-8 6z' fill='%235fbf3f'/%3E%3C/svg%3E">
   <style>
-    *{box-sizing:border-box}body{margin:0;background:#e3ead9;color:#233e32;font:16px system-ui,sans-serif;overflow:hidden}
-    #unity-container{position:fixed;inset:0;display:grid;place-items:center}
-    canvas{width:100%;height:100%;display:block;outline:none;touch-action:none}
-    #loading{position:absolute;text-align:center;width:min(80%,360px);pointer-events:none}
-    h1{font-size:36px;letter-spacing:-1.5px;margin-bottom:12px}p{color:#61745f}
-    progress{width:100%;height:7px;accent-color:#32a96a;border:0}
-    #error{position:absolute;max-width:520px;padding:28px;background:#fffbea;display:none;white-space:pre-wrap}
+    *{box-sizing:border-box}
+    body{margin:0;background:#7faf57;color:#1e3a2a;font:16px system-ui,sans-serif;overflow:hidden}
+    /* The canvas is positioned, not laid out: a grid item can be grown by its own
+       content, and Unity then matches the drawing buffer to that runaway size. */
+    #unity-container{position:fixed;inset:0;overflow:hidden}
+    canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;outline:none;touch-action:none}
+    #loading,#error{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+    #loading{text-align:center;width:min(80%,360px);pointer-events:none}
+    h1{font-size:36px;letter-spacing:-1.5px;margin-bottom:12px}
+    p{color:#3f5c3f}
+    progress{width:100%;height:7px;accent-color:#e2622e;border:0}
+    #error{max-width:520px;padding:28px;background:#fff9ec;display:none;white-space:pre-wrap}
   </style>
 </head>
 <body>
@@ -23,13 +29,20 @@
   <script src="Build/{{{ LOADER_FILENAME }}}"></script>
   <script>
     const canvas=document.getElementById('unity-canvas');
+    function fitCanvas(){
+      canvas.style.width=window.innerWidth+'px';
+      canvas.style.height=window.innerHeight+'px';
+    }
+    fitCanvas();
+    window.addEventListener('resize',fitCanvas);
+    window.addEventListener('orientationchange',fitCanvas);
     createUnityInstance(canvas,{
       dataUrl:'Build/{{{ DATA_FILENAME }}}',frameworkUrl:'Build/{{{ FRAMEWORK_FILENAME }}}',
       codeUrl:'Build/{{{ CODE_FILENAME }}}',streamingAssetsUrl:'StreamingAssets',
       companyName:'{{{ COMPANY_NAME }}}',productName:'{{{ PRODUCT_NAME }}}',productVersion:'{{{ PRODUCT_VERSION }}}',
       matchWebGLToCanvasSize:true,devicePixelRatio:Math.min(window.devicePixelRatio||1,2)
     },value=>document.getElementById('progress').value=value).then(instance=>{
-      document.getElementById('loading').remove();canvas.focus();
+      document.getElementById('loading').remove();canvas.focus();fitCanvas();
       window.gardenGame=instance;
     }).catch(error=>{
       document.getElementById('loading').style.display='none';
