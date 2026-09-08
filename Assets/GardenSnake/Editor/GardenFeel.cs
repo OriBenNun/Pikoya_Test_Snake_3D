@@ -11,7 +11,7 @@ namespace GardenSnake.Editor
     /// </summary>
     public static class GardenFeel
     {
-        public static void Create(SnakeController game, Camera camera, SnakeHud hud, ParticleSystem burst)
+        public static void Create(SnakeController game, SnakeHud hud, Transform board, ParticleSystem burst)
         {
             var root = new GameObject("Feel").transform;
             root.SetParent(game.transform, false);
@@ -27,18 +27,21 @@ namespace GardenSnake.Editor
 
             MMF_Player death = Player("Death", root);
             Shake(death, .5f, .42f, 26f);
+            Bump(death, board, 4.5f, .5f, new Vector3(1.1f, 1.1f, 1.1f));
             Freeze(death, .09f);
-            Flash(death, flash, Danger.With(.85f), .22f);
+            Flash(death, flash, Danger.With(.55f), .22f);
             Slow(death, .28f, .45f);
 
             MMF_Player start = Player("Run start", root);
             Shake(start, .18f, .08f, 22f);
             Bump(start, scoreTransform, 7f, .4f, new Vector3(18, 18, 0));
+            // The whole garden settles into place, which makes a restart feel like a fresh deal.
+            Bump(start, board, 5.5f, .45f, new Vector3(1.6f, 1.6f, 1.6f));
 
             MMF_Player best = Player("New best", root);
             Particles(best, burst, 44);
             Shake(best, .3f, .2f, 30f);
-            Flash(best, flash, Accent.With(.5f), .28f);
+            Flash(best, flash, Paper.With(.55f), .28f);
             Bump(best, scoreTransform, 6f, .3f, new Vector3(40, 40, 0));
 
             MMF_Player turn = Player("Turn", root);

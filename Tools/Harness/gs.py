@@ -126,8 +126,8 @@ def playmode(target):
     cli("editor_play" if target else "editor_stop")
     if target:
         time.sleep(1)
-    for _ in range(60):
-        time.sleep(.5)
+    for _ in range(150):
+        time.sleep(.6)
         try:
             status = unwrap(cli("editor_status"))
         except CommandError:
@@ -142,6 +142,8 @@ def playmode(target):
 
 def compile_project():
     """Force a script compile and surface any C# errors instead of hanging the loop."""
+    if unwrap(cli("editor_status")).get("playMode") != "stopped":
+        playmode(False)  # the Editor will not reload the domain during play mode
     cli("recompile")
     for _ in range(180):
         time.sleep(1)
@@ -152,7 +154,7 @@ def compile_project():
         if isinstance(report, str):
             report = json.loads(report)
         status = report.get("status")
-        if status in ("compiling", "pending", "queued", "requested"):
+        if status not in ("up_to_date", "completed", "idle", "failed", "success"):
             continue
         if report.get("failed") or report.get("errors"):
             raise SystemExit(json.dumps(report.get("errors"))[:4000])
@@ -202,6 +204,18 @@ def main():
         print(logs(*args))
     elif verb == "status":
         print(json.dumps(unwrap(cli("editor_status")), indent=1))
+    elif verb == "rebuild":
+        playmode(False)
+        compile_project()
+        for attempt in range(4):
+            try:
+                print(unwrap(cli("eval_file", "--file", "Tools/Harness/rebuild.cs",
+                                 "--timeout", "300", timeout=360)))
+                return
+            except CommandError as error:
+                if attempt == 3:
+                    raise SystemExit(str(error))
+                time.sleep(4)  # the Editor drops requests while it is busy importing
     elif verb == "compile":
         print(compile_project())
     elif verb == "playtest":

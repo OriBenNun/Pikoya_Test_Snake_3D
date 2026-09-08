@@ -31,6 +31,44 @@ namespace GardenSnake.Editor
                 return Mathf.Pow(Mathf.Clamp01(1 - distance), power);
             });
 
+        /// <summary>A soft round pool of light, written in colour, for the lawn backdrop.</summary>
+        public static Texture2D RadialGradient(string name, int size, Color inner, Color outer)
+        {
+            Directory.CreateDirectory(Folder);
+            string path = Folder + "/" + name + ".png";
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false, false);
+            var pixels = new Color[size * size];
+            var centre = new Vector2(size * .5f, size * .5f);
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float distance = Vector2.Distance(new Vector2(x + .5f, y + .5f), centre) / (size * .5f);
+                pixels[y * size + x] = Color.Lerp(inner, outer, Mathf.SmoothStep(0, 1, Mathf.Clamp01(distance)));
+            }
+            texture.SetPixels(pixels);
+            texture.Apply();
+            File.WriteAllBytes(path, texture.EncodeToPNG());
+            UnityEngine.Object.DestroyImmediate(texture);
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            importer.textureType = TextureImporterType.Default;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.mipmapEnabled = true;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        }
+
+        /// <summary>The soft round mote every particle system in the game is drawn with.</summary>
+        public static Texture2D SoftDot(string name, int size, float power)
+        {
+            Glow(name, size, power);
+            return Texture(name);
+        }
+
+        public static Texture2D Texture(string name) =>
+            AssetDatabase.LoadAssetAtPath<Texture2D>(Folder + "/" + name + ".png");
+
         public static Sprite PauseIcon(string name, int size) =>
             Ensure(name, size, 0, point =>
             {
@@ -70,17 +108,6 @@ namespace GardenSnake.Editor
                     shape = Mathf.Min(shape, Segment(p, new Vector2(.14f, .11f), new Vector2(.32f, -.11f), .03f));
                 }
                 return Fill(shape * size);
-            });
-
-        /// <summary>A chevron pointing up; the direction pad rotates copies of it.</summary>
-        public static Sprite ChevronIcon(string name, int size) =>
-            Ensure(name, size, 0, point =>
-            {
-                Vector2 p = (point - Half(size)) / size;
-                p.y -= .05f;
-                float left = Segment(p, new Vector2(-.22f, -.1f), new Vector2(0, .13f), .045f);
-                float right = Segment(p, new Vector2(.22f, -.1f), new Vector2(0, .13f), .045f);
-                return Fill(Mathf.Min(left, right) * size);
             });
 
         // ---------------------------------------------------------------- distance fields

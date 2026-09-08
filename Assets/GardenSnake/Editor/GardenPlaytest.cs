@@ -30,6 +30,8 @@ namespace GardenSnake.Editor
         private static int releaseAt;
         private static int shotIndex;
         private static int runs;
+        private static int lastScore;
+        private static readonly List<double> pending = new List<double>();
         private static int bestScore;
         private static string label;
         private static readonly List<string> notes = new List<string>();
@@ -49,6 +51,8 @@ namespace GardenSnake.Editor
             shotIndex = 0;
             runs = 0;
             bestScore = 0;
+            lastScore = 0;
+            pending.Clear();
             releaseAt = -1;
             notes.Clear();
             Application.runInBackground = true;
@@ -75,10 +79,17 @@ namespace GardenSnake.Editor
             if (now >= nextShotAt)
             {
                 nextShotAt = now + shotInterval;
-                ScreenCapture.CaptureScreenshot($"{ShotFolder}/{label}-{shotIndex:00}.png");
-                shotIndex++;
+                Capture();
             }
             var game = controller.Game;
+            // Moments worth a frame of their own: the bite, the wilt, and the results card.
+            for (int i = pending.Count - 1; i >= 0; i--)
+                if (now >= pending[i]) { pending.RemoveAt(i); Capture(); }
+            if (game.Score != lastScore)
+            {
+                if (game.Score > lastScore) pending.Add(now + .12);
+                lastScore = game.Score;
+            }
             bestScore = Mathf.Max(bestScore, game.Score);
             switch (game.State)
             {
@@ -90,10 +101,17 @@ namespace GardenSnake.Editor
                 case RunState.Won:
                     if (restartAt == 0)
                     {
-                        restartAt = now + 1.4;
+                        restartAt = now + 2.4;
+                        pending.Add(now + .2);
+                        pending.Add(now + 1.3);
                         notes.Add($"run {runs}: {game.Score} apples, {game.EndReason}");
                     }
                     if (now >= restartAt) { restartAt = 0; runs++; Press(Key.Space); }
+                    break;
+                case RunState.Paused:
+                    // The Editor pauses the game whenever it loses focus, which it always has
+                    // while the harness drives it from the command line.
+                    Press(Key.P);
                     break;
                 case RunState.Playing:
                     restartAt = 0;
@@ -101,6 +119,12 @@ namespace GardenSnake.Editor
                     break;
             }
             if (now >= endsAt) Finish(null);
+        }
+
+        private static void Capture()
+        {
+            ScreenCapture.CaptureScreenshot($"{ShotFolder}/{label}-{shotIndex:00}.png");
+            shotIndex++;
         }
 
         /// <summary>Greedy chase that refuses moves into a wall or an occupied cell.</summary>

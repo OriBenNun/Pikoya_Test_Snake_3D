@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Jade
+  m_Name: Soil
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -118,13 +118,13 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.96862745, g: 0.9372549, b: 0.65882355, a: 1}
-    - _Color: {r: 0.9686274, g: 0.9372549, b: 0.65882355, a: 1}
+    - _BaseColor: {r: 0.14117648, g: 0.36078432, b: 0.16078432, a: 1}
+    - _Color: {r: 0.14117643, g: 0.3607843, b: 0.16078427, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &827198542474843751
+--- !u!114 &4118359031998641772
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}

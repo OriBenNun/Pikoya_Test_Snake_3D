@@ -13,12 +13,11 @@ namespace GardenSnake.Editor
 {
     /// <summary>
     /// Builds the interface: a quiet wordmark, a score cluster, two icon buttons and one card.
-    /// Everything else the player needs is on the board itself, so the HUD keeps to the corners
-    /// and leaves the garden unobstructed while a run is going.
+    /// Everything the player needs while playing is on the board itself, so the HUD keeps to the
+    /// corners and fades itself down once a run is under way.
     /// </summary>
     public static class GardenHud
     {
-        private const int Reference = 1600;
         private static TMP_FontAsset font;
 
         public static void PrepareFont()
@@ -37,7 +36,7 @@ namespace GardenSnake.Editor
             font = TMP_FontAsset.CreateFontAsset(sourceFont, 64, 8,
                 UnityEngine.TextCore.LowLevel.GlyphRenderMode.SDFAA, 1024, 1024);
             font.name = "GardenFont";
-            font.TryAddCharacters(new string(Enumerable.Range(32, 95).Select(c => (char)c).ToArray()) + "·—");
+            font.TryAddCharacters(new string(Enumerable.Range(32, 95).Select(c => (char)c).ToArray()) + "·");
             font.atlasPopulationMode = AtlasPopulationMode.Static;
             AssetDatabase.CreateAsset(font, path);
             foreach (var texture in font.atlasTextures) AssetDatabase.AddObjectToAsset(texture, font);
@@ -51,130 +50,140 @@ namespace GardenSnake.Editor
             Sprite pill = GardenSprites.RoundedRect("Pill", 64, 30);
             Sprite circle = GardenSprites.Circle("Circle", 96);
             Sprite glow = GardenSprites.Glow("Glow", 128, 2.4f);
+            Sprite edge = GardenSprites.RoundedOutline("PanelEdge", 96, 28, 2f);
             Sprite pauseIcon = GardenSprites.PauseIcon("IconPause", 64);
             Sprite playIcon = GardenSprites.PlayIcon("IconPlay", 64);
             Sprite soundOnIcon = GardenSprites.SoundIcon("IconSoundOn", 64, true);
             Sprite soundOffIcon = GardenSprites.SoundIcon("IconSoundOff", 64, false);
-            Sprite chevron = GardenSprites.ChevronIcon("IconChevron", 64);
 
             var root = new GameObject("Garden HUD", typeof(RectTransform), typeof(Canvas),
                 typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(SnakeHud));
-            var canvas = root.GetComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            root.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = root.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(Reference, 900);
+            scaler.referenceResolution = new Vector2(1600, 900);
             scaler.matchWidthOrHeight = .5f;
             var hud = root.GetComponent<SnakeHud>();
             var bound = new SerializedObject(hud);
 
-            // ---- wordmark ------------------------------------------------
-            var brand = Anchored("Brand", root.transform, new Vector2(0, 1), new Vector2(44, -44), new Vector2(420, 68));
+            // ---- wordmark -------------------------------------------------
+            var brand = Anchored("Brand", root.transform, TopLeft, new Vector2(46, -32), new Vector2(420, 60));
             var brandGroup = brand.gameObject.AddComponent<CanvasGroup>();
-            var wordmark = Label("Wordmark", brand, "GARDEN SNAKE", 21, Cream.With(.92f),
-                new Vector2(0, 0), new Vector2(420, 30), TextAlignmentOptions.TopLeft);
+            var wordmark = Label("Wordmark", brand, "GARDEN SNAKE", 21, TextStrong.With(.9f),
+                Vector2.zero, new Vector2(420, 28), TextAlignmentOptions.TopLeft, TopLeft);
             wordmark.fontStyle = FontStyles.Bold;
             wordmark.characterSpacing = 12;
-            var rule = Anchored("Rule", brand, new Vector2(0, 1), new Vector2(2, -34), new Vector2(38, 3));
-            rule.pivot = new Vector2(0, 1);
-            rule.anchoredPosition = new Vector2(2, -34);
-            Fill(rule, pill, Accent.With(.9f));
+            var rule = Anchored("Rule", brand, TopLeft, new Vector2(1, -34), new Vector2(40, 3));
+            Fill(rule, pill, AccentDeep.With(.95f));
 
-            // ---- score ---------------------------------------------------
-            var scoreRoot = Anchored("Score", root.transform, new Vector2(1, 1), new Vector2(-44, -40), new Vector2(320, 110));
-            var appleDot = Anchored("Apple dot", scoreRoot, new Vector2(1, 1), new Vector2(-124, -22), new Vector2(20, 20));
-            Fill(appleDot, circle, AppleSkin);
-            var score = Label("Apples", scoreRoot, "0", 56, Cream,
-                new Vector2(0, -6), new Vector2(300, 68), TextAlignmentOptions.TopRight);
+            // ---- score ----------------------------------------------------
+            var scoreRoot = Anchored("Score", root.transform, TopRight, new Vector2(-46, -26), new Vector2(300, 92));
+            var score = Label("Apples", scoreRoot, "0", 44, TextStrong,
+                Vector2.zero, new Vector2(300, 54), TextAlignmentOptions.TopRight, TopRight);
             score.fontStyle = FontStyles.Bold;
-            var best = Label("Best", scoreRoot, "BEST 0", 13, Cream.With(.5f),
-                new Vector2(0, -62), new Vector2(300, 24), TextAlignmentOptions.TopRight);
-            best.characterSpacing = 9;
+            var best = Label("Best", scoreRoot, "BEST 0", 12, TextSoft,
+                new Vector2(0, -52), new Vector2(300, 20), TextAlignmentOptions.TopRight, TopRight);
+            best.characterSpacing = 10;
 
-            // ---- floating pickup number and headline ---------------------
-            var toast = Label("Pickup", root.transform, "", 30, Accent,
-                Vector2.zero, new Vector2(260, 48), TextAlignmentOptions.Center, new Vector2(.5f, .5f));
+            // ---- floating pickup number and headline ----------------------
+            var toastRoot = Anchored("Pickup", root.transform, Middle, Vector2.zero, new Vector2(220, 90));
+            var toastGlow = Anchored("Halo", toastRoot, Middle, Vector2.zero, new Vector2(220, 110));
+            Fill(toastGlow, glow, Paper.With(.9f));
+            var toast = Label("Amount", toastRoot, "", 40, AccentDeep, Vector2.zero, new Vector2(220, 60));
             toast.fontStyle = FontStyles.Bold;
-            var banner = Label("Banner", root.transform, "", 22, Cream,
-                new Vector2(0, -46), new Vector2(700, 40), TextAlignmentOptions.Center, new Vector2(.5f, 1));
-            banner.fontStyle = FontStyles.Bold;
-            banner.characterSpacing = 14;
 
-            // ---- hint line -----------------------------------------------
-            var hint = Anchored("Hints", root.transform, new Vector2(0, 0), new Vector2(44, 40), new Vector2(620, 26));
+            var bannerRoot = Anchored("Banner", root.transform, new Vector2(.5f, 1), new Vector2(0, -26), new Vector2(300, 46));
+            var bannerFill = Fill(bannerRoot, pill, Paper);
+            bannerFill.type = Image.Type.Sliced;
+            bannerFill.pixelsPerUnitMultiplier = 2.4f;
+            var banner = Label("Text", bannerRoot, "", 18, AccentDeep, Vector2.zero, new Vector2(300, 46));
+            banner.fontStyle = FontStyles.Bold;
+            banner.characterSpacing = 16;
+
+            // ---- hint line ------------------------------------------------
+            var hint = Anchored("Hints", root.transform, BottomLeft, new Vector2(46, 36), new Vector2(640, 24));
             var hintGroup = hint.gameObject.AddComponent<CanvasGroup>();
-            var hintLabel = Label("Line", hint, "WASD / ARROWS TO STEER   ·   P PAUSE   ·   M SOUND", 13,
-                Cream.With(.45f), Vector2.zero, new Vector2(620, 26), TextAlignmentOptions.Left);
-            hintLabel.characterSpacing = 7;
+            var hintLabel = Label("Line", hint, "WASD / ARROWS OR SWIPE TO STEER   ·   P PAUSE   ·   M SOUND", 12,
+                TextSoft, Vector2.zero, new Vector2(640, 24), TextAlignmentOptions.Left, BottomLeft);
+            hintLabel.characterSpacing = 8;
 
             // ---- corner buttons -------------------------------------------
             var pauseButton = IconButton("Pause", root.transform, circle, pauseIcon,
-                new Vector2(1, 0), new Vector2(-46, 46), 46, out Image pauseGlyph);
+                BottomRight, new Vector2(-46, 40), 44, out Image pauseGlyph);
             var muteButton = IconButton("Sound", root.transform, circle, soundOnIcon,
-                new Vector2(1, 0), new Vector2(-106, 46), 46, out Image muteGlyph);
+                BottomRight, new Vector2(-104, 40), 44, out Image muteGlyph);
 
-            // ---- touch steering ------------------------------------------
-            var pad = Anchored("Direction pad", root.transform, new Vector2(1, 0), new Vector2(-140, 210), new Vector2(240, 240));
-            var padButtons = new[]
-            {
-                PadButton("Up", pad, circle, chevron, new Vector2(0, 74), 0),
-                PadButton("Right", pad, circle, chevron, new Vector2(74, 0), -90),
-                PadButton("Down", pad, circle, chevron, new Vector2(0, -74), 180),
-                PadButton("Left", pad, circle, chevron, new Vector2(-74, 0), 90)
-            };
-
-            // ---- card ------------------------------------------------------
-            var scrim = Anchored("Scrim", root.transform, new Vector2(.5f, .5f), Vector2.zero, Vector2.zero);
-            scrim.anchorMin = Vector2.zero;
-            scrim.anchorMax = Vector2.one;
-            scrim.offsetMin = scrim.offsetMax = Vector2.zero;
-            var scrimImage = scrim.gameObject.AddComponent<Image>();
-            scrimImage.color = Scrim;
+            // ---- card -----------------------------------------------------
+            var scrim = FullScreen("Scrim", root.transform);
+            scrim.gameObject.AddComponent<Image>().color = Scrim;
             var scrimGroup = scrim.gameObject.AddComponent<CanvasGroup>();
 
-            var card = Anchored("Run card", root.transform, new Vector2(.5f, .5f), Vector2.zero, new Vector2(660, 388));
-            var cardGlow = Anchored("Card glow", card, new Vector2(.5f, .5f), new Vector2(0, -8), new Vector2(860, 580));
-            Fill(cardGlow, glow, new Color(0, 0, 0, .5f));
-            cardGlow.SetAsFirstSibling();
-            var cardFill = Fill(card, panel, Panel);
+            var card = Anchored("Run card", root.transform, Middle, Vector2.zero, new Vector2(660, 430));
+            var cardShadow = Anchored("Shadow", card, Middle, new Vector2(0, -14), new Vector2(920, 640));
+            Fill(cardShadow, glow, Ink.With(.34f));
+            var cardFill = Fill(card, panel, Paper);
             cardFill.type = Image.Type.Sliced;
             cardFill.pixelsPerUnitMultiplier = 1.6f;
-            var cardEdge = Anchored("Edge", card, new Vector2(.5f, .5f), Vector2.zero, new Vector2(660, 388));
-            var edgeImage = Fill(cardEdge, GardenSprites.RoundedOutline("PanelEdge", 96, 28, 2f), PanelEdge);
+            cardFill.raycastTarget = true;
+            var cardEdge = FullScreen("Edge", card);
+            var edgeImage = Fill(cardEdge, edge, PaperEdge);
             edgeImage.type = Image.Type.Sliced;
             edgeImage.pixelsPerUnitMultiplier = 1.6f;
-            edgeImage.raycastTarget = false;
             var cardGroup = card.gameObject.AddComponent<CanvasGroup>();
 
-            var eyebrow = Label("Eyebrow", card, "", 12, Accent, new Vector2(0, 138), new Vector2(600, 26));
+            var eyebrow = Label("Eyebrow", card, "", 12, AccentDeep, new Vector2(0, 158), new Vector2(600, 26));
             eyebrow.characterSpacing = 14;
             eyebrow.fontStyle = FontStyles.Bold;
-            var title = Label("Title", card, "", 44, Cream, new Vector2(0, 84), new Vector2(620, 70));
+            var title = Label("Title", card, "", 42, TextStrong, new Vector2(0, 106), new Vector2(620, 64));
             title.fontStyle = FontStyles.Bold;
-            var body = Label("Description", card, "", 18, Cream.With(.62f), new Vector2(0, 12), new Vector2(560, 70));
+
+            var tally = Anchored("Tally", card, Middle, new Vector2(0, 36), new Vector2(400, 76));
+            var tallyValue = Label("Value", tally, "0", 50, AccentDeep, new Vector2(0, 6), new Vector2(400, 62));
+            tallyValue.fontStyle = FontStyles.Bold;
+            var tallyCaption = Label("Caption", tally, "APPLES PICKED", 11, TextSoft,
+                new Vector2(0, -30), new Vector2(400, 20));
+            tallyCaption.characterSpacing = 14;
+
+            var body = Label("Description", card, "", 18, TextSoft, new Vector2(0, -30), new Vector2(560, 66));
             body.textWrappingMode = TextWrappingModes.Normal;
-            body.lineSpacing = 12;
-            var primary = TextButton("Primary", card, pill, "PLAY", new Vector2(0, -78), new Vector2(300, 62),
-                Accent, Ink, out TMP_Text primaryLabel);
-            var keyHint = Label("Key hint", card, "OR PRESS SPACE", 11, Cream.With(.35f),
-                new Vector2(0, -136), new Vector2(400, 22));
+            body.lineSpacing = 14;
+
+            var primary = TextButton("Primary", card, pill, "PLAY", new Vector2(0, -122), new Vector2(300, 62),
+                AccentDeep, Paper, out TMP_Text primaryLabel);
+            var keyHint = Label("Key hint", card, "OR PRESS SPACE", 11, TextSoft.With(.42f),
+                new Vector2(0, -182), new Vector2(400, 22));
             keyHint.characterSpacing = 12;
 
-            // ---- wiring ----------------------------------------------------
+            // ---- full screen flash (driven by Feel) -----------------------
+            var flash = FullScreen("Flash", root.transform);
+            var flashImage = flash.gameObject.AddComponent<Image>();
+            flashImage.color = new Color(1, 1, 1, 0);
+            flashImage.raycastTarget = false;
+            flash.gameObject.AddComponent<CanvasGroup>().blocksRaycasts = false;
+            flash.gameObject.AddComponent<MoreMountains.Feedbacks.MMFlash>();
+
+            // ---- wiring ---------------------------------------------------
             GardenBuilder.Set(bound, "brandGroup", brandGroup);
             GardenBuilder.Set(bound, "scoreText", score);
             GardenBuilder.Set(bound, "bestText", best);
             GardenBuilder.Set(bound, "hintGroup", hintGroup);
+            GardenBuilder.Set(bound, "toastRoot", toastRoot);
             GardenBuilder.Set(bound, "toast", toast);
+            GardenBuilder.Set(bound, "toastHalo", toastGlow.GetComponent<Image>());
             GardenBuilder.Set(bound, "banner", banner);
+            GardenBuilder.Set(bound, "bannerRoot", bannerRoot);
+            GardenBuilder.Set(bound, "bannerFill", bannerFill);
             GardenBuilder.Set(bound, "scrimGroup", scrimGroup);
             GardenBuilder.Set(bound, "card", card.gameObject);
             GardenBuilder.Set(bound, "cardGroup", cardGroup);
             GardenBuilder.Set(bound, "cardEyebrow", eyebrow);
             GardenBuilder.Set(bound, "cardTitle", title);
             GardenBuilder.Set(bound, "cardBody", body);
+            GardenBuilder.Set(bound, "cardTally", tally.gameObject);
+            GardenBuilder.Set(bound, "cardTallyValue", tallyValue);
             GardenBuilder.Set(bound, "primaryButton", primary);
             GardenBuilder.Set(bound, "primaryLabel", primaryLabel);
+            GardenBuilder.Set(bound, "cardKeyHint", keyHint.rectTransform);
             GardenBuilder.Set(bound, "pauseButton", pauseButton);
             GardenBuilder.Set(bound, "pauseGlyph", pauseGlyph);
             GardenBuilder.Set(bound, "pauseSprite", pauseIcon);
@@ -183,28 +192,19 @@ namespace GardenSnake.Editor
             GardenBuilder.Set(bound, "muteGlyph", muteGlyph);
             GardenBuilder.Set(bound, "soundOnSprite", soundOnIcon);
             GardenBuilder.Set(bound, "soundOffSprite", soundOffIcon);
-            GardenBuilder.Set(bound, "touchPad", pad.gameObject);
-            var array = bound.FindProperty("directionButtons");
-            array.arraySize = padButtons.Length;
-            for (int i = 0; i < padButtons.Length; i++) array.GetArrayElementAtIndex(i).objectReferenceValue = padButtons[i];
             bound.ApplyModifiedPropertiesWithoutUndo();
-
-            // Full-screen flash, driven by Feel. Last child so it covers the card too.
-            var flash = Anchored("Flash", root.transform, new Vector2(.5f, .5f), Vector2.zero, Vector2.zero);
-            flash.anchorMin = Vector2.zero;
-            flash.anchorMax = Vector2.one;
-            flash.offsetMin = flash.offsetMax = Vector2.zero;
-            var flashImage = flash.gameObject.AddComponent<Image>();
-            flashImage.color = new Color(1, 1, 1, 0);
-            flashImage.raycastTarget = false;
-            flash.gameObject.AddComponent<CanvasGroup>().blocksRaycasts = false;
-            flash.gameObject.AddComponent<MoreMountains.Feedbacks.MMFlash>();
 
             new GameObject("Event System", typeof(EventSystem), typeof(InputSystemUIInputModule));
             return hud;
         }
 
         // ---------------------------------------------------------------- primitives
+
+        private static readonly Vector2 TopLeft = new Vector2(0, 1);
+        private static readonly Vector2 TopRight = new Vector2(1, 1);
+        private static readonly Vector2 BottomLeft = new Vector2(0, 0);
+        private static readonly Vector2 BottomRight = new Vector2(1, 0);
+        private static readonly Vector2 Middle = new Vector2(.5f, .5f);
 
         private static RectTransform Anchored(string name, Transform parent, Vector2 anchor, Vector2 position, Vector2 size)
         {
@@ -214,6 +214,15 @@ namespace GardenSnake.Editor
             rect.pivot = anchor;
             rect.sizeDelta = size;
             rect.anchoredPosition = position;
+            return rect;
+        }
+
+        private static RectTransform FullScreen(string name, Transform parent)
+        {
+            var rect = Anchored(name, parent, Middle, Vector2.zero, Vector2.zero);
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
             return rect;
         }
 
@@ -230,8 +239,7 @@ namespace GardenSnake.Editor
             Vector2 position, Vector2 dimensions,
             TextAlignmentOptions alignment = TextAlignmentOptions.Center, Vector2? anchor = null)
         {
-            var rect = Anchored(name, parent, anchor ?? new Vector2(.5f, .5f), position, dimensions);
-            rect.pivot = new Vector2(.5f, .5f);
+            var rect = Anchored(name, parent, anchor ?? Middle, position, dimensions);
             var label = rect.gameObject.AddComponent<TextMeshProUGUI>();
             label.font = font;
             label.text = value;
@@ -249,27 +257,18 @@ namespace GardenSnake.Editor
             var rect = Anchored(name, parent, anchor, position, new Vector2(diameter, diameter));
             var fill = rect.gameObject.AddComponent<Image>();
             fill.sprite = background;
-            fill.color = Panel.With(.85f);
+            fill.color = Paper.With(.94f);
             var button = rect.gameObject.AddComponent<Button>();
             Style(button, fill);
-            var glyphRect = Anchored("Glyph", rect, new Vector2(.5f, .5f), Vector2.zero, new Vector2(diameter, diameter));
-            glyph = Fill(glyphRect, icon, Cream.With(.9f));
-            return button;
-        }
-
-        private static Button PadButton(string name, Transform parent, Sprite background, Sprite icon,
-            Vector2 position, float rotation)
-        {
-            var button = IconButton(name, parent, background, icon, new Vector2(.5f, .5f), position, 66, out Image glyph);
-            button.GetComponent<Image>().color = Panel.With(.55f);
-            glyph.transform.localRotation = Quaternion.Euler(0, 0, rotation);
+            var glyphRect = Anchored("Glyph", rect, Middle, Vector2.zero, new Vector2(diameter, diameter));
+            glyph = Fill(glyphRect, icon, TextStrong.With(.85f));
             return button;
         }
 
         private static Button TextButton(string name, Transform parent, Sprite background, string caption,
             Vector2 position, Vector2 size, Color fillColor, Color textColor, out TMP_Text label)
         {
-            var rect = Anchored(name, parent, new Vector2(.5f, .5f), position, size);
+            var rect = Anchored(name, parent, Middle, position, size);
             var fill = rect.gameObject.AddComponent<Image>();
             fill.sprite = background;
             fill.type = Image.Type.Sliced;
@@ -289,8 +288,8 @@ namespace GardenSnake.Editor
             button.transition = Selectable.Transition.ColorTint;
             var colors = button.colors;
             colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(1.12f, 1.12f, 1.12f, 1f);
-            colors.pressedColor = new Color(.82f, .82f, .82f, 1f);
+            colors.highlightedColor = new Color(1.14f, 1.14f, 1.14f, 1f);
+            colors.pressedColor = new Color(.8f, .8f, .8f, 1f);
             colors.selectedColor = Color.white;
             colors.fadeDuration = .09f;
             button.colors = colors;

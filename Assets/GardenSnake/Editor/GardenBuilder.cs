@@ -19,7 +19,10 @@ namespace GardenSnake.Editor
     {
         public const string Root = "Assets/GardenSnake";
         public const string ScenePath = Root + "/Scenes/GardenSnake.unity";
-        public const int BoardSize = 15;
+        // The board matches the shape of a widescreen window, so the garden fills it instead
+        // of leaving two empty gutters either side.
+        public const int BoardWidth = 21;
+        public const int BoardHeight = 12;
 
         [MenuItem("Garden Snake/Rebuild game scene")]
         public static void CreateScene()
@@ -31,6 +34,7 @@ namespace GardenSnake.Editor
             foreach (string folder in new[] { "/Scenes", "/Materials", "/Prefabs", "/UI", "/Rendering" })
                 Directory.CreateDirectory(Root + folder);
             AssetDatabase.Refresh();
+            PrepareAudio();
             PrepareMaterials();
             GardenHud.PrepareFont();
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -38,13 +42,22 @@ namespace GardenSnake.Editor
 
             Camera camera = CreateCamera(out Transform cameraRig);
             CreateLighting();
-            CreateBoard();
+            Transform board = CreateBoard();
             CreateSurroundings();
 
             var game = new GameObject("Snake Game").AddComponent<SnakeController>();
             var audio = game.gameObject.AddComponent<AudioSource>();
             audio.playOnAwake = false;
             audio.spatialBlend = 0;
+            var music = new GameObject("Ambience", typeof(AudioSource));
+            music.transform.SetParent(game.transform, false);
+            var musicSource = music.GetComponent<AudioSource>();
+            musicSource.clip = Clip("Ambience");
+            musicSource.loop = true;
+            musicSource.playOnAwake = false;
+            musicSource.volume = .34f;
+            musicSource.spatialBlend = 0;
+            Transform appleMarker = CreateAppleMarker();
             ParticleSystem pickupParticles = CreatePickupBurst();
             ParticleSystem trailParticles = CreateSnakeTrail();
             CreateDustMotes();
@@ -57,18 +70,23 @@ namespace GardenSnake.Editor
             Set(settings, "applePrefab", Prefab("Apple"));
             Set(settings, "gameCamera", camera);
             Set(settings, "cameraRig", cameraRig);
+            Set(settings, "appleMarker", appleMarker);
             Set(settings, "pickupParticles", pickupParticles);
             Set(settings, "trailParticles", trailParticles);
             Set(settings, "audioSource", audio);
+            Set(settings, "musicSource", musicSource);
             Set(settings, "hud", hud);
             Set(settings, "pickupSound", Clip("Pickup"));
             Set(settings, "turnSound", Clip("Turn"));
             Set(settings, "loseSound", Clip("Lose"));
             Set(settings, "startSound", Clip("Start"));
-            settings.FindProperty("boardSize").intValue = BoardSize;
+            Set(settings, "bestSound", Clip("Best"));
+            Set(settings, "clickSound", Clip("Click"));
+            settings.FindProperty("boardWidth").intValue = BoardWidth;
+            settings.FindProperty("boardHeight").intValue = BoardHeight;
             settings.ApplyModifiedPropertiesWithoutUndo();
 
-            GardenFeel.Create(game, camera, hud, pickupParticles);
+            GardenFeel.Create(game, hud, board, pickupParticles);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
@@ -126,28 +144,29 @@ namespace GardenSnake.Editor
             profile.components.Clear();
 
             var bloom = profile.Add<Bloom>(true);
-            bloom.threshold.Override(.92f);
-            bloom.intensity.Override(.85f);
-            bloom.scatter.Override(.62f);
+            bloom.threshold.Override(1.05f);
+            bloom.intensity.Override(.42f);
+            bloom.scatter.Override(.68f);
             bloom.tint.Override(Pollen);
 
+            // Just enough vignette to hold the eye on the board; the corners stay sunny.
             var vignette = profile.Add<Vignette>(true);
-            vignette.intensity.Override(.34f);
-            vignette.smoothness.Override(.5f);
-            vignette.color.Override(Hex("07100B"));
+            vignette.intensity.Override(.28f);
+            vignette.smoothness.Override(.65f);
+            vignette.color.Override(Hex("2C4F26"));
 
             var grading = profile.Add<ColorAdjustments>(true);
-            grading.postExposure.Override(.12f);
-            grading.contrast.Override(11f);
-            grading.saturation.Override(9f);
+            grading.postExposure.Override(-.06f);
+            grading.contrast.Override(8f);
+            grading.saturation.Override(10f);
 
             var tone = profile.Add<Tonemapping>(true);
             tone.mode.Override(TonemappingMode.Neutral);
 
             var toning = profile.Add<SplitToning>(true);
-            toning.shadows.Override(Hex("22453A"));
-            toning.highlights.Override(Hex("FFE7B8"));
-            toning.balance.Override(-8f);
+            toning.shadows.Override(Hex("4E7F4A"));
+            toning.highlights.Override(Hex("FFF0CB"));
+            toning.balance.Override(6f);
 
             EditorUtility.SetDirty(profile);
             AssetDatabase.SaveAssets();
@@ -161,85 +180,194 @@ namespace GardenSnake.Editor
         {
             var key = new GameObject("Afternoon Sun", typeof(Light)).GetComponent<Light>();
             key.type = LightType.Directional;
-            key.intensity = 1.35f;
-            key.color = Hex("FFF0D2");
+            key.intensity = 1.28f;
+            key.color = Hex("FFF3D8");
             key.shadows = LightShadows.Soft;
             key.shadowStrength = .62f;
             key.transform.rotation = Quaternion.Euler(52, -34, 0);
 
             var fill = new GameObject("Cool fill", typeof(Light)).GetComponent<Light>();
             fill.type = LightType.Directional;
-            fill.intensity = .34f;
-            fill.color = Hex("9FC7DD");
+            fill.intensity = .3f;
+            fill.color = Hex("BFE2F2");
             fill.shadows = LightShadows.None;
             fill.transform.rotation = Quaternion.Euler(24, 148, 0);
 
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = Hex("6E8C74");
-            RenderSettings.ambientEquatorColor = Hex("40584A");
-            RenderSettings.ambientGroundColor = Hex("1B2A22");
-            RenderSettings.ambientIntensity = 1f;
+            RenderSettings.ambientSkyColor = Hex("BBD79C");
+            RenderSettings.ambientEquatorColor = Hex("8DAF74");
+            RenderSettings.ambientGroundColor = Hex("5D7B52");
+            RenderSettings.ambientIntensity = .85f;
             RenderSettings.skybox = null;
             RenderSettings.fog = false;
         }
 
         // ---------------------------------------------------------------- world
 
-        private static void CreateBoard()
+        private static Transform CreateBoard()
         {
-            Transform board = new GameObject("Garden / " + BoardSize + " x " + BoardSize).transform;
-            float half = (BoardSize - 1) * .5f;
+            Transform board = new GameObject("Garden / " + BoardWidth + " x " + BoardHeight).transform;
+            float halfX = (BoardWidth - 1) * .5f;
+            float halfZ = (BoardHeight - 1) * .5f;
 
             var planter = Spawn("Planter", board, new Vector3(0, -.09f, 0));
-            planter.transform.localScale = new Vector3(BoardSize + .7f, 1.15f, BoardSize + .7f);
+            planter.transform.localScale = new Vector3(BoardWidth + 1.5f, 1.2f, BoardHeight + 1.5f);
+            BuildRim(board);
 
-            Material light = MakeMaterial("TileA", GrassLight);
-            Material dark = MakeMaterial("TileB", GrassDark);
-            for (int y = 0; y < BoardSize; y++)
-            for (int x = 0; x < BoardSize; x++)
+            var soil = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            soil.name = "Soil";
+            soil.transform.SetParent(board, false);
+            soil.transform.position = new Vector3(0, -.06f, 0);
+            soil.transform.localScale = new Vector3((BoardWidth + .6f) * .1f, 1, (BoardHeight + .6f) * .1f);
+            soil.GetComponent<Renderer>().sharedMaterial = MakeMaterial("Soil", PlanterSoil);
+            UnityEngine.Object.DestroyImmediate(soil.GetComponent<Collider>());
+
+            // Four grass tones instead of two: the checker still reads, but the field stops
+            // looking like a spreadsheet.
+            Material[] grass =
             {
-                var tile = Spawn("Tile", board, new Vector3(x - half, 0, y - half));
+                MakeMaterial("TileA", GrassLight),
+                MakeMaterial("TileB", Color.Lerp(GrassDark, PlanterSoil, .22f)),
+                MakeMaterial("TileC", Color.Lerp(GrassLight, GrassDark, .55f)),
+                MakeMaterial("TileD", Color.Lerp(GrassDark, GrassLight, .18f))
+            };
+            for (int y = 0; y < BoardHeight; y++)
+            for (int x = 0; x < BoardWidth; x++)
+            {
+                var tile = Spawn("Tile", board, new Vector3(x - halfX, 0, y - halfZ));
                 tile.name = "Patch " + x + "," + y;
+                int checker = (x + y) % 2;
+                bool speckle = (x * 7 + y * 13 + x * y * 3) % 11 == 0;
                 foreach (var renderer in tile.GetComponentsInChildren<Renderer>())
-                    renderer.sharedMaterial = (x + y) % 2 == 0 ? light : dark;
+                    renderer.sharedMaterial = grass[checker + (speckle ? 2 : 0)];
                 tile.isStatic = true;
+            }
+            return board;
+        }
+
+        /// <summary>Four bars around the grass. A lip the snake can be seen to run up against.</summary>
+        private static void BuildRim(Transform board)
+        {
+            Material material = MakeMaterial("Base", PlanterRim);
+            const float thickness = .58f;
+            const float height = .34f;
+            for (int side = 0; side < 4; side++)
+            {
+                var bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                bar.name = "Rim " + side;
+                bar.transform.SetParent(board, false);
+                UnityEngine.Object.DestroyImmediate(bar.GetComponent<Collider>());
+                bool horizontal = side % 2 == 0;
+                float direction = side < 2 ? -1 : 1;
+                bar.transform.localPosition = horizontal
+                    ? new Vector3(0, height * .5f - .18f, direction * (BoardHeight + thickness) * .5f)
+                    : new Vector3(direction * (BoardWidth + thickness) * .5f, height * .5f - .18f, 0);
+                bar.transform.localScale = horizontal
+                    ? new Vector3(BoardWidth + thickness * 2, height, thickness)
+                    : new Vector3(thickness, height, BoardHeight);
+                bar.GetComponent<Renderer>().sharedMaterial = material;
+                bar.isStatic = true;
             }
         }
 
         private static void CreateSurroundings()
         {
+            // An unlit lawn with light pooling under the board keeps the surround bright and
+            // stops the corners of a wide screen going flat.
             var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            ground.name = "Matte backdrop";
+            ground.name = "Sunny lawn";
             ground.transform.position = new Vector3(0, -.82f, 0);
-            ground.transform.localScale = Vector3.one * 24;
-            ground.GetComponent<Renderer>().sharedMaterial = MakeMaterial("Backdrop", SurroundFloor);
+            ground.transform.localScale = Vector3.one * 10;
+            var lawn = MakeMaterial("Backdrop", Color.white, "Universal Render Pipeline/Unlit");
+            lawn.SetTexture("_BaseMap", GardenSprites.RadialGradient("Lawn", 512, SurroundGlow, Surround));
+            ground.GetComponent<Renderer>().sharedMaterial = lawn;
+            ground.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
             UnityEngine.Object.DestroyImmediate(ground.GetComponent<Collider>());
 
-            // Decoration rings the whole board so no side of the frame looks unfinished.
-            Transform decor = new GameObject("Outside the garden").transform;
+            CreateMeadow();
+        }
+
+        /// <summary>
+        /// Fills the lawn around the board with flowers and stones. Placement is a deterministic
+        /// jittered grid so the meadow looks scattered but rebuilds identically every time, and
+        /// every stem is handed to the wind so the whole field moves together.
+        /// </summary>
+        private static void CreateMeadow()
+        {
+            Transform meadow = new GameObject("Meadow").transform;
+            var wind = meadow.gameObject.AddComponent<GardenWind>();
             var random = new System.Random(20260908);
-            float edge = BoardSize * .5f + .9f;
-            for (int side = 0; side < 4; side++)
+            var stems = new System.Collections.Generic.List<Transform>();
+
+            Material[] petals =
             {
-                Quaternion facing = Quaternion.Euler(0, side * 90, 0);
-                for (int i = 0; i < 7; i++)
+                MakeMaterial("Cream", Petal),
+                MakeMaterial("PetalBlush", Hex("FFD8D0")),
+                MakeMaterial("PetalButter", Hex("FFEFB0")),
+                MakeMaterial("PetalLilac", Hex("E4DAF6"))
+            };
+            Material[] centres = { MakeMaterial("Petal", Pollen), MakeMaterial("PollenRose", Accent) };
+
+            float clearX = BoardWidth * .5f + 1.4f;
+            float clearZ = BoardHeight * .5f + 1.4f;
+            const float reach = 31f;
+            const float depth = 20f;
+            const float spacing = 2.6f;
+            for (float x = -reach; x <= reach; x += spacing)
+            for (float z = -depth; z <= depth; z += spacing)
+            {
+                float px = x + ((float)random.NextDouble() - .5f) * spacing * 1.4f;
+                float pz = z + ((float)random.NextDouble() - .5f) * spacing * 1.4f;
+                double roll = random.NextDouble();
+                if (roll < .22) continue;  // bare grass, so the meadow is not a uniform carpet
+                if (roll < .38)
                 {
-                    float along = Mathf.Lerp(-edge + .6f, edge - .6f, (i + (float)random.NextDouble() * .55f) / 6.6f);
-                    float outward = .55f + (float)random.NextDouble() * 1.5f;
-                    var flower = Spawn("Flower", decor, facing * new Vector3(along, -.74f, -(edge + outward)));
-                    flower.transform.localScale = Vector3.one * (1f + (float)random.NextDouble() * .45f);
-                    flower.transform.rotation = Quaternion.Euler(0, (float)random.NextDouble() * 360f,
-                        ((float)random.NextDouble() - .5f) * 16f);
+                    if (Clear(px, pz, clearX, clearZ)) Pebble(meadow, random, px, pz);
+                    continue;
                 }
-                for (int i = 0; i < 3; i++)
+                // Flowers arrive in small clumps, the way they seed themselves.
+                int clump = 1 + random.Next(3);
+                for (int i = 0; i < clump; i++)
                 {
-                    float along = Mathf.Lerp(-edge, edge, (i + .35f + (float)random.NextDouble() * .3f) / 3.3f);
-                    float outward = .45f + (float)random.NextDouble() * 1.8f;
-                    var rock = Spawn("Rock", decor, facing * new Vector3(along, -.72f, -(edge + outward)));
-                    rock.transform.localScale = Vector3.one * (.55f + (float)random.NextDouble() * .55f);
-                    rock.transform.rotation = Quaternion.Euler(0, (float)random.NextDouble() * 360f, 0);
+                    float ox = px + ((float)random.NextDouble() - .5f) * 2.1f;
+                    float oz = pz + ((float)random.NextDouble() - .5f) * 2.1f;
+                    if (!Clear(ox, oz, clearX, clearZ)) continue;
+                    var flower = Spawn("Flower", meadow, new Vector3(ox, -.74f, oz));
+                    flower.transform.localScale = Vector3.one * (.5f + (float)random.NextDouble() * 1.25f);
+                    flower.transform.rotation = Quaternion.Euler(0, (float)random.NextDouble() * 360f, 0);
+                    Material petal = petals[random.Next(petals.Length)];
+                    Material centre = centres[random.Next(centres.Length)];
+                    foreach (var renderer in flower.GetComponentsInChildren<Renderer>())
+                    {
+                        if (renderer.sharedMaterial == null) continue;
+                        if (renderer.sharedMaterial.name == "Cream") renderer.sharedMaterial = petal;
+                        else if (renderer.sharedMaterial.name == "Petal") renderer.sharedMaterial = centre;
+                    }
+                    stems.Add(flower.transform);
                 }
             }
+
+            var bound = new SerializedObject(wind);
+            var array = bound.FindProperty("stems");
+            array.arraySize = stems.Count;
+            for (int i = 0; i < stems.Count; i++) array.GetArrayElementAtIndex(i).objectReferenceValue = stems[i];
+            bound.ApplyModifiedPropertiesWithoutUndo();
+            Debug.Log("[GardenSnake] Meadow: " + stems.Count + " flowers");
+        }
+
+        /// <summary>A warm pool of light under the apple so the eye finds it instantly.</summary>
+        private static Transform CreateAppleMarker()
+        {
+            var quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            quad.name = "Apple marker";
+            UnityEngine.Object.DestroyImmediate(quad.GetComponent<Collider>());
+            quad.transform.rotation = Quaternion.Euler(90, 0, 0);
+            quad.transform.localScale = Vector3.one * 2.1f;
+            var renderer = quad.GetComponent<Renderer>();
+            renderer.shadowCastingMode = ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            renderer.sharedMaterial = Additive("AppleGlow", Accent, GardenSprites.SoftDot("Dot", 128, 2.2f));
+            return quad.transform;
         }
 
         // ---------------------------------------------------------------- particles
@@ -255,7 +383,7 @@ namespace GardenSnake.Editor
             main.startRotation3D = true;
             main.startRotationX = new ParticleSystem.MinMaxCurve(0, 6.28f);
             main.startRotationY = new ParticleSystem.MinMaxCurve(0, 6.28f);
-            main.startColor = new ParticleSystem.MinMaxGradient(Pollen, Petal);
+            main.startColor = Confetti();
             main.gravityModifier = 1.5f;
             var emission = particles.emission;
             emission.SetBursts(new[] { new ParticleSystem.Burst(0, 26) });
@@ -268,10 +396,7 @@ namespace GardenSnake.Editor
             var rotation = particles.rotationOverLifetime;
             rotation.enabled = true;
             rotation.z = new ParticleSystem.MinMaxCurve(-6f, 6f);
-            var renderer = particles.GetComponent<ParticleSystemRenderer>();
-            renderer.renderMode = ParticleSystemRenderMode.Mesh;
-            renderer.mesh = BuiltinQuad();
-            renderer.sharedMaterial = ConfettiMaterial();
+            Billboard(particles);
             return particles;
         }
 
@@ -295,10 +420,7 @@ namespace GardenSnake.Editor
             var size = particles.sizeOverLifetime;
             size.enabled = true;
             size.size = new ParticleSystem.MinMaxCurve(1, Shrink());
-            var renderer = particles.GetComponent<ParticleSystemRenderer>();
-            renderer.renderMode = ParticleSystemRenderMode.Mesh;
-            renderer.mesh = BuiltinQuad();
-            renderer.sharedMaterial = ConfettiMaterial();
+            Billboard(particles);
             return particles;
         }
 
@@ -313,14 +435,14 @@ namespace GardenSnake.Editor
             main.duration = 6f;
             main.startLifetime = new ParticleSystem.MinMaxCurve(5f, 10f);
             main.startSpeed = new ParticleSystem.MinMaxCurve(.05f, .22f);
-            main.startSize = new ParticleSystem.MinMaxCurve(.03f, .08f);
-            main.startColor = new ParticleSystem.MinMaxGradient(Petal.With(.4f), Pollen.With(.3f));
+            main.startSize = new ParticleSystem.MinMaxCurve(.07f, .17f);
+            main.startColor = new ParticleSystem.MinMaxGradient(Petal.With(.22f), Pollen.With(.16f));
             main.gravityModifier = -.01f;
             var emission = particles.emission;
-            emission.rateOverTime = 9;
+            emission.rateOverTime = 5;
             var shape = particles.shape;
             shape.shapeType = ParticleSystemShapeType.Box;
-            shape.scale = new Vector3(BoardSize + 6, 4.5f, BoardSize + 6);
+            shape.scale = new Vector3(BoardWidth + 6, 4.5f, BoardHeight + 6);
             var noise = particles.noise;
             noise.enabled = true;
             noise.strength = .28f;
@@ -336,11 +458,36 @@ namespace GardenSnake.Editor
                     new GradientAlphaKey(1, .7f), new GradientAlphaKey(0, 1)
                 });
             fade.color = new ParticleSystem.MinMaxGradient(gradient);
-            var renderer = particles.GetComponent<ParticleSystemRenderer>();
-            renderer.renderMode = ParticleSystemRenderMode.Mesh;
-            renderer.mesh = BuiltinQuad();
-            renderer.sharedMaterial = ConfettiMaterial();
+            Billboard(particles);
             particles.Play();
+        }
+
+        /// <summary>Four hues at random, so a pickup throws colour rather than one tint.</summary>
+        private static ParticleSystem.MinMaxGradient Confetti()
+        {
+            var gradient = new Gradient();
+            gradient.SetKeys(
+                new[]
+                {
+                    new GradientColorKey(Pollen, 0f), new GradientColorKey(AppleSkin, .34f),
+                    new GradientColorKey(SnakeSpot, .67f), new GradientColorKey(Petal, 1f)
+                },
+                new[] { new GradientAlphaKey(1, 0), new GradientAlphaKey(1, 1) });
+            gradient.mode = GradientMode.Fixed;
+            return new ParticleSystem.MinMaxGradient(gradient)
+            {
+                mode = ParticleSystemGradientMode.RandomColor
+            };
+        }
+
+        private static bool Clear(float x, float z, float clearX, float clearZ) =>
+            Mathf.Abs(x) > clearX || Mathf.Abs(z) > clearZ;
+
+        private static void Pebble(Transform parent, System.Random random, float x, float z)
+        {
+            var rock = Spawn("Rock", parent, new Vector3(x, -.72f, z));
+            rock.transform.localScale = Vector3.one * (.4f + (float)random.NextDouble() * .7f);
+            rock.transform.rotation = Quaternion.Euler(0, (float)random.NextDouble() * 360f, 0);
         }
 
         private static ParticleSystem NewParticles(string name, int maxParticles)
@@ -360,18 +507,57 @@ namespace GardenSnake.Editor
         private static AnimationCurve Shrink() => new AnimationCurve(
             new Keyframe(0, 0f, 6f, 6f), new Keyframe(.18f, 1f), new Keyframe(1, 0f));
 
-        private static Mesh BuiltinQuad()
+        private static void Billboard(ParticleSystem particles)
         {
-            var quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            Mesh mesh = quad.GetComponent<MeshFilter>().sharedMesh;
-            UnityEngine.Object.DestroyImmediate(quad);
-            return mesh;
+            var renderer = particles.GetComponent<ParticleSystemRenderer>();
+            renderer.renderMode = ParticleSystemRenderMode.Billboard;
+            renderer.alignment = ParticleSystemRenderSpace.View;
+            renderer.shadowCastingMode = ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            renderer.sharedMaterial = Additive("Confetti", Color.white,
+                GardenSprites.SoftDot("Dot", 128, 2.2f), "Universal Render Pipeline/Particles/Unlit");
         }
 
-        private static Material ConfettiMaterial() =>
-            MakeMaterial("Confetti", Color.white, "Universal Render Pipeline/Particles/Unlit");
+        /// <summary>An unlit additive material; used for every glow the game draws.</summary>
+        private static Material Additive(string name, Color tint, Texture texture,
+            string shader = "Universal Render Pipeline/Unlit")
+        {
+            Material material = MakeMaterial(name, tint, shader);
+            // URP recomputes the blend factors from _Surface/_Blend, so set those and let it.
+            material.SetFloat("_Surface", 1);
+            material.SetFloat("_Blend", 2);
+            material.SetFloat("_ZWrite", 0);
+            material.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.One);
+            material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            material.renderQueue = (int)RenderQueue.Transparent;
+            if (material.HasProperty("_BaseMap")) material.SetTexture("_BaseMap", texture);
+            if (material.HasProperty("_MainTex")) material.SetTexture("_MainTex", texture);
+            EditorUtility.SetDirty(material);
+            return material;
+        }
 
         // ---------------------------------------------------------------- assets
+
+        /// <summary>Short effects stay in memory; the long ambient bed streams.</summary>
+        private static void PrepareAudio()
+        {
+            foreach (string path in Directory.GetFiles(Root + "/Audio", "*.wav"))
+            {
+                string normalized = path.Replace('\\', '/');
+                var importer = (AudioImporter)AssetImporter.GetAtPath(normalized);
+                bool ambient = normalized.EndsWith("Ambience.wav");
+                var settings = importer.defaultSampleSettings;
+                settings.loadType = ambient ? AudioClipLoadType.Streaming : AudioClipLoadType.DecompressOnLoad;
+                settings.compressionFormat = ambient ? AudioCompressionFormat.Vorbis : AudioCompressionFormat.PCM;
+                settings.quality = .7f;
+                settings.preloadAudioData = !ambient;
+                importer.defaultSampleSettings = settings;
+                importer.forceToMono = true;
+                importer.SaveAndReimport();
+            }
+        }
 
         private static void PrepareMaterials()
         {
@@ -382,7 +568,6 @@ namespace GardenSnake.Editor
                 ("Petal", Pollen), ("Tile", GrassLight), ("Base", PlanterRim)
             };
             foreach (var swatch in swatches) MakeMaterial(swatch.Name, swatch.Color);
-            MakeMaterial("Backdrop", SurroundFloor);
 
             foreach (string path in Directory.GetFiles(Root + "/Art/Models", "*.fbx"))
             {
