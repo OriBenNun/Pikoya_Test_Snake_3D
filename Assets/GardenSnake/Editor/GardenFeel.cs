@@ -28,7 +28,7 @@ namespace GardenSnake.Editor
 
             MMF_Player death = Player("Death", root);
             Shake(death, .5f, .42f, 26f);
-            Bump(death, board, 4.5f, .5f, new Vector3(1.1f, 1.1f, 1.1f));
+
             Freeze(death, .09f);
             Flash(death, flash, Danger.With(.55f), .22f);
             Slow(death, .28f, .45f);
@@ -37,7 +37,7 @@ namespace GardenSnake.Editor
             Shake(start, .18f, .08f, 22f);
             Bump(start, scoreTransform, 7f, .4f, new Vector3(18, 18, 0));
             // The whole garden settles into place, which makes a restart feel like a fresh deal.
-            Bump(start, board, 5.5f, .45f, new Vector3(1.6f, 1.6f, 1.6f));
+
 
             MMF_Player best = Player("New best", root);
             Particles(best, burst, 44);
@@ -45,7 +45,11 @@ namespace GardenSnake.Editor
             Flash(best, flash, Paper.With(.55f), .28f);
             Bump(best, scoreTransform, 6f, .3f, new Vector3(40, 40, 0));
 
+            MMF_Player whisper = Player("Record apple whisper", root);
+            Particles(whisper, burst, 6);
+
             var bound = new SerializedObject(feel);
+            GardenBuilder.Set(bound, "recordApple", whisper);
             GardenBuilder.Set(bound, "pickup", pickup);
             GardenBuilder.Set(bound, "death", death);
             GardenBuilder.Set(bound, "runStart", start);

@@ -103,6 +103,20 @@ namespace GardenSnake.Editor
                 new Vector2(0, -52), new Vector2(300, 20), TextAlignmentOptions.TopRight, TopRight);
             best.characterSpacing = 10;
 
+            var gaugeRect = Anchored("Speed gauge", root.transform, new Vector2(.5f, 0), new Vector2(0, 26), new Vector2(124, 124));
+            gaugeRect.pivot = new Vector2(.5f, 0);
+            var gauge = gaugeRect.gameObject.AddComponent<SpeedGauge>();
+            gauge.raycastTarget = false;
+            var speedReadout = Label("Cells per second", gaugeRect, "4.0", 19, TextStrong, new Vector2(0, -19), new Vector2(64, 25));
+            speedReadout.fontStyle = FontStyles.Bold;
+            Label("Units", gaugeRect, "CELLS / SEC", 6.5f, TextSoft, new Vector2(0, -35), new Vector2(70, 10));
+            var speedCaption = Label("Pace", gaugeRect, "WIGGLE PACE", 10, TextStrong, new Vector2(0, -70), new Vector2(150, 17));
+            speedCaption.fontStyle = FontStyles.Bold;
+            var gaugeSettings = new SerializedObject(gauge);
+            GardenBuilder.Set(gaugeSettings, "readout", speedReadout);
+            GardenBuilder.Set(gaugeSettings, "caption", speedCaption);
+            gaugeSettings.ApplyModifiedPropertiesWithoutUndo();
+
             // ---- floating pickup number and headline ----------------------
             var toastRoot = Anchored("Pickup", root.transform, Middle, Vector2.zero, new Vector2(220, 90));
             var toastGlow = Anchored("Halo", toastRoot, Middle, Vector2.zero, new Vector2(220, 110));

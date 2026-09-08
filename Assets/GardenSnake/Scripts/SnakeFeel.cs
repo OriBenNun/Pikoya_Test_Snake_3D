@@ -13,6 +13,7 @@ namespace GardenSnake
         [SerializeField] private MMF_Player death;
         [SerializeField] private MMF_Player runStart;
         [SerializeField] private MMF_Player newBest;
+        [SerializeField] private MMF_Player recordApple;
 
         /// <summary>Pickups escalate: the tenth apple should land harder than the first.</summary>
         public void Pickup(Vector3 at, int score) => Play(pickup, at, Mathf.Lerp(.75f, 1.5f, Mathf.Clamp01(score / 14f)));
@@ -23,9 +24,11 @@ namespace GardenSnake
 
         public void NewBest(Vector3 at) => Play(newBest, at, 1f);
 
+        public void RecordApple(Vector3 at) => Play(recordApple, at, 1f);
+
         public void StopAll()
         {
-            foreach (MMF_Player player in new[] { pickup, death, runStart, newBest })
+            foreach (MMF_Player player in new[] { pickup, death, runStart, newBest, recordApple })
                 if (player != null) player.StopFeedbacks();
         }
 

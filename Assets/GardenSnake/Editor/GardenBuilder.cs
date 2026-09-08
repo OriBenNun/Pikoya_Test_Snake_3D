@@ -93,6 +93,8 @@ namespace GardenSnake.Editor
             Set(settings, "audioSource", audio);
             Set(settings, "musicSource", musicSource);
             Set(settings, "hud", hud);
+            Set(settings, "cellWaves", board.GetComponent<GridCellWaves>());
+            settings.FindProperty("hudBandBottom").floatValue = .15f;
             Set(settings, "pickupSound", Clip("Pickup"));
             Set(settings, "turnSound", Clip("Turn"));
             Set(settings, "loseSound", Clip("Lose"));
@@ -185,6 +187,8 @@ namespace GardenSnake.Editor
             toning.highlights.Override(Hex("FFF0CB"));
             toning.balance.Override(6f);
 
+            foreach (var component in profile.components)
+                if (!AssetDatabase.Contains(component)) AssetDatabase.AddObjectToAsset(component, profile);
             EditorUtility.SetDirty(profile);
             AssetDatabase.SaveAssets();
             var volume = new GameObject("Garden Grade").AddComponent<Volume>();
@@ -217,6 +221,8 @@ namespace GardenSnake.Editor
             var grading = profile.Add<ColorAdjustments>(true);
             grading.saturation.Override(20f);
             grading.contrast.Override(14f);
+            foreach (var component in profile.components)
+                if (!AssetDatabase.Contains(component)) AssetDatabase.AddObjectToAsset(component, profile);
             EditorUtility.SetDirty(profile);
             AssetDatabase.SaveAssets();
 
@@ -282,6 +288,7 @@ namespace GardenSnake.Editor
                 MakeMaterial("TileC", Color.Lerp(GrassLight, GrassDark, .55f)),
                 MakeMaterial("TileD", Color.Lerp(GrassDark, GrassLight, .18f))
             };
+            var cells = new Transform[BoardWidth * BoardHeight];
             for (int y = 0; y < BoardHeight; y++)
             for (int x = 0; x < BoardWidth; x++)
             {
@@ -291,8 +298,16 @@ namespace GardenSnake.Editor
                 bool speckle = (x * 7 + y * 13 + x * y * 3) % 11 == 0;
                 foreach (var renderer in tile.GetComponentsInChildren<Renderer>())
                     renderer.sharedMaterial = grass[checker + (speckle ? 2 : 0)];
-                tile.isStatic = true;
+                foreach (Transform part in tile.GetComponentsInChildren<Transform>()) part.gameObject.isStatic = false;
+                cells[y * BoardWidth + x] = tile.transform;
             }
+            var waves = board.gameObject.AddComponent<GridCellWaves>();
+            var waveSettings = new SerializedObject(waves);
+            waveSettings.FindProperty("columns").intValue = BoardWidth;
+            var cellArray = waveSettings.FindProperty("cells");
+            cellArray.arraySize = cells.Length;
+            for (int i = 0; i < cells.Length; i++) cellArray.GetArrayElementAtIndex(i).objectReferenceValue = cells[i];
+            waveSettings.ApplyModifiedPropertiesWithoutUndo();
             return board;
         }
 

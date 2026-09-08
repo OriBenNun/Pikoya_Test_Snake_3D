@@ -51,6 +51,7 @@ namespace GardenSnake
         private float toastTime;
         private float bannerTime;
         private float cardTime;
+        private float whisperTime;
         private float hintTarget = 1;
         private RunState lastState = (RunState)(-1);
         private int shownScore = -1;
@@ -132,7 +133,7 @@ namespace GardenSnake
                 case RunState.Won:
                     bool won = game.State == RunState.Won;
                     cardEyebrow.text = won ? "WHAT A HARVEST"
-                        : game.Score >= controller.Best && game.Score > 0 ? "A NEW PERSONAL BEST"
+                        : controller.Record.Broken ? "A NEW PERSONAL BEST"
                         : "ONE MORE LITTLE GO?";
                     cardTitle.text = won ? "Garden complete" : Verdict(game.Score);
                     cardBody.text = game.EndReason + "\nBest so far: " + controller.Best;
@@ -171,6 +172,8 @@ namespace GardenSnake
             toastRoot.anchoredPosition = toastAnchor;
         }
 
+        public void WhisperBest() => whisperTime = .6f;
+
         public void ShowBanner(string message)
         {
             banner.text = message;
@@ -193,6 +196,10 @@ namespace GardenSnake
             // The controller wires the HUD up in its Awake; until then there is nothing to draw.
             if (controller == null) return;
             float delta = Time.unscaledDeltaTime;
+            whisperTime = Mathf.Max(0, whisperTime - delta);
+            float whisper = Mathf.Sin(whisperTime / .6f * Mathf.PI);
+            bestText.transform.localScale = Vector3.one * (1 + whisper * .1f);
+            bestText.color = Color.Lerp(new Color(.118f, .227f, .165f, .72f), new Color(.89f, .38f, .15f), whisper);
             AnimateToast(delta);
             AnimateBanner(delta);
             AnimateChrome(delta);

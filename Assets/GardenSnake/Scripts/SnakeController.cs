@@ -40,6 +40,7 @@ namespace GardenSnake
         [SerializeField] private ParticleSystem trailParticles;
         [SerializeField] private SnakeFeel feel;
         [SerializeField] private SnakeHud hud;
+        [SerializeField] private GridCellWaves cellWaves;
         [Header("Snake proportions")]
         [SerializeField, Range(.8f, 1.6f)] private float headScale = 1.22f;
         [SerializeField, Range(.8f, 1.6f)] private float bodyScale = 1.3f;
@@ -85,6 +86,12 @@ namespace GardenSnake
         private Vector2 pointerStart;
         private bool trackingSwipe;
         private int best;
+        private bool hasPlayed;
+        private readonly RunRecord record = new RunRecord();
+        public RunRecord Record => record;
+        public int RecordCelebrations { get; private set; }
+        public int RecordWhispers { get; private set; }
+        public float Pace => Mathf.InverseLerp(initialStepSeconds, fastestStepSeconds, StepSeconds);
         private bool bestUnsaved;
         private bool muted;
         public SnakeGame Game { get; private set; }
@@ -98,6 +105,7 @@ namespace GardenSnake
             Application.runInBackground = true;
             Game = new SnakeGame(boardWidth, boardHeight, System.Environment.TickCount);
             best = PlayerPrefs.GetInt("GardenSnake.Best", 0);
+            hasPlayed = PlayerPrefs.GetInt("GardenSnake.HasPlayed", 0) == 1 || best > 0;
             muted = PlayerPrefs.GetInt("GardenSnake.Muted", 0) == 1;
             ApplyMute();
             cameraHome = gameCamera.transform.localPosition;
@@ -120,13 +128,20 @@ namespace GardenSnake
             if (Game.State == RunState.Paused) { TogglePause(); return; }
             if (Game.State == RunState.Playing) return;
             if ((Game.State == RunState.Lost || Game.State == RunState.Won) && Time.unscaledTime - endTime < .35f) return;
+            record.Begin(best, hasPlayed);
+            RecordCelebrations = RecordWhispers = 0;
+            hasPlayed = true;
+            PlayerPrefs.SetInt("GardenSnake.HasPlayed", 1);
+            PlayerPrefs.Save();
             Game.Reset();
             Game.Start();
+            cellWaves.Clear();
             ResetVisuals();
             // A short beat before the first step gives the player time to read the board.
             elapsed = -openingBeat;
             Play(startSound, 1f, .5f);
             feel.RunStart(World(Game.Body[0]));
+            cellWaves.Play(GridCellWaves.Pattern.Sweep, Game.Body[0]);
             hud.Refresh();
         }
 
@@ -194,21 +209,34 @@ namespace GardenSnake
                 grownAge = 0;
                 pulse = 1;
                 appleAge = 0;
-                bool record = Game.Score > best;
+                RecordBeat recordBeat = record.Apple(Game.Score);
                 UpdateBest();
                 apple.position = World(Game.Food);
                 feel.Pickup(eatenAt, Game.Score);
                 burstAge = 0;
                 burstRing.position = eatenAt + Vector3.up * .05f;
                 Play(pickupSound, 1f + Game.Score % 6 * .045f, .6f);
-                hud.ShowPickup("+1", eatenAt);
-                if (record && Game.Score > 1)
+                hud.ShowPickup(recordBeat == RecordBeat.Extended ? "+1 best" : "+1", eatenAt);
+                if (recordBeat == RecordBeat.Broken)
                 {
+                    RecordCelebrations++;
+                    cellWaves.Play(GridCellWaves.Pattern.Bloom, Game.Body[0]);
                     feel.NewBest(eatenAt);
                     Play(bestSound, 1f, .45f);
                     hud.ShowBanner("NEW BEST");
                 }
-                else if (Game.Score % 10 == 0) hud.ShowBanner(Game.Score + " APPLES");
+                else if (recordBeat == RecordBeat.Extended)
+                {
+                    RecordWhispers++;
+                    feel.RecordApple(eatenAt);
+                    Play(bestSound, 1.35f, .1f);
+                    hud.WhisperBest();
+                }
+                else if (Game.Score % 10 == 0)
+                {
+                    cellWaves.Play(GridCellWaves.Pattern.CheckerHop, Game.Body[0]);
+                    hud.ShowBanner(Game.Score + " APPLES");
+                }
             }
             if (result == StepResult.Lost || result == StepResult.Won)
             {
@@ -219,10 +247,15 @@ namespace GardenSnake
                 {
                     Play(loseSound, 1, .55f);
                     feel.Death(World(Game.Body[0]));
+                    cellWaves.Play(GridCellWaves.Pattern.Ripple, Game.Body[0]);
                     pickupParticles.transform.position = World(Game.Body[0]) + Vector3.up * .3f;
                     pickupParticles.Emit(18);
                 }
-                else hud.ShowBanner("GARDEN COMPLETE");
+                else
+                {
+                    cellWaves.Play(GridCellWaves.Pattern.Bloom, Game.Body[0], 1.5f);
+                    hud.ShowBanner("GARDEN COMPLETE");
+                }
             }
             hud.Refresh();
         }
@@ -475,7 +508,7 @@ namespace GardenSnake
                     scale = Vector3.one * ((1 + swell) * shrink * shrink);
                     position += Vector3.up * (pop * .22f);
                 }
-                part.position = position + Vector3.up * (bump * .07f);
+                part.position = position + Vector3.up * (bump * .07f + cellWaves.HeightAt(position));
                 part.localScale = basis * scale;
                 if (i == 0)
                 {
@@ -523,11 +556,11 @@ namespace GardenSnake
             // A fresh apple drops in with a little overshoot rather than blinking into place.
             float arrival = Mathf.Clamp01(appleAge / .34f);
             float pop = arrival >= 1 ? 1 : 1 - Mathf.Pow(1 - arrival, 3) * Mathf.Cos(arrival * 9f) * .55f;
-            apple.position = World(Game.Food) + Vector3.up * (.14f + breathe * .07f + (1 - arrival) * .5f);
+            apple.position = World(Game.Food) + Vector3.up * (cellWaves.HeightAt(World(Game.Food)) + .14f + breathe * .07f + (1 - arrival) * .5f);
             apple.rotation = Quaternion.Euler(0, Time.unscaledTime * 34, Mathf.Sin(Time.unscaledTime * 2.1f) * 6f);
             apple.localScale = Vector3.one * (appleScale * (1 + breathe * .04f) * pop);
             appleMarker.gameObject.SetActive(apple.gameObject.activeSelf);
-            appleMarker.position = World(Game.Food) + Vector3.up * .04f;
+            appleMarker.position = World(Game.Food) + Vector3.up * (.04f + cellWaves.HeightAt(World(Game.Food)));
             appleMarker.localScale = Vector3.one * ((2.1f + breathe * .18f) * arrival);
         }
 
