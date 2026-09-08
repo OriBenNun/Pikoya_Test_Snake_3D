@@ -119,3 +119,8 @@ Tools/Harness/_session.py
 Artifacts/shots/
 Assets/_shots/
 Assets/_shots.meta
+
+# Browser automation logs, Burst spill from Web builds, and playtest screenshots
+/.playwright-mcp/
+/Data/
+/web-*.png
