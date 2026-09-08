@@ -23,6 +23,7 @@ namespace GardenSnake.Editor
         // Snake
         public static readonly Color SnakeBody = Hex("F7EFA8");
         public static readonly Color SnakeSpot = Hex("8ED04A");
+        public static readonly Color SnakeHead = Hex("FFFBD8");
         public static readonly Color SnakeCream = Hex("FFFFFA");
         public static readonly Color Ink = Hex("1E3A2A");
 

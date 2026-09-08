@@ -65,7 +65,7 @@ namespace GardenSnake.Editor
             SnakeHud hud = GardenHud.Create();
 
             var settings = new SerializedObject(game);
-            Set(settings, "headPrefab", Prefab("SnakeHead"));
+            Set(settings, "headPrefab", TintHead(Prefab("SnakeHead")));
             Set(settings, "bodyPrefab", Prefab("SnakeBody"));
             Set(settings, "tailPrefab", Prefab("SnakeTail"));
             Set(settings, "applePrefab", Prefab("Apple"));
@@ -418,8 +418,8 @@ namespace GardenSnake.Editor
             var renderer = quad.GetComponent<Renderer>();
             renderer.shadowCastingMode = ShadowCastingMode.Off;
             renderer.receiveShadows = false;
-            renderer.sharedMaterial = Glowing("PickupRing", Paper,
-                GardenSprites.RingTexture("Ring", 128, .78f, .3f), 7f);
+            renderer.sharedMaterial = Glowing("PickupRing", Color.Lerp(Paper, Accent, .45f),
+                GardenSprites.RingTexture("Ring", 128, .78f, .3f), 6f);
             quad.SetActive(false);
             return quad.transform;
         }
@@ -677,6 +677,23 @@ namespace GardenSnake.Editor
             var prefab = PrefabUtility.SaveAsPrefabAsset(instance, path);
             UnityEngine.Object.DestroyImmediate(instance);
             return prefab;
+        }
+
+        /// <summary>
+        /// Gives the head its own slightly paler skin. The shape already reads as a head; this
+        /// makes it findable at a glance when the body is long and folded over itself.
+        /// </summary>
+        private static GameObject TintHead(GameObject prefab)
+        {
+            Material skin = MakeMaterial("JadeHead", SnakeHead);
+            string path = AssetDatabase.GetAssetPath(prefab);
+            GameObject contents = PrefabUtility.LoadPrefabContents(path);
+            foreach (var renderer in contents.GetComponentsInChildren<Renderer>(true))
+                if (renderer.sharedMaterial != null && renderer.sharedMaterial.name == "Jade")
+                    renderer.sharedMaterial = skin;
+            PrefabUtility.SaveAsPrefabAsset(contents, path);
+            PrefabUtility.UnloadPrefabContents(contents);
+            return AssetDatabase.LoadAssetAtPath<GameObject>(path);
         }
 
         private static GameObject Spawn(string name, Transform parent, Vector3 position)

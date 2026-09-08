@@ -80,6 +80,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -4157524182732408741, guid: e99509574ff1a1f4d8f7b6a5e244b7cd, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 37a2c04c884f0d8429d288eb48ae51e8, type: 2}
     - target: {fileID: 919132149155446097, guid: e99509574ff1a1f4d8f7b6a5e244b7cd, type: 3}
       propertyPath: m_Name
       value: SnakeHead

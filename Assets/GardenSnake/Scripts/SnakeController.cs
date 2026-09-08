@@ -44,6 +44,7 @@ namespace GardenSnake
         [SerializeField, Range(.8f, 1.6f)] private float headScale = 1.22f;
         [SerializeField, Range(.8f, 1.6f)] private float bodyScale = 1.3f;
         [SerializeField, Range(.8f, 1.6f)] private float tailScale = 1.24f;
+        [SerializeField, Range(.8f, 1.6f)] private float appleScale = 1.16f;
         [Header("Audio")]
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private AudioSource musicSource;
@@ -524,7 +525,7 @@ namespace GardenSnake
             float pop = arrival >= 1 ? 1 : 1 - Mathf.Pow(1 - arrival, 3) * Mathf.Cos(arrival * 9f) * .55f;
             apple.position = World(Game.Food) + Vector3.up * (.14f + breathe * .07f + (1 - arrival) * .5f);
             apple.rotation = Quaternion.Euler(0, Time.unscaledTime * 34, Mathf.Sin(Time.unscaledTime * 2.1f) * 6f);
-            apple.localScale = Vector3.one * ((1 + breathe * .04f) * pop);
+            apple.localScale = Vector3.one * (appleScale * (1 + breathe * .04f) * pop);
             appleMarker.gameObject.SetActive(apple.gameObject.activeSelf);
             appleMarker.position = World(Game.Food) + Vector3.up * .04f;
             appleMarker.localScale = Vector3.one * ((2.1f + breathe * .18f) * arrival);
