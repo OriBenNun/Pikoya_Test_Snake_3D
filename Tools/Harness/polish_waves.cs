@@ -2,7 +2,7 @@
 var c = UnityEngine.Object.FindAnyObjectByType<GardenSnake.SnakeController>();
 var waves = UnityEngine.Object.FindAnyObjectByType<GardenSnake.GridCellWaves>();
 if (c.Game.State != GardenSnake.Core.RunState.Ready) return "Start from Ready";
-c.PrimaryAction();
+c.Game.Start();
 c.enabled = false;
 waves.Clear();
 var cells = new System.Collections.Generic.List<Transform>();
@@ -20,6 +20,8 @@ waves.Play(GardenSnake.GridCellWaves.Pattern.Ripple, new GardenSnake.Core.Cell(0
 UnityEditor.EditorApplication.CallbackFunction tick = null;
 tick = () => {
     if (!UnityEditor.EditorApplication.isPlaying || waves == null) { UnityEditor.EditorApplication.update -= tick; return; }
+    // Captures or external tools can take Editor focus; this harness tests waves, not focus pausing.
+    if (c.Game.State == GardenSnake.Core.RunState.Paused) c.Game.TogglePause();
     float age = Time.unscaledTime - begun;
     bool bounded = true;
     float max = 0;
