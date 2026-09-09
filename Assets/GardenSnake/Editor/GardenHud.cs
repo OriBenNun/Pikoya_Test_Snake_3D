@@ -152,6 +152,7 @@ namespace GardenSnake.Editor
             var scrim = FullScreen("Scrim", root.transform);
             scrim.gameObject.AddComponent<Image>().color = Scrim;
             var scrimGroup = scrim.gameObject.AddComponent<CanvasGroup>();
+            scrimGroup.blocksRaycasts = false;
 
             var card = Anchored("Run card", root.transform, Middle, Vector2.zero, new Vector2(660, 430));
             var cardShadow = Anchored("Shadow", card, Middle, new Vector2(0, -14), new Vector2(920, 640));

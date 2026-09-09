@@ -78,6 +78,8 @@ namespace GardenSnake
             controller = game;
             view = gameCamera;
             canvasRect = (RectTransform)transform;
+            // This visual dimmer must not swallow corner controls or board swipes.
+            scrimGroup.blocksRaycasts = false;
             primaryButton.onClick.AddListener(controller.PrimaryAction);
             pauseButton.onClick.AddListener(controller.TogglePause);
             muteButton.onClick.AddListener(controller.ToggleMute);
