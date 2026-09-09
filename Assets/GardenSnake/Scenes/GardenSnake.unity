@@ -4536,6 +4536,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1 &83658024
 GameObject:
   m_ObjectHideFlags: 0
@@ -14579,6 +14666,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1001 &300704916
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21509,6 +21683,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1 &439527181
 GameObject:
   m_ObjectHideFlags: 0
@@ -30873,6 +31134,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1001 &654773227
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -33860,6 +34208,58 @@ MonoBehaviour:
   readout: {fileID: 203826525}
   caption: {fileID: 351899242}
   spring: 14
+  damping: 1.35
+  kickThreshold: 0.005
+  kickVelocity: 0.45
+  needleOvershoot: 0.025
+  kickDecay: 3
+  kickStretch: {x: 0.045, y: 0.085}
+  cruisingThreshold: 0.22
+  zippyThreshold: 0.62
+  zoomiesThreshold: 0.97
+  idleCaption: WIGGLE PACE
+  cruisingCaption: CRUISING
+  zippyCaption: ZIPPY
+  zoomiesCaption: ZOOMIES!
+  pausedCaption: PAUSED
+  ink: {r: 0.1, g: 0.23, b: 0.16, a: 1}
+  paper: {r: 1, g: 0.97, b: 0.85, a: 1}
+  mint: {r: 0.39, g: 0.72, b: 0.35, a: 1}
+  gold: {r: 1, g: 0.72, b: 0.22, a: 1}
+  coral: {r: 0.95, g: 0.31, b: 0.17, a: 1}
+  shadowColor: {r: 0.07, g: 0.2, b: 0.12, a: 0.2}
+  rimColor: {r: 0.78, g: 0.88, b: 0.59, a: 1}
+  highlightColor: {r: 1, g: 1, b: 1, a: 1}
+  unfilledFade: 0.7
+  faceOffset: {x: 0, y: 1}
+  shadowOffset: {x: 0, y: -5}
+  insetOffset: {x: 0, y: 2}
+  outerRadius: 58
+  rimRadius: 54
+  faceRadius: 50
+  sweepAngles: {x: 210, y: -30}
+  paceArcCount: 30
+  paceArcRadii: {x: 39, y: 46}
+  paceArcSweep: -6.6
+  litArcLead: 0.025
+  tickIntervals: 8
+  majorTickInnerRadius: 29
+  minorTickInnerRadius: 32
+  tickOuterRadius: 35
+  tickSweep: -2.3
+  needleRearLength: 9
+  needleHalfWidth: 3.5
+  needleLength: 37
+  hubRadius: 7
+  hubHighlightOffset: {x: -1, y: 1}
+  hubHighlightRadius: 3
+  screwDistance: 48
+  screwRadius: 2
+  highlightRadii: {x: 51, y: 53}
+  highlightAngle: 60
+  highlightSweep: 80
+  discSegments: 40
+  arcSegmentDegrees: 5
 --- !u!222 &692955084
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -44429,6 +44829,12 @@ MonoBehaviour:
   fastestStepSeconds: 0.115
   speedGainPerApple: 0.0055
   openingBeat: 0.45
+  digestionPerStep: 0.5
+  initialLength: 3
+  turnBufferSize: 2
+  firstAppleDistance: 2
+  skinSettings: {fileID: 11400000, guid: 698813545ea48494b95793970ee32b9b, type: 2}
+  mouthSettings: {fileID: 11400000, guid: a5511b0db4b3a654092d356c603a582e, type: 2}
   headPrefab: {fileID: 1867601300122143238, guid: 6750afee6d9d28a47b24c1e6f16ecdd9, type: 3}
   bodyPrefab: {fileID: 4136166090696936961, guid: 8a23ad8245b1ee944969e9c6b7da9d2a, type: 3}
   tailPrefab: {fileID: 4192431401043496113, guid: 7927d0a3bf0a0494bb7fe930ebea22ec, type: 3}
@@ -44460,6 +44866,88 @@ MonoBehaviour:
   startSound: {fileID: 8300000, guid: 42e276b3617886c4da55a95babdc4913, type: 3}
   bestSound: {fileID: 8300000, guid: ab0591c72516fcd4eb247906f6020353, type: 3}
   clickSound: {fileID: 8300000, guid: 98eeb1ecc92a50642ae4b8d45cb010a0, type: 3}
+  targetFrameRate: 60
+  runInBackground: 1
+  restartDelay: 0.35
+  swipeMinimumPixels: 24
+  swipeScreenHeightFraction: 0.035
+  bankRecoverySpeed: 3.4
+  bankAngle: -16
+  headTurnSpeed: 22
+  slitherAmplitude: 0.055
+  slitherFrequency: 2.1
+  slitherSegmentPhase: 0.42
+  growthDuration: 0.2
+  growthSwell: 0.2
+  idleBreathFrequency: 2.4
+  idleBreathSegmentPhase: 0.5
+  idleBreathAmplitude: 0.035
+  idleBreathStretch: 2.2
+  idleBreathLift: 0.5
+  firstBlinkDelay: 2.5
+  blinkInterval: {x: 2.2, y: 5.5}
+  blinkDuration: 0.16
+  blinkClosure: 0.92
+  deathBeat: 0.26
+  deathRecoilDuration: 0.1
+  deathRecoilDistance: 0.18
+  deathSegmentDelay: 0.05
+  deathTotalStagger: 0.34
+  deathSwell: 0.35
+  deathShrinkStart: 0.55
+  deathLift: 0.22
+  deathParticleCount: 18
+  deathParticleHeight: 0.3
+  appleBreathFrequency: 3.2
+  appleArrivalDuration: 0.34
+  appleArrivalEasePower: 3
+  appleArrivalOscillation: 9
+  appleArrivalSwell: 0.55
+  appleHoverHeight: 0.14
+  appleBobAmplitude: 0.07
+  appleDropHeight: 0.5
+  appleSpinSpeed: 34
+  appleRockFrequency: 2.1
+  appleRockAngle: 6
+  appleBreathScale: 0.04
+  appleMarkerHeight: 0.04
+  appleMarkerScale: 2.1
+  appleMarkerPulse: 0.18
+  burstDuration: 0.42
+  burstEasePower: 2.6
+  burstScale: {x: 0.6, y: 2.5}
+  burstOpacity: 0.55
+  burstHeight: 0.05
+  trailEmission: {x: 10, y: 30}
+  trailHeight: 0.12
+  paceVolumeBlendSpeed: 1.2
+  milestoneAppleInterval: 10
+  victoryWaveIntensity: 1.5
+  startWave: 2
+  deathWave: 0
+  bestWave: 1
+  milestoneWave: 3
+  victoryWave: 1
+  startWaveIntensity: 1
+  deathWaveIntensity: 1
+  bestWaveIntensity: 1
+  milestoneWaveIntensity: 1
+  startPitch: 1
+  startVolume: 0.5
+  turnPitch: {x: 0.96, y: 1.06}
+  turnVolume: 0.16
+  clickPitch: 1
+  clickVolume: 0.35
+  pickupPitch: 1
+  pickupPitchCycle: 6
+  pickupPitchIncrement: 0.045
+  pickupVolume: 0.6
+  bestPitch: 1
+  bestVolume: 0.45
+  recordPitch: 1.35
+  recordVolume: 0.1
+  losePitch: 1
+  loseVolume: 0.55
 --- !u!4 &882263082
 Transform:
   m_ObjectHideFlags: 0
@@ -44754,6 +45242,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1 &886182303
 GameObject:
   m_ObjectHideFlags: 0
@@ -47414,6 +47989,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1001 &933699512
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -52808,6 +53470,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1001 &1047061211
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -53276,6 +54025,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1001 &1052935331
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -56206,6 +57042,75 @@ MonoBehaviour:
   muteGlyph: {fileID: 1094327156}
   soundOnSprite: {fileID: 21300000, guid: e45c862038c33464ebc441d7a5043bef, type: 3}
   soundOffSprite: {fileID: 21300000, guid: 83474fddcd79c8849adf0babe721cb58, type: 3}
+  controlColor: {r: 0.118, g: 0.227, b: 0.165, a: 1}
+  mutedOpacity: 0.35
+  soundOnOpacity: 0.85
+  playingBrandOpacity: 0.85
+  chromeFadeSpeed: 1.6
+  bestColor: {r: 0.118, g: 0.227, b: 0.165, a: 0.72}
+  bestFlashColor: {r: 0.89, g: 0.38, b: 0.15, a: 1}
+  bestFlashDuration: 0.6
+  bestFlashScale: 0.1
+  pickupFontSize: 40
+  quietPickupFontSize: 28
+  pickupDuration: 0.95
+  quietPickupDuration: 0.7
+  toastFadeSpeed: 3.2
+  toastHaloOpacity: 0.75
+  quietToastHaloOpacity: 0.22
+  toastStartHeight: 64
+  toastRise: 54
+  toastTopPadding: 70
+  toastScale: {x: 1.3, y: 0.95}
+  toastScaleSpeed: 3
+  bannerDuration: 2
+  bannerFadeSpeed: 2.4
+  bannerRiseSpeed: 6
+  bannerFillOpacity: 0.96
+  bannerStartScale: 0.82
+  bannerEasePower: 3
+  resultsDelay: 0.72
+  cardFadeDuration: 0.22
+  cardEasePower: 3
+  scrimOpacity: 0.85
+  scrimFadeInSpeed: 4
+  scrimFadeOutSpeed: 6
+  cardStartScale: 0.94
+  cardStartY: -22
+  cardWidth: 660
+  cardHeights: {x: 372, y: 448}
+  eyebrowY: {x: 128, y: 168}
+  titleY: {x: 74, y: 116}
+  tallyY: 40
+  bodyY: {x: 4, y: -34}
+  primaryButtonY: {x: -92, y: -130}
+  keyHintY: {x: -146, y: -186}
+  bestPrefix: 'BEST '
+  bestResultPrefix: 'Best so far: '
+  readyEyebrow: A SMALL GARDEN, A BIG APPETITE
+  readyTitle: Room to grow
+  readyBody: 'Eat apples to grow longer.
+
+    Stay off the edges and your own tail.'
+  playLabel: PLAY
+  pausedEyebrow: TAKE A BREATHER
+  pausedTitle: On a leaf break
+  pausedBody: 'The garden will be right here
+
+    whenever you are ready.'
+  resumeLabel: RESUME
+  wonEyebrow: WHAT A HARVEST
+  recordEyebrow: A NEW PERSONAL BEST
+  lostEyebrow: ONE MORE LITTLE GO?
+  wonTitle: Garden complete
+  replayLabel: PLAY AGAIN
+  startingVerdict: Off to a start
+  decentVerdict: A decent little run
+  goodVerdict: That was a good one
+  magnificentVerdict: A magnificent run
+  decentScore: 5
+  goodScore: 12
+  magnificentScore: 25
 --- !u!114 &1116542638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -56911,6 +57816,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1 &1126569864
 GameObject:
   m_ObjectHideFlags: 0
@@ -59127,6 +60119,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1001 &1200149652
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -64908,6 +65987,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1001 &1328377441
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -69161,7 +70327,10 @@ MonoBehaviour:
   - {fileID: 178779497}
   - {fileID: 786290869}
   columns: 21
+  maximumConcurrentWaves: 8
   maximumHeight: 0.48
+  maximumDepth: 0.08
+  maximumStrength: 2
   maximumFrameStep: 0.05
   ripple:
     pattern: 0
@@ -69187,6 +70356,13 @@ MonoBehaviour:
     speed: 12
     duration: 0.65
     width: 2
+  shape:
+    rippleModulation: 0.35
+    rippleCycles: 2
+    checkerAlternateHeight: 0.3
+    bloomFalloff: 0.035
+    envelopePower: 2
+    sweepDirection: {x: 1, y: 1}
 --- !u!4 &1422228181
 Transform:
   m_ObjectHideFlags: 0
@@ -70710,6 +71886,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1001 &1451328787
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -73801,6 +75064,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1 &1517399215
 GameObject:
   m_ObjectHideFlags: 0
@@ -78855,6 +80205,93 @@ MonoBehaviour:
   hopHeight: 0.3
   hopLength: 0.65
   wingBeatsPerSecond: 5.5
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  usePerch: 1
+  reactionPropagationSpeed: 30
+  reactionDelayRange: {x: 0.03, y: 0.65}
+  reactionDistanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  reactionCuriosity: 1
+  reactionTravelChance: 0.35
+  hideSeconds: 2.5
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  butterflySwayCycles: 2
+  butterflySwayDistance: 0.15
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  bodyWidthCompensation: 0.4
+  hopPitch: -9
+  birdFlightPitch: -12
+  turtleRollFrequency: 5
+  turtleRoll: 2
+  bodyRotationResponse: 14
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  headScaleResponse: 10
+  headPositionResponse: 10
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  birdFlightLimbAngle: -65
+  turtleStrideCycles: 5
+  insectStrideCycles: 9
+  turtleStrideAngle: 20
+  insectStrideAngle: 24
+  strideLift: 0.035
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  hiddenLimbSpread: 0.6
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13
+  glideProgressRange: {x: 0.25, y: 0.7}
+  butterflyWingSpeedMultiplier: 1.25
+  glideWingAngle: 10
+  flapWingAngle: 52
+  flapWingOffset: 8
+  butterflyRestWingAngle: 28
+  butterflyRestWingFrequency: 3
+  butterflyRestWingAmplitude: 18
+  birdRestWingAngle: -12
+  wingRotationResponse: 35
+  foldedWingAngle: 65
+  foldedWingScale: 0.68
+  wingScaleResponse: 12
 --- !u!1001 &1562454636
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -88000,6 +89437,12 @@ MonoBehaviour:
   runStart: {fileID: 1863701880}
   newBest: {fileID: 240499776}
   recordApple: {fileID: 149190266}
+  pickupIntensity: {x: 0.75, y: 1.5}
+  fullPickupIntensityScore: 14
+  deathIntensity: 1
+  runStartIntensity: 1
+  newBestIntensity: 1
+  recordAppleIntensity: 1
 --- !u!4 &1716797757
 Transform:
   m_ObjectHideFlags: 0
@@ -93401,10 +94844,43 @@ MonoBehaviour:
   - {fileID: 1059838489}
   - {fileID: 1740199744}
   - {fileID: 1104026636}
+  discoverPlants: 1
+  plantNames:
+  - Tree
+  - Bush
+  - Tulip
+  - Daisy
+  - Lavender
+  - Flower
+  - Grass tuft
+  sproutPrefix: Sprout
+  treeWeight: 0.22
+  bushWeight: 0.45
+  plantWeight: 1
   amplitude: 7
   frequency: 0.9
   spatialScale: 0.2
   gustDepth: 0.45
+  phaseDirection: {x: 1, y: 0.6}
+  leanDirection: {x: 1, y: 0.55}
+  gustFrequency: 0.23
+  frequencyVariation: 0.16
+  variationSpatialScale: 3.71
+  turbulenceFrequency: 0.3
+  turbulenceStrength: 1.2
+  noiseOffset: 40
+  primarySway: 0.65
+  secondarySway: 0.2
+  secondaryFrequency: 1.73
+  secondarySpatialScale: 1.3
+  reactToFeedback: 1
+  propagationSpeed: 24
+  distanceFalloff: 0.025
+  deathStrength: -1.5
+  pulseDuration: 2
+  pulseFrequency: 11
+  pulseDecay: 3
+  pulseAmplitude: 12
 --- !u!4 &1799077000
 Transform:
   m_ObjectHideFlags: 0

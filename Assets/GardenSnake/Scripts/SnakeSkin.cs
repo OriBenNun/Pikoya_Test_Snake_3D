@@ -9,20 +9,23 @@ namespace GardenSnake
     public sealed class SnakeSkin : MonoBehaviour
     {
         private static readonly Unity.Profiling.ProfilerMarker DrawMarker = new Unity.Profiling.ProfilerMarker("GardenSnake.Skin");
-        private const int Sides = 20;
-        private const int SamplesPerCell = 12;
-        [SerializeField, Range(0f, .6f)] private float bellyBulge = .3f;
+        [SerializeField] private SnakeSkinSettings settings;
+        private bool ownsSettings;
+        private int Sides, SamplesPerCell;
+        private float digestionPerStep;
         private struct SurfaceFrame
         {
             public Vector3 center, forward, side;
             public float width, slope;
         }
         private SurfaceFrame[] surfaceFrames;
-        private readonly Vector2[] circle = new Vector2[Sides + 1];
+        private Vector2[] circle;
         private readonly Vector3[] spotSamples = new Vector3[165];
+        private float cachedSpotLength = -1, cachedSpotArc = -1;
         private Matrix4x4 worldToLocal;
         private Quaternion inverseRotation;
         private int topologyCount;
+        private float topologyBellyArc = -1;
         private readonly List<Vector3> vertices = new List<Vector3>();
         private readonly List<Vector3> normals = new List<Vector3>();
         private readonly List<int> top = new List<int>();
@@ -37,8 +40,13 @@ namespace GardenSnake
         private float digestionBlend;
         private float digestionVisibility;
 
-        public void Initialize(GameObject source, int capacity)
+        public void Initialize(GameObject source, int capacity, SnakeSkinSettings tuning = null)
         {
+            if (tuning != null) settings = tuning;
+            if (settings == null) { settings = ScriptableObject.CreateInstance<SnakeSkinSettings>(); ownsSettings = true; }
+            Sides = Mathf.Clamp(settings.Sides, 8, 40);
+            SamplesPerCell = Mathf.Clamp(settings.SamplesPerCell, 3, 24);
+            circle = new Vector2[Sides + 1];
             points = new Vector3[capacity + 1]; widths = new float[capacity + 1];
             surfaceFrames = new SurfaceFrame[capacity * SamplesPerCell + 1];
             for (int s = 0; s <= Sides; s++)
@@ -46,14 +54,7 @@ namespace GardenSnake
                 float angle = s * Mathf.PI * 2 / Sides;
                 circle[s] = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle));
             }
-            for (int ring = 0; ring <= 4; ring++)
-            for (int s = 0; s <= 32; s++)
-            {
-                float radius = Mathf.Max(.001f, ring / 4f);
-                float angle = s * Mathf.PI * 2 / 32;
-                float theta = Mathf.Sin(angle) * .39f * radius;
-                spotSamples[ring * 33 + s] = new Vector3(Mathf.Cos(angle) * .25f * radius, Mathf.Sin(theta), Mathf.Cos(theta));
-            }
+            CacheSpotSamples();
             int maxVertices = (capacity * SamplesPerCell + 1) * (Sides + 1) + capacity * 165;
             vertices.Capacity = normals.Capacity = maxVertices;
             top.Capacity = belly.Capacity = maxVertices * 3;
@@ -69,20 +70,22 @@ namespace GardenSnake
             mesh.MarkDynamic();
             gameObject.AddComponent<MeshFilter>().sharedMesh = mesh;
             skinRenderer = gameObject.AddComponent<MeshRenderer>();
-            skinRenderer.sharedMaterials = new[] { skin, cream, spot };
+            skinRenderer.sharedMaterials = new[] { settings.SkinMaterial != null ? settings.SkinMaterial : skin, settings.BellyMaterial != null ? settings.BellyMaterial : cream, settings.SpotMaterial != null ? settings.SpotMaterial : spot };
         }
 
         public void Draw(IReadOnlyList<Transform> poses, Transform tail, int bodyCount, float bodyScale, float headScale, float tailScale,
-            IReadOnlyList<float> swallowedApples, float stepBlend, float bulgeVisibility)
+            IReadOnlyList<float> swallowedApples, float stepBlend, float bulgeVisibility, float digestionSpeed = SnakeGame.DigestionPerStep)
         {
             using var profileScope = DrawMarker.Auto();
+            CacheSpotSamples();
             digestion = swallowedApples;
+            digestionPerStep = digestionSpeed;
             digestionBlend = stepBlend;
             digestionVisibility = bulgeVisibility;
             count = bodyCount + 1;
             worldToLocal = transform.worldToLocalMatrix;
             inverseRotation = Quaternion.Inverse(transform.rotation);
-            bool rebuildTopology = topologyCount != bodyCount;
+            bool rebuildTopology = topologyCount != bodyCount || !Mathf.Approximately(topologyBellyArc, settings.BellyArc);
             for (int i = 0; i < bodyCount; i++)
             {
                 Transform pose = i == bodyCount - 1 ? tail : poses[i];
@@ -91,11 +94,11 @@ namespace GardenSnake
             }
             Vector3 end = points[bodyCount - 1] - points[bodyCount - 2];
             if (end.sqrMagnitude < .0001f) end = -tail.forward;
-            points[bodyCount] = points[bodyCount - 1] + end.normalized * .42f;
+            points[bodyCount] = points[bodyCount - 1] + end.normalized * settings.TailTipLength;
             widths[bodyCount] = 0;
             // Hide the neck's open end inside the head, and taper the final cell to a single tip.
-            widths[0] *= .83f;
-            widths[bodyCount - 1] *= .58f;
+            widths[0] *= settings.NeckWidth;
+            widths[bodyCount - 1] *= settings.TailWidth;
             skinRenderer.enabled = widths[0] > .001f || widths[bodyCount - 1] > .001f;
             vertices.Clear(); normals.Clear();
             if (rebuildTopology) { top.Clear(); belly.Clear(); markings.Clear(); }
@@ -111,7 +114,7 @@ namespace GardenSnake
                 for (int s = 0; s < Sides; s++)
                 {
                     int a = (ring - 1) * (Sides + 1) + s, b = a + Sides + 1;
-                    var triangles = s >= 7 && s < 13 ? belly : top;
+                    var triangles = Mathf.Abs((s + .5f) / Sides - .5f) < settings.BellyArc * .5f ? belly : top;
                     triangles.Add(a); triangles.Add(b); triangles.Add(a + 1);
                     triangles.Add(a + 1); triangles.Add(b); triangles.Add(b + 1);
                 }
@@ -126,7 +129,7 @@ namespace GardenSnake
                     for (int s = 0; s <= steps; s++)
                     {
                         Vector3 sample = spotSamples[ring * 33 + s];
-                        Surface(InterpolateFrame(i + sample.x), sample.y, sample.z, bodyScale, .018f);
+                        Surface(InterpolateFrame(i + sample.x), sample.y, sample.z, bodyScale, settings.SpotSurfaceOffset);
                         if (ring == 0 || s == steps || !rebuildTopology) continue;
                         int a = start + (ring - 1) * (steps + 1) + s, b = a + steps + 1;
                         markings.Add(a); markings.Add(b); markings.Add(b + 1);
@@ -141,8 +144,24 @@ namespace GardenSnake
                 mesh.subMeshCount = 3;
                 mesh.SetTriangles(top, 0, false); mesh.SetTriangles(belly, 1, false); mesh.SetTriangles(markings, 2, false);
                 topologyCount = bodyCount;
+                topologyBellyArc = settings.BellyArc;
             }
             mesh.RecalculateBounds();
+        }
+
+        private void CacheSpotSamples()
+        {
+            if (Mathf.Approximately(cachedSpotLength, settings.SpotLength) && Mathf.Approximately(cachedSpotArc, settings.SpotArc)) return;
+            cachedSpotLength = settings.SpotLength;
+            cachedSpotArc = settings.SpotArc;
+            for (int ring = 0; ring <= 4; ring++)
+            for (int s = 0; s <= 32; s++)
+            {
+                float radius = Mathf.Max(.001f, ring / 4f);
+                float angle = s * Mathf.PI * 2 / 32;
+                float theta = Mathf.Sin(angle) * settings.SpotArc * radius;
+                spotSamples[ring * 33 + s] = new Vector3(Mathf.Cos(angle) * settings.SpotLength * radius, Mathf.Sin(theta), Mathf.Cos(theta));
+            }
         }
 
         private SurfaceFrame EvaluateFrame(float u)
@@ -163,17 +182,17 @@ namespace GardenSnake
             float bulge = 0, bulgeSlope = 0;
             for (int apple = 0; apple < digestion.Count; apple++)
             {
-                float travel = Mathf.Max(0, digestion[apple] + (digestionBlend - 1) * SnakeGame.DigestionPerStep);
-                float distance = Mathf.Abs(u - travel) / .9f;
+                float travel = Mathf.Max(0, digestion[apple] + (digestionBlend - 1) * digestionPerStep);
+                float distance = Mathf.Abs(u - travel) / Mathf.Max(.05f, settings.BulgeHalfLength);
                 if (distance >= 1) continue;
-                float entrance = Mathf.SmoothStep(0, 1, travel / .4f);
+                float entrance = Mathf.SmoothStep(0, 1, travel / Mathf.Max(.05f, settings.BulgeEntranceLength));
                 float round = (.5f + .5f * Mathf.Cos(distance * Mathf.PI)) * entrance;
                 if (round <= bulge) continue;
                 bulge = round;
-                bulgeSlope = -.5f * Mathf.PI / .9f * Mathf.Sin(distance * Mathf.PI) * Mathf.Sign(u - travel) * entrance;
+                bulgeSlope = -.5f * Mathf.PI / Mathf.Max(.05f, settings.BulgeHalfLength) * Mathf.Sin(distance * Mathf.PI) * Mathf.Sign(u - travel) * entrance;
             }
-            widthSlope = widthSlope * (1 + bulge * bellyBulge * digestionVisibility) + width * bulgeSlope * bellyBulge * digestionVisibility;
-            width *= 1 + bulge * bellyBulge * digestionVisibility;
+            widthSlope = widthSlope * (1 + bulge * settings.BellyBulge * digestionVisibility) + width * bulgeSlope * settings.BellyBulge * digestionVisibility;
+            width *= 1 + bulge * settings.BellyBulge * digestionVisibility;
             return new SurfaceFrame { center = center, forward = forward, side = side, width = width, slope = widthSlope };
         }
 
@@ -196,13 +215,13 @@ namespace GardenSnake
         {
             Vector3 center = frame.center, side = frame.side;
             float width = frame.width;
-            float radius = .335f * size * width;
-            float height = .235f * size * width;
-            center += Vector3.up * (.255f * size * width);
+            float radius = settings.Radius * size * width;
+            float height = settings.Height * size * width;
+            center += Vector3.up * (settings.CenterHeight * size * width);
             // Include the rising and falling profile in the lighting, so lumps read as round apples.
             Vector3 tangent = frame.forward + size * frame.slope *
-                (side * (.335f * sin) + Vector3.up * (.255f + .235f * cos));
-            Vector3 around = side * (.335f * cos) - Vector3.up * (.235f * sin);
+                (side * (settings.Radius * sin) + Vector3.up * (settings.CenterHeight + settings.Height * cos));
+            Vector3 around = side * (settings.Radius * cos) - Vector3.up * (settings.Height * sin);
             Vector3 normal = Vector3.Cross(tangent, around).normalized;
             Vector3 vertex = center + side * (sin * radius) + Vector3.up * (cos * height) + normal * offset * width;
             vertices.Add(worldToLocal.MultiplyPoint3x4(vertex));
@@ -215,7 +234,7 @@ namespace GardenSnake
             float t = u - i;
             Vector3 a = points[Mathf.Max(0, i - 1)], b = points[i], c = points[i + 1], d = points[Mathf.Min(count - 1, i + 2)];
             // Restrained Hermite tangents round corners without swinging into adjacent cells.
-            Vector3 m0 = (c - a) * .4f, m1 = (d - b) * .4f;
+            Vector3 m0 = (c - a) * settings.CurveTension, m1 = (d - b) * settings.CurveTension;
             // A new tail cell initially shares its neighbor's old position. Prevent spline
             // tangents from folding that short span back through the skin during growth.
             float span = Vector3.Distance(b, c);
@@ -225,6 +244,10 @@ namespace GardenSnake
                 (-2 * t * t * t + 3 * t * t) * c + (t * t * t - t * t) * m1;
         }
 
-        private void OnDestroy() { if (mesh != null) Destroy(mesh); }
+        private void OnDestroy()
+        {
+            if (mesh != null) Destroy(mesh);
+            if (ownsSettings && settings != null) Destroy(settings);
+        }
     }
 }

@@ -12,16 +12,68 @@ namespace GardenSnake
         [SerializeField] private TMP_Text readout;
         [SerializeField] private TMP_Text caption;
         [SerializeField, Range(5, 25)] private float spring = 14;
+        [Header("Needle and kick")]
+        [SerializeField, Min(0)] private float damping = 1.35f;
+        [SerializeField, Min(0)] private float kickThreshold = .005f;
+        [SerializeField] private float kickVelocity = .45f;
+        [SerializeField, Min(0)] private float needleOvershoot = .025f;
+        [SerializeField, Min(0)] private float kickDecay = 3;
+        [SerializeField] private Vector2 kickStretch = new Vector2(.045f, .085f);
+        [Header("Pace bands")]
+        [SerializeField, Range(0, 1)] private float cruisingThreshold = .22f;
+        [SerializeField, Range(0, 1)] private float zippyThreshold = .62f;
+        [SerializeField, Range(0, 1)] private float zoomiesThreshold = .97f;
+        [SerializeField] private string idleCaption = "WIGGLE PACE";
+        [SerializeField] private string cruisingCaption = "CRUISING";
+        [SerializeField] private string zippyCaption = "ZIPPY";
+        [SerializeField] private string zoomiesCaption = "ZOOMIES!";
+        [SerializeField] private string pausedCaption = "PAUSED";
+        [Header("Face colors")]
+        [SerializeField] private Color ink = new Color(.1f, .23f, .16f);
+        [SerializeField] private Color paper = new Color(1, .97f, .85f);
+        [SerializeField] private Color mint = new Color(.39f, .72f, .35f);
+        [SerializeField] private Color gold = new Color(1, .72f, .22f);
+        [SerializeField] private Color coral = new Color(.95f, .31f, .17f);
+        [SerializeField] private Color shadowColor = new Color(.07f, .2f, .12f, .2f);
+        [SerializeField] private Color rimColor = new Color(.78f, .88f, .59f);
+        [SerializeField] private Color highlightColor = Color.white;
+        [SerializeField, Range(0, 1)] private float unfilledFade = .7f;
+        [Header("Face geometry (canvas units)")]
+        [SerializeField] private Vector2 faceOffset = new Vector2(0, 1);
+        [SerializeField] private Vector2 shadowOffset = new Vector2(0, -5);
+        [SerializeField] private Vector2 insetOffset = new Vector2(0, 2);
+        [SerializeField, Min(0)] private float outerRadius = 58;
+        [SerializeField, Min(0)] private float rimRadius = 54;
+        [SerializeField, Min(0)] private float faceRadius = 50;
+        [SerializeField] private Vector2 sweepAngles = new Vector2(210, -30);
+        [SerializeField, Min(2)] private int paceArcCount = 30;
+        [SerializeField] private Vector2 paceArcRadii = new Vector2(39, 46);
+        [SerializeField] private float paceArcSweep = -6.6f;
+        [SerializeField, Min(0)] private float litArcLead = .025f;
+        [SerializeField, Min(1)] private int tickIntervals = 8;
+        [SerializeField, Min(0)] private float majorTickInnerRadius = 29;
+        [SerializeField, Min(0)] private float minorTickInnerRadius = 32;
+        [SerializeField, Min(0)] private float tickOuterRadius = 35;
+        [SerializeField] private float tickSweep = -2.3f;
+        [SerializeField, Min(0)] private float needleRearLength = 9;
+        [SerializeField, Min(0)] private float needleHalfWidth = 3.5f;
+        [SerializeField, Min(0)] private float needleLength = 37;
+        [SerializeField, Min(0)] private float hubRadius = 7;
+        [SerializeField] private Vector2 hubHighlightOffset = new Vector2(-1, 1);
+        [SerializeField, Min(0)] private float hubHighlightRadius = 3;
+        [SerializeField, Min(0)] private float screwDistance = 48;
+        [SerializeField, Min(0)] private float screwRadius = 2;
+        [SerializeField] private Vector2 highlightRadii = new Vector2(51, 53);
+        [SerializeField] private float highlightAngle = 60;
+        [SerializeField] private float highlightSweep = 80;
+        [Header("Mesh quality")]
+        [SerializeField, Range(8, 128)] private int discSegments = 40;
+        [SerializeField, Range(1, 30)] private float arcSegmentDegrees = 5;
         private SnakeController controller;
         private float displayed, velocity, kick, previousPace = -1;
         private int shownSpeed = -1, shownBand = -1;
         public float DisplayedPace => displayed;
         public float TargetPace => controller == null ? 0 : controller.Pace;
-        private static readonly Color Ink = new Color(.1f, .23f, .16f);
-        private static readonly Color Paper = new Color(1, .97f, .85f);
-        private static readonly Color Mint = new Color(.39f, .72f, .35f);
-        private static readonly Color Gold = new Color(1, .72f, .22f);
-        private static readonly Color Coral = new Color(.95f, .31f, .17f);
 
         protected override void Start()
         {
@@ -36,23 +88,23 @@ namespace GardenSnake
             float target = controller.Pace;
             bool paused = controller.Game.State == RunState.Paused;
             float dt = paused ? 0 : Mathf.Min(Time.unscaledDeltaTime, .033f);
-            if (target > previousPace + .005f && previousPace >= 0) { kick = 1; velocity += .45f; }
+            if (target > previousPace + kickThreshold && previousPace >= 0) { kick = 1; velocity += kickVelocity; }
             previousPace = target;
-            velocity += ((target - displayed) * spring * spring - 1.35f * spring * velocity) * dt;
-            displayed = Mathf.Clamp(displayed + velocity * dt, -.025f, 1.025f);
-            kick = Mathf.MoveTowards(kick, 0, dt * 3);
-            rectTransform.localScale = new Vector3(1 + kick * .045f, 1 + kick * .085f, 1);
+            velocity += ((target - displayed) * spring * spring - damping * spring * velocity) * dt;
+            displayed = Mathf.Clamp(displayed + velocity * dt, -needleOvershoot, 1 + needleOvershoot);
+            kick = Mathf.MoveTowards(kick, 0, dt * kickDecay);
+            rectTransform.localScale = new Vector3(1 + kick * kickStretch.x, 1 + kick * kickStretch.y, 1);
             int speed = Mathf.RoundToInt(10 / controller.StepSeconds);
             if (shownSpeed != speed)
             {
                 shownSpeed = speed;
                 readout.SetText("{0:1}", speed / 10f);
             }
-            int band = paused ? 4 : target > .97f ? 3 : target > .62f ? 2 : target > .22f ? 1 : 0;
+            int band = paused ? 4 : target > zoomiesThreshold ? 3 : target > zippyThreshold ? 2 : target > cruisingThreshold ? 1 : 0;
             if (shownBand != band)
             {
                 shownBand = band;
-                caption.text = band == 4 ? "PAUSED" : band == 3 ? "ZOOMIES!" : band == 2 ? "ZIPPY" : band == 1 ? "CRUISING" : "WIGGLE PACE";
+                caption.text = band == 4 ? pausedCaption : band == 3 ? zoomiesCaption : band == 2 ? zippyCaption : band == 1 ? cruisingCaption : idleCaption;
             }
             if (dt > 0) SetVerticesDirty();
         }
@@ -60,33 +112,33 @@ namespace GardenSnake
         protected override void OnPopulateMesh(VertexHelper vh)
         {
             vh.Clear();
-            Vector2 center = rectTransform.rect.center + new Vector2(0, 1);
-            Disc(vh, center + new Vector2(0, -5), 58, new Color(.07f, .2f, .12f, .2f));
-            Disc(vh, center, 58, Ink);
-            Disc(vh, center + new Vector2(0, 2), 54, new Color(.78f, .88f, .59f));
-            Disc(vh, center + new Vector2(0, 2), 50, Paper);
-            for (int i = 0; i < 30; i++)
+            Vector2 center = rectTransform.rect.center + faceOffset;
+            Disc(vh, center + shadowOffset, outerRadius, shadowColor);
+            Disc(vh, center, outerRadius, ink);
+            Disc(vh, center + insetOffset, rimRadius, rimColor);
+            Disc(vh, center + insetOffset, faceRadius, paper);
+            for (int i = 0; i < Mathf.Max(2, paceArcCount); i++)
             {
-                float t = i / 29f;
-                Color color = t < .5f ? Color.Lerp(Mint, Gold, t * 2) : Color.Lerp(Gold, Coral, (t - .5f) * 2);
-                if (t > displayed + .025f) color = Color.Lerp(color, Paper, .7f);
-                Arc(vh, center, 39, 46, Mathf.Lerp(210, -30, t), -6.6f, color);
+                float t = i / (float)Mathf.Max(1, paceArcCount - 1);
+                Color color = t < .5f ? Color.Lerp(mint, gold, t * 2) : Color.Lerp(gold, coral, (t - .5f) * 2);
+                if (t > displayed + litArcLead) color = Color.Lerp(color, paper, unfilledFade);
+                Arc(vh, center, paceArcRadii.x, paceArcRadii.y, Mathf.Lerp(sweepAngles.x, sweepAngles.y, t), paceArcSweep, color);
             }
-            for (int i = 0; i <= 8; i++)
+            for (int i = 0; i <= Mathf.Max(1, tickIntervals); i++)
             {
-                float a = Mathf.Lerp(210, -30, i / 8f);
-                Arc(vh, center, i % 2 == 0 ? 29 : 32, 35, a, -2.3f, Ink);
+                float a = Mathf.Lerp(sweepAngles.x, sweepAngles.y, i / (float)Mathf.Max(1, tickIntervals));
+                Arc(vh, center, i % 2 == 0 ? majorTickInnerRadius : minorTickInnerRadius, tickOuterRadius, a, tickSweep, ink);
             }
-            float angle = Mathf.Lerp(210, -30, displayed) * Mathf.Deg2Rad;
+            float angle = Mathf.Lerp(sweepAngles.x, sweepAngles.y, displayed) * Mathf.Deg2Rad;
             Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
             Vector2 side = new Vector2(-direction.y, direction.x);
-            Triangle(vh, center - direction * 9 + side * 3.5f, center - direction * 9 - side * 3.5f, center + direction * 37, Coral);
-            Disc(vh, center, 7, Ink);
-            Disc(vh, center + new Vector2(-1, 1), 3, Gold);
+            Triangle(vh, center - direction * needleRearLength + side * needleHalfWidth, center - direction * needleRearLength - side * needleHalfWidth, center + direction * needleLength, coral);
+            Disc(vh, center, hubRadius, ink);
+            Disc(vh, center + hubHighlightOffset, hubHighlightRadius, gold);
             // Two tiny screw heads and a specular highlight make the face read as a toy object.
-            Disc(vh, center + new Vector2(-48, 0), 2, Paper);
-            Disc(vh, center + new Vector2(48, 0), 2, Paper);
-            Arc(vh, center + new Vector2(0, 2), 51, 53, 60, 80, Color.white);
+            Disc(vh, center + new Vector2(-screwDistance, 0), screwRadius, paper);
+            Disc(vh, center + new Vector2(screwDistance, 0), screwRadius, paper);
+            Arc(vh, center + insetOffset, highlightRadii.x, highlightRadii.y, highlightAngle, highlightSweep, highlightColor);
         }
 
         private static void Triangle(VertexHelper vh, Vector2 a, Vector2 b, Vector2 c, Color color)
@@ -96,19 +148,19 @@ namespace GardenSnake
             vh.AddTriangle(i, i + 1, i + 2);
         }
 
-        private static void Disc(VertexHelper vh, Vector2 center, float radius, Color color)
+        private void Disc(VertexHelper vh, Vector2 center, float radius, Color color)
         {
-            for (int i = 0; i < 40; i++)
+            for (int i = 0; i < Mathf.Max(3, discSegments); i++)
             {
-                float a = i * Mathf.PI * 2 / 40, b = (i + 1) * Mathf.PI * 2 / 40;
+                float a = i * Mathf.PI * 2 / Mathf.Max(3, discSegments), b = (i + 1) * Mathf.PI * 2 / Mathf.Max(3, discSegments);
                 Triangle(vh, center, center + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * radius,
                     center + new Vector2(Mathf.Cos(b), Mathf.Sin(b)) * radius, color);
             }
         }
 
-        private static void Arc(VertexHelper vh, Vector2 center, float inner, float outer, float angle, float sweep, Color color)
+        private void Arc(VertexHelper vh, Vector2 center, float inner, float outer, float angle, float sweep, Color color)
         {
-            int pieces = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(sweep) / 5));
+            int pieces = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(sweep) / Mathf.Max(1, arcSegmentDegrees)));
             for (int s = 0; s < pieces; s++)
             {
                 float a = (angle + sweep * s / pieces) * Mathf.Deg2Rad;

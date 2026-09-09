@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab3f0affb427fdd489e34111ba40de0b, type: 3}
+  m_Name: Snake Mouth
+  m_EditorClassIdentifier: Assembly-CSharp::GardenSnake.SnakeMouthSettings
+  anticipationDistance: 1.8
+  anticipationRamp: 1.05
+  anticipationHalfWidth: 0.65
+  jawSpeed: 12
+  swallowStepFraction: 0.9
+  swallowDestination: {x: 0, y: 0.3, z: 0.35}
+  appleSpin: 350
+  appleShrinkPower: 2
+  upperFaceLift: 0.18
+  muzzleRetraction: 0.28
+  cavityPosition: {x: 0, y: 0.235, z: 0.545}
+  cavityOpeningOffset: {x: 0, y: 0.065, z: 0}
+  cavityScale: {x: 0.48, y: 0.027, z: 0.065}
+  cavityOpeningScale: {x: 0.18, y: 0.35, z: 0.23}
+  cavityRotation: {x: -18, y: 0, z: 0}
+  jawPosition: {x: 0, y: 0.17, z: 0.41}
+  jawOpeningOffset: {x: 0, y: -0.055, z: 0.065}
+  jawScale: {x: 0.64, y: 0.12, z: 0.32}
+  jawOpeningScale: {x: 0, y: 0, z: 0.07}
+  tonguePosition: {x: 0, y: 0.205, z: 0.555}
+  tongueOpeningOffset: {x: 0, y: -0.045, z: 0}
+  tongueScale: {x: 0.21, y: 0.035, z: 0.12}
+  tongueThreshold: 0.15

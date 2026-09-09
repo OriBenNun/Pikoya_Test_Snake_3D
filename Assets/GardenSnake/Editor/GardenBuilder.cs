@@ -108,6 +108,7 @@ namespace GardenSnake.Editor
             settings.FindProperty("boardHeight").intValue = BoardHeight;
             settings.ApplyModifiedPropertiesWithoutUndo();
 
+            GardenTuning.Bind(game);
             GardenFeel.Create(game, hud, board, pickupParticles);
 
             EditorSceneManager.SaveScene(scene, ScenePath);

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2786951a71f7b447a015ef539acc97e, type: 3}
+  m_Name: Snake Skin
+  m_EditorClassIdentifier: Assembly-CSharp::GardenSnake.SnakeSkinSettings
+  sides: 20
+  samplesPerCell: 12
+  skinMaterial: {fileID: 0}
+  bellyMaterial: {fileID: 0}
+  spotMaterial: {fileID: 0}
+  radius: 0.335
+  height: 0.235
+  centerHeight: 0.255
+  tailTipLength: 0.42
+  neckWidth: 0.83
+  tailWidth: 0.58
+  curveTension: 0.4
+  bellyArc: 0.3
+  spotLength: 0.25
+  spotArc: 0.39
+  spotSurfaceOffset: 0.018
+  bellyBulge: 0.3
+  bulgeHalfLength: 0.9
+  bulgeEntranceLength: 0.4

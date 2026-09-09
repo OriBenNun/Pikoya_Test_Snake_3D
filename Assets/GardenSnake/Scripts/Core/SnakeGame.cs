@@ -30,6 +30,10 @@ namespace GardenSnake.Core
         private readonly List<float> digestion = new List<float>();
         private readonly IReadOnlyList<float> readOnlyDigestion;
         public const float DigestionPerStep = .5f;
+        public float DigestionSpeed { get; }
+        public int InitialLength { get; }
+        public int TurnBufferSize { get; }
+        private readonly int firstAppleDistance;
         public IReadOnlyList<Cell> Body => readOnlyBody;
         public IReadOnlyList<float> Digestion => readOnlyDigestion;
         public bool HasFood => Food.X >= 0;
@@ -41,9 +45,13 @@ namespace GardenSnake.Core
         public RunState State { get; private set; }
         public string EndReason { get; private set; }
 
-        public SnakeGame(int width = 12, int height = 12, int seed = 1)
+        public SnakeGame(int width = 12, int height = 12, int seed = 1, float digestionPerStep = DigestionPerStep, int initialLength = 3, int turnBufferSize = 2, int firstAppleDistance = 2)
         {
             if (width < 6 || height < 6) throw new ArgumentOutOfRangeException(nameof(width));
+            DigestionSpeed = Math.Max(.05f, Math.Min(1f, digestionPerStep));
+            InitialLength = Math.Max(2, Math.Min(width / 2 + 1, initialLength));
+            TurnBufferSize = Math.Max(1, Math.Min(8, turnBufferSize));
+            this.firstAppleDistance = Math.Max(1, Math.Min(width - width / 2 - 1, firstAppleDistance));
             Width = width;
             Height = height;
             random = new Random(seed);
@@ -59,13 +67,13 @@ namespace GardenSnake.Core
             digestion.Clear();
             int x = Width / 2;
             int y = Height / 2;
-            for (int i = 0; i < 3; i++) body.Add(new Cell(x - i, y));
+            for (int i = 0; i < InitialLength; i++) body.Add(new Cell(x - i, y));
             Heading = Direction.Right;
             Score = 0;
             EndReason = string.Empty;
             State = RunState.Ready;
             // The first apple teaches movement immediately; later apples use free-cell sampling.
-            Food = new Cell(x + 2, y);
+            Food = new Cell(x + firstAppleDistance, y);
         }
 
         public void Start() { if (State == RunState.Ready) State = RunState.Playing; }
@@ -77,7 +85,7 @@ namespace GardenSnake.Core
 
         public bool QueueTurn(Direction direction)
         {
-            if (State != RunState.Playing || turns.Count >= 2) return false;
+            if (State != RunState.Playing || turns.Count >= TurnBufferSize) return false;
             Direction last = Heading;
             foreach (Direction queued in turns) last = queued;
             if (direction == last || ((int)direction + 2) % 4 == (int)last) return false;
@@ -94,13 +102,13 @@ namespace GardenSnake.Core
             if (next.X < 0 || next.Y < 0 || next.X >= Width || next.Y >= Height)
                 return Lose("You reached the garden edge.");
             // Growth happens only when the oldest swallowed apple reaches the tail.
-            bool grow = digestion.Count > 0 && digestion[0] + DigestionPerStep >= body.Count - 1;
+            bool grow = digestion.Count > 0 && digestion[0] + DigestionSpeed >= body.Count - 1;
             int occupied = body.Count - (grow ? 0 : 1);
             for (int i = 0; i < occupied; i++)
                 if (body[i] == next) return Lose("You crossed your own tail.");
             body.Insert(0, next);
             if (!grow) body.RemoveAt(body.Count - 1);
-            for (int i = 0; i < digestion.Count; i++) digestion[i] += DigestionPerStep;
+            for (int i = 0; i < digestion.Count; i++) digestion[i] += DigestionSpeed;
             if (grow) digestion.RemoveAt(0);
             if (eat) { Score++; digestion.Add(0); }
             if (body.Count == Width * Height)
