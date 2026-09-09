@@ -60,6 +60,7 @@ namespace GardenSnake.Editor
             Transform board = CreateBoard();
             CreateSurroundings();
             GardenDecor.Create();
+            GardenWildlifeBuilder.Create();
 
             var game = new GameObject("Snake Game").AddComponent<SnakeController>();
             var audio = game.gameObject.AddComponent<AudioSource>();
