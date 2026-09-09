@@ -207,9 +207,12 @@ namespace GardenSnake
                 bool glide = !butterfly && t > .25f && t < .7f;
                 flapPhase += dt * wingBeatsPerSecond * (butterfly ? 1.25f : 1) * Mathf.PI * 2;
                 float flap = State == Activity.Fly ? (glide ? 10 : Mathf.Sin(flapPhase) * 52 + 8) :
-                    butterfly ? 28 + Mathf.Sin(clock * 3) * 18 : -76;
+                    butterfly ? 28 + Mathf.Sin(clock * 3) * 18 : -12;
                 wingAngle = Mathf.Lerp(wingAngle, flap, 1 - Mathf.Exp(-dt * 35));
                 float fold = !butterfly && State != Activity.Fly ? 65 : 0;
+                float span = !butterfly && State != Activity.Fly ? .68f : 1;
+                leftWing.localScale = Vector3.Lerp(leftWing.localScale, Vector3.one * span, 1 - Mathf.Exp(-dt * 12));
+                rightWing.localScale = leftWing.localScale;
                 leftWing.localRotation = Quaternion.Euler(0, -fold, -wingAngle);
                 rightWing.localRotation = Quaternion.Euler(0, fold, wingAngle);
             }
