@@ -216,6 +216,11 @@ namespace GardenSnake
             Vector3 a = points[Mathf.Max(0, i - 1)], b = points[i], c = points[i + 1], d = points[Mathf.Min(count - 1, i + 2)];
             // Restrained Hermite tangents round corners without swinging into adjacent cells.
             Vector3 m0 = (c - a) * .4f, m1 = (d - b) * .4f;
+            // A new tail cell initially shares its neighbor's old position. Prevent spline
+            // tangents from folding that short span back through the skin during growth.
+            float span = Vector3.Distance(b, c);
+            m0 = Vector3.ClampMagnitude(m0, span);
+            m1 = Vector3.ClampMagnitude(m1, span);
             return (2 * t * t * t - 3 * t * t + 1) * b + (t * t * t - 2 * t * t + t) * m0 +
                 (-2 * t * t * t + 3 * t * t) * c + (t * t * t - t * t) * m1;
         }
