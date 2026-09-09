@@ -8,7 +8,6 @@ var skin = (GardenSnake.SnakeSkinSettings)controllerFields.FindProperty("skinSet
 SessionState.SetString("TuningVariant.Controller", EditorJsonUtility.ToJson(c));
 SessionState.SetString("TuningVariant.Waves", EditorJsonUtility.ToJson(waves));
 SessionState.SetString("TuningVariant.Skin", EditorJsonUtility.ToJson(skin));
-controllerFields.FindProperty("digestionPerStep").floatValue = .25f;
 controllerFields.FindProperty("initialLength").intValue = 2;
 controllerFields.FindProperty("turnBufferSize").intValue = 3;
 controllerFields.FindProperty("firstAppleDistance").intValue = 3;

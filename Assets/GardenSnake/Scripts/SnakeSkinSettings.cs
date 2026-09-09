@@ -35,6 +35,9 @@ namespace GardenSnake
         public float CurveTension => curveTension;
         [SerializeField, Range(0, 1)] private float bellyArc = .3f;
         public float BellyArc => bellyArc;
+        [SerializeField, Range(0, .2f), Tooltip("Soft rounded bump on each body segment.")]
+        private float segmentBump = .075f;
+        public float SegmentBump => segmentBump;
         [Header("Markings (live tuning)")]
         [SerializeField, Range(0, .5f)] private float spotLength = .25f;
         public float SpotLength => spotLength;
@@ -51,4 +54,3 @@ namespace GardenSnake
         public float BulgeEntranceLength => bulgeEntranceLength;
     }
 }
-

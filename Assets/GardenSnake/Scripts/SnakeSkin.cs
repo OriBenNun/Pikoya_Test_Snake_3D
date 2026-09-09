@@ -12,7 +12,6 @@ namespace GardenSnake
         [SerializeField] private SnakeSkinSettings settings;
         private bool ownsSettings;
         private int Sides, SamplesPerCell;
-        private float digestionPerStep;
         private struct SurfaceFrame
         {
             public Vector3 center, forward, side;
@@ -37,6 +36,8 @@ namespace GardenSnake
         private float[] widths;
         private int count;
         private IReadOnlyList<float> digestion;
+        private IReadOnlyList<Vector3> digestionAnchors;
+        private bool finishingDigestion;
         private float digestionBlend;
         private float digestionVisibility;
 
@@ -74,12 +75,13 @@ namespace GardenSnake
         }
 
         public void Draw(IReadOnlyList<Transform> poses, Transform tail, int bodyCount, float bodyScale, float headScale, float tailScale,
-            IReadOnlyList<float> swallowedApples, float stepBlend, float bulgeVisibility, float digestionSpeed = SnakeGame.DigestionPerStep)
+            IReadOnlyList<float> swallowedApples, IReadOnlyList<Vector3> appleAnchors, float stepBlend, float bulgeVisibility, bool finishingApple = false)
         {
             using var profileScope = DrawMarker.Auto();
             CacheSpotSamples();
             digestion = swallowedApples;
-            digestionPerStep = digestionSpeed;
+            digestionAnchors = appleAnchors;
+            finishingDigestion = finishingApple;
             digestionBlend = stepBlend;
             digestionVisibility = bulgeVisibility;
             count = bodyCount + 1;
@@ -93,6 +95,16 @@ namespace GardenSnake
                 widths[i] = pose.localScale.x / (i == bodyCount - 1 ? tailScale : i == 0 ? headScale : bodyScale);
             }
             Vector3 end = points[bodyCount - 1] - points[bodyCount - 2];
+            float tailSpan = end.magnitude;
+            if (bodyCount > 2 && tailSpan < .5f)
+            {
+                Vector3 previousEnd = points[bodyCount - 1] - points[bodyCount - 3];
+                end = Vector3.Lerp(previousEnd.normalized, end.normalized, Mathf.SmoothStep(0, 1, tailSpan / .5f));
+            }
+            // Grow the new shoulder over the whole movement step. Expanding it before
+            // this span reaches full length makes a steep ridge near the tail tip.
+            if (bodyCount > 2 && tailSpan < 1)
+                widths[bodyCount - 2] *= Mathf.Lerp(settings.TailWidth, 1, Mathf.SmoothStep(0, 1, tailSpan));
             if (end.sqrMagnitude < .0001f) end = -tail.forward;
             points[bodyCount] = points[bodyCount - 1] + end.normalized * settings.TailTipLength;
             widths[bodyCount] = 0;
@@ -177,19 +189,34 @@ namespace GardenSnake
             Vector3 side = Vector3.Cross(Vector3.up, forward.normalized);
             float width = Mathf.Lerp(widths[i], widths[i + 1], Mathf.SmoothStep(0, 1, t));
             float widthSlope = (widths[i + 1] - widths[i]) * 6 * t * (1 - t);
-            // A round lump follows the same curved centerline as the skin, even through turns.
-            // Sample continuously instead of swelling whole cells, so the apple visibly rolls.
+            // Small rounded shoulders distinguish each body part without breaking the skin.
+            float bumpEnvelope = Mathf.SmoothStep(0, 1, u);
+            float bumpEnvelopeSlope = u < 1 ? 6 * u * (1 - u) : 0;
+            float bumpWave = .5f + .5f * Mathf.Cos(u * Mathf.PI * 2);
+            float bump = settings.SegmentBump * bumpEnvelope * bumpWave;
+            float bumpSlope = settings.SegmentBump * (bumpEnvelopeSlope * bumpWave - bumpEnvelope * Mathf.PI * Mathf.Sin(u * Mathf.PI * 2));
+            widthSlope = widthSlope * (1 + bump) + width * bumpSlope;
+            width *= 1 + bump;
+            // Food defines a stationary field in board space. Each passing body part
+            // swells at that same location, including when the centerline rounds a turn.
             float bulge = 0, bulgeSlope = 0;
             for (int apple = 0; apple < digestion.Count; apple++)
             {
-                float travel = Mathf.Max(0, digestion[apple] + (digestionBlend - 1) * digestionPerStep);
-                float distance = Mathf.Abs(u - travel) / Mathf.Max(.05f, settings.BulgeHalfLength);
+                float travel = Mathf.Max(0, digestion[apple] + digestionBlend - 1);
+                // A nearby parallel stretch must not inherit another stretch's apple.
+                if (Mathf.Abs(u - travel) > 2) continue;
+                Vector3 offset = center - digestionAnchors[apple];
+                offset.y = 0;
+                float halfLength = Mathf.Max(.05f, settings.BulgeHalfLength);
+                float distance = offset.magnitude / halfLength;
                 if (distance >= 1) continue;
                 float entrance = Mathf.SmoothStep(0, 1, travel / Mathf.Max(.05f, settings.BulgeEntranceLength));
+                if (finishingDigestion && apple == digestion.Count - 1)
+                    entrance *= 1 - Mathf.SmoothStep(0, 1, digestionBlend);
                 float round = (.5f + .5f * Mathf.Cos(distance * Mathf.PI)) * entrance;
                 if (round <= bulge) continue;
                 bulge = round;
-                bulgeSlope = -.5f * Mathf.PI / Mathf.Max(.05f, settings.BulgeHalfLength) * Mathf.Sin(distance * Mathf.PI) * Mathf.Sign(u - travel) * entrance;
+                bulgeSlope = -.5f * Mathf.PI / halfLength * Mathf.Sin(distance * Mathf.PI) * Vector3.Dot(offset.normalized, forward) * entrance;
             }
             widthSlope = widthSlope * (1 + bulge * settings.BellyBulge * digestionVisibility) + width * bulgeSlope * settings.BellyBulge * digestionVisibility;
             width *= 1 + bulge * settings.BellyBulge * digestionVisibility;
@@ -229,6 +256,27 @@ namespace GardenSnake
         }
 
         private Vector3 Center(float u)
+        {
+            Vector3 center = RawCenter(u);
+            for (int apple = 0; apple < digestion.Count; apple++)
+            {
+                // The growing tail already rests on the pickup. Pulling its collapsing
+                // neighbor back toward it would fold the newly forming shoulder.
+                if (finishingDigestion && apple == digestion.Count - 1) continue;
+                float travel = Mathf.Clamp(digestion[apple] + digestionBlend - 1, 0, count - 1);
+                float distance = Mathf.Abs(u - travel) / Mathf.Max(.05f, settings.BulgeHalfLength);
+                if (distance >= 1) continue;
+                // Rounded corners cut inside the grid path. Keep the swallowed apple
+                // pinned while the surrounding skin bends smoothly around its position.
+                float pin = Mathf.SmoothStep(0, 1, travel) * (.5f + .5f * Mathf.Cos(distance * Mathf.PI));
+                Vector3 correction = digestionAnchors[apple] - RawCenter(travel);
+                correction.y = 0;
+                center += correction * pin * digestionVisibility;
+            }
+            return center;
+        }
+
+        private Vector3 RawCenter(float u)
         {
             int i = Mathf.Min(count - 2, Mathf.FloorToInt(u));
             float t = u - i;

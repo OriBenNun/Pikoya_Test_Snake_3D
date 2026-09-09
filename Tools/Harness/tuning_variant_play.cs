@@ -8,7 +8,7 @@ var report = new System.Collections.Generic.List<string>();
 int failures = 0, moveCount = 0, pickupStep = -1;
 void Check(bool ok, string message) { if (!ok) failures++; report.Add((ok ? "PASS " : "FAIL ") + message); }
 Check(c.Game.Body.Count == 2 && c.Game.InitialLength == 2, "Serialized initial length used by real controller Awake");
-Check(c.Game.DigestionSpeed == .25f && c.Game.TurnBufferSize == 3, "Serialized digestion speed and turn buffer used by simulation");
+Check(c.Game.DigestionSpeed == 1 && c.Game.TurnBufferSize == 3, "Stationary digestion and serialized turn buffer used by simulation");
 Check(c.Game.Food.X - c.Game.Body[0].X == 3, "Serialized first apple distance applied");
 Check(mesh.vertexCount == (2 * 3 + 1) * 9 + 165, "Skin SO mesh quality applied: " + mesh.vertexCount + " vertices");
 for (int i = 0; i < 10; i++) waves.Play(GardenSnake.GridCellWaves.Pattern.Bloom, new GardenSnake.Core.Cell(10, 6));

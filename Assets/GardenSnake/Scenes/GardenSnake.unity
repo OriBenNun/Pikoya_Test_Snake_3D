@@ -44829,7 +44829,6 @@ MonoBehaviour:
   fastestStepSeconds: 0.115
   speedGainPerApple: 0.0055
   openingBeat: 0.45
-  digestionPerStep: 0.5
   initialLength: 3
   turnBufferSize: 2
   firstAppleDistance: 2

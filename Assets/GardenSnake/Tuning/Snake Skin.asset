@@ -25,6 +25,7 @@ MonoBehaviour:
   tailWidth: 0.58
   curveTension: 0.4
   bellyArc: 0.3
+  segmentBump: 0.075
   spotLength: 0.25
   spotArc: 0.39
   spotSurfaceOffset: 0.018

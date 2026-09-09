@@ -29,8 +29,9 @@ namespace GardenSnake.Core
         private readonly IReadOnlyList<Cell> readOnlyBody;
         private readonly List<float> digestion = new List<float>();
         private readonly IReadOnlyList<float> readOnlyDigestion;
-        public const float DigestionPerStep = .5f;
-        public float DigestionSpeed { get; }
+        // One body index per move keeps food on its pickup cell as the snake slides over it.
+        public const float DigestionPerStep = 1f;
+        public float DigestionSpeed => DigestionPerStep;
         public int InitialLength { get; }
         public int TurnBufferSize { get; }
         private readonly int firstAppleDistance;
@@ -45,10 +46,9 @@ namespace GardenSnake.Core
         public RunState State { get; private set; }
         public string EndReason { get; private set; }
 
-        public SnakeGame(int width = 12, int height = 12, int seed = 1, float digestionPerStep = DigestionPerStep, int initialLength = 3, int turnBufferSize = 2, int firstAppleDistance = 2)
+        public SnakeGame(int width = 12, int height = 12, int seed = 1, int initialLength = 3, int turnBufferSize = 2, int firstAppleDistance = 2)
         {
             if (width < 6 || height < 6) throw new ArgumentOutOfRangeException(nameof(width));
-            DigestionSpeed = Math.Max(.05f, Math.Min(1f, digestionPerStep));
             InitialLength = Math.Max(2, Math.Min(width / 2 + 1, initialLength));
             TurnBufferSize = Math.Max(1, Math.Min(8, turnBufferSize));
             this.firstAppleDistance = Math.Max(1, Math.Min(width - width / 2 - 1, firstAppleDistance));
@@ -102,7 +102,7 @@ namespace GardenSnake.Core
             if (next.X < 0 || next.Y < 0 || next.X >= Width || next.Y >= Height)
                 return Lose("You reached the garden edge.");
             // Growth happens only when the oldest swallowed apple reaches the tail.
-            bool grow = digestion.Count > 0 && digestion[0] + DigestionSpeed >= body.Count - 1;
+            bool grow = digestion.Count > 0 && digestion[0] + DigestionSpeed >= body.Count;
             int occupied = body.Count - (grow ? 0 : 1);
             for (int i = 0; i < occupied; i++)
                 if (body[i] == next) return Lose("You crossed your own tail.");

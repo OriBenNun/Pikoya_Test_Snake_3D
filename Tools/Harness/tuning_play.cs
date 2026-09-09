@@ -32,8 +32,7 @@ void Reference(UnityEngine.Object target, string field, UnityEngine.Object value
     var so = new SerializedObject(target); so.FindProperty(field).objectReferenceValue = value; so.ApplyModifiedPropertiesWithoutUndo();
 }
 Check(AssetDatabase.Contains(skinAsset) && AssetDatabase.Contains(mouthAsset), "Runtime skin and mouth use persistent tuning assets");
-Check(c.Game.DigestionSpeed == new SerializedObject(c).FindProperty("digestionPerStep").floatValue,
-    "Simulation uses serialized digestion speed");
+Check(c.Game.DigestionSpeed == 1, "Digestion advances one body index per move to remain stationary");
 Reference(skin, "settings", skinCopy); Reference(mouth, "settings", mouthCopy);
 Number(wind, "amplitude", 0); Number(wind, "pulseAmplitude", 0);
 waves.Clear();

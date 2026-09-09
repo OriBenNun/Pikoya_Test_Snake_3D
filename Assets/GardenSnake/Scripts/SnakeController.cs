@@ -21,8 +21,6 @@ namespace GardenSnake
         [SerializeField, Range(0f, .02f)] private float speedGainPerApple = .0055f;
         [SerializeField, Range(0f, 1f)] private float openingBeat = .45f;
         [Header("Rules (applied on entering Play Mode)")]
-        [SerializeField, Range(.05f, 1f), Tooltip("Cells traveled by swallowed food per movement step.")]
-        private float digestionPerStep = SnakeGame.DigestionPerStep;
         [SerializeField, Min(2)] private int initialLength = 3;
         [SerializeField, Range(1, 8)] private int turnBufferSize = 2;
         [SerializeField, Min(1)] private int firstAppleDistance = 2;
@@ -158,6 +156,10 @@ namespace GardenSnake
 
         private readonly List<Transform> segments = new List<Transform>();
         private readonly List<Vector3> previous = new List<Vector3>();
+        private readonly List<float> visualDigestion = new List<float>();
+        private readonly List<Vector3> digestionAnchors = new List<Vector3>();
+        private bool finishingDigestion;
+        private Vector3 finishingAnchor;
         private Transform tail;
         private SnakeSkin skin;
         private SnakeMouth mouth;
@@ -204,7 +206,7 @@ namespace GardenSnake
             Application.runInBackground = runInBackground;
             nextBlink = firstBlinkDelay;
             Game = new SnakeGame(boardWidth, boardHeight, System.Environment.TickCount,
-                digestionPerStep, initialLength, turnBufferSize, firstAppleDistance);
+                initialLength, turnBufferSize, firstAppleDistance);
             best = PlayerPrefs.GetInt("GardenSnake.Best", 0);
             hasPlayed = PlayerPrefs.GetInt("GardenSnake.HasPlayed", 0) == 1 || best > 0;
             muted = PlayerPrefs.GetInt("GardenSnake.Muted", 0) == 1;
@@ -308,7 +310,10 @@ namespace GardenSnake
             CapturePrevious();
             Vector3 eatenAt = World(Game.Food);
             int oldLength = Game.Body.Count;
+            Vector3 oldTail = World(Game.Body[oldLength - 1]);
             StepResult result = Game.Step();
+            finishingDigestion = Game.Body.Count > oldLength;
+            finishingAnchor = oldTail;
             currentStep = StepSeconds;
             EnsureSegments();
             if (Game.Body.Count > oldLength)
@@ -457,6 +462,9 @@ namespace GardenSnake
             burstAge = 99;
             grownIndex = -1;
             grownAge = 99;
+            finishingDigestion = false;
+            visualDigestion.Clear();
+            digestionAnchors.Clear();
             mouth.ResetPose();
             for (int i = 0; i < Game.Body.Count - 1; i++)
             {
@@ -632,8 +640,22 @@ namespace GardenSnake
                     if (toward.sqrMagnitude > .01f) part.rotation = Quaternion.LookRotation(toward);
                 }
             }
+            visualDigestion.Clear();
+            digestionAnchors.Clear();
+            foreach (float appleProgress in Game.Digestion)
+            {
+                visualDigestion.Add(appleProgress);
+                digestionAnchors.Add(World(Game.Body[Mathf.Clamp((int)appleProgress, 0, Game.Body.Count - 1)]));
+            }
+            // The simulation grows at the start of a step. Let the last lump settle into
+            // the tail over that step instead of disappearing between two rendered frames.
+            if (finishingDigestion)
+            {
+                visualDigestion.Add(Game.Body.Count - 1);
+                digestionAnchors.Add(finishingAnchor);
+            }
             skin.Draw(segments, tail, Game.Body.Count, bodyScale, headScale, tailScale,
-                Game.Digestion, t, dying ? 0 : 1, Game.DigestionSpeed);
+                visualDigestion, digestionAnchors, t, dying ? 0 : 1, finishingDigestion);
         }
 
         /// <summary>One expanding ring per apple: the pickup gets a shape, not just particles.</summary>

@@ -44,8 +44,8 @@ tick = () => {
             if (game.HasFood || apple.gameObject.activeSelf || body.Count != cycle.Count - 1 || digestion.Count != 1 || game.State != GardenSnake.Core.RunState.Playing)
             { Finish("FAIL final pickup did not wait for digestion"); return; }
             report.Add("PASS final apple reserved last cell, hid food, and delayed victory");
-            // Advance the digestion setup to its final half-cell; the real next Update performs growth.
-            digestion[0] = body.Count - 1 - GardenSnake.Core.SnakeGame.DigestionPerStep;
+            // Place digestion on the tail; the real next Update performs growth.
+            digestion[0] = body.Count - GardenSnake.Core.SnakeGame.DigestionPerStep;
             stage = 1;
         }
         if (stage == 1 && game.State == GardenSnake.Core.RunState.Won) {
