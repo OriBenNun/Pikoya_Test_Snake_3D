@@ -61,6 +61,7 @@ namespace GardenSnake
         private readonly List<Transform> segments = new List<Transform>();
         private readonly List<Vector3> previous = new List<Vector3>();
         private Transform tail;
+        private SnakeSkin skin;
         private Transform apple;
         private float elapsed;
         private float currentStep;
@@ -112,7 +113,12 @@ namespace GardenSnake
             burstMaterial = burstRing.GetComponent<Renderer>().material;
             segments.Add(Instantiate(headPrefab, transform).transform);
             CollectEyelids();
-            tail = Instantiate(tailPrefab, transform).transform;
+            tail = new GameObject("Tail pose").transform;
+            tail.SetParent(transform, false);
+            var skinObject = new GameObject("Snake skin");
+            skinObject.transform.SetParent(transform, false);
+            skin = skinObject.AddComponent<SnakeSkin>();
+            skin.Initialize(bodyPrefab, boardWidth * boardHeight);
             apple = Instantiate(applePrefab, transform).transform;
             Prewarm();
             FrameBoard();
@@ -308,7 +314,8 @@ namespace GardenSnake
             previous.Capacity = capacity;
             for (int i = segments.Count; i < capacity - 1; i++)
             {
-                Transform part = Instantiate(bodyPrefab, transform).transform;
+                Transform part = new GameObject("Body pose " + i).transform;
+                part.SetParent(transform, false);
                 part.gameObject.SetActive(false);
                 segments.Add(part);
             }
@@ -517,10 +524,11 @@ namespace GardenSnake
                 }
                 else
                 {
-                    Vector3 toward = World(Game.Body[i - 1]) - target;
+                    Vector3 toward = segments[i - 1].position - part.position;
                     if (toward.sqrMagnitude > .01f) part.rotation = Quaternion.LookRotation(toward);
                 }
             }
+            skin.Draw(segments, tail, Game.Body.Count, bodyScale, headScale, tailScale);
         }
 
         /// <summary>One expanding ring per apple: the pickup gets a shape, not just particles.</summary>
