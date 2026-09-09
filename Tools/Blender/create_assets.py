@@ -1,7 +1,8 @@
-"""Rebuild original Garden Snake models with Blender 3.5+ (no external assets)."""
+"""Rebuild original Garden Snake models with Blender 5.2+ (no external assets)."""
 import bpy
 import math
 import os
+import runpy
 from mathutils import Vector
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
@@ -15,7 +16,6 @@ for material in list(bpy.data.materials):
 def material(name, color, roughness=.4):
     m = bpy.data.materials.new(name)
     m.diffuse_color = (*color, 1)
-    m.use_nodes = True
     bsdf = m.node_tree.nodes.get('Principled BSDF')
     bsdf.inputs['Base Color'].default_value = (*color, 1)
     bsdf.inputs['Roughness'].default_value = roughness
@@ -38,6 +38,7 @@ mats = {
     'Foliage': material('Foliage', (.29, .58, .18)),
     'Base': material('Base', (.12, .26, .20)),
 }
+polish = runpy.run_path(os.path.join(os.path.dirname(__file__), 'polish_assets.py'))['polish']
 assets = {}
 current = []
 
@@ -48,7 +49,7 @@ def finish(obj, name, mat):
     return obj
 
 def sphere(name, loc, scale, mat, segments=20):
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=segments, ring_count=12, location=loc)
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=max(32, segments), ring_count=24, location=loc)
     obj = bpy.context.object
     obj.scale = scale
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
@@ -65,7 +66,6 @@ def box(name, loc, scale, mat, bevel=.1):
     mod.width = bevel
     mod.segments = 3
     bpy.ops.object.modifier_apply(modifier=mod.name)
-    obj.data.use_auto_smooth = True
     for p in obj.data.polygons:
         p.use_smooth = True
     mod = obj.modifiers.new('Weighted normals', 'WEIGHTED_NORMAL')
@@ -73,6 +73,7 @@ def box(name, loc, scale, mat, bevel=.1):
     return finish(obj, name, mat)
 
 def export(name):
+    polish(name, current)
     bpy.ops.object.select_all(action='DESELECT')
     for obj in current:
         obj.select_set(True)
@@ -145,9 +146,9 @@ box('Glazed rim', (0,0,0), (.58,12,.36), 'Base', .14)
 export('RimShort')
 
 def cone(name, loc, radius, depth, mat, tip=0):
-    bpy.ops.mesh.primitive_cone_add(vertices=12, radius1=radius, radius2=tip, depth=depth, location=loc)
+    bpy.ops.mesh.primitive_cone_add(vertices=32, radius1=radius, radius2=tip, depth=depth, location=loc)
     obj=bpy.context.object
-    for p in obj.data.polygons: p.use_smooth=True
+    for p in obj.data.polygons: p.use_smooth=(len(p.vertices) == 4)
     return finish(obj,name,mat)
 
 def rod(name, a, b, radius, mat):
@@ -157,7 +158,7 @@ def rod(name, a, b, radius, mat):
     return obj
 
 def torus(name, loc, radius, tube, mat):
-    bpy.ops.mesh.primitive_torus_add(major_segments=16,minor_segments=6,location=loc,major_radius=radius,minor_radius=tube)
+    bpy.ops.mesh.primitive_torus_add(major_segments=48,minor_segments=12,location=loc,major_radius=radius,minor_radius=tube)
     obj=bpy.context.object
     for p in obj.data.polygons: p.use_smooth=True
     return finish(obj,name,mat)
