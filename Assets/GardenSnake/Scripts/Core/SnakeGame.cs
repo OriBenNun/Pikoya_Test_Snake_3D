@@ -27,7 +27,12 @@ namespace GardenSnake.Core
         private readonly Queue<Direction> turns = new Queue<Direction>(2);
         private readonly Random random;
         private readonly IReadOnlyList<Cell> readOnlyBody;
+        private readonly List<float> digestion = new List<float>();
+        private readonly IReadOnlyList<float> readOnlyDigestion;
+        public const float DigestionPerStep = .5f;
         public IReadOnlyList<Cell> Body => readOnlyBody;
+        public IReadOnlyList<float> Digestion => readOnlyDigestion;
+        public bool HasFood => Food.X >= 0;
         public int Width { get; }
         public int Height { get; }
         public int Score { get; private set; }
@@ -43,6 +48,7 @@ namespace GardenSnake.Core
             Height = height;
             random = new Random(seed);
             readOnlyBody = body.AsReadOnly();
+            readOnlyDigestion = digestion.AsReadOnly();
             Reset();
         }
 
@@ -50,6 +56,7 @@ namespace GardenSnake.Core
         {
             body.Clear();
             turns.Clear();
+            digestion.Clear();
             int x = Width / 2;
             int y = Height / 2;
             for (int i = 0; i < 3; i++) body.Add(new Cell(x - i, y));
@@ -86,21 +93,29 @@ namespace GardenSnake.Core
             bool eat = next == Food;
             if (next.X < 0 || next.Y < 0 || next.X >= Width || next.Y >= Height)
                 return Lose("You reached the garden edge.");
-            // The tail vacates this tick unless eating, so entering its old cell is legal.
-            int occupied = body.Count - (eat ? 0 : 1);
+            // Growth happens only when the oldest swallowed apple reaches the tail.
+            bool grow = digestion.Count > 0 && digestion[0] + DigestionPerStep >= body.Count - 1;
+            int occupied = body.Count - (grow ? 0 : 1);
             for (int i = 0; i < occupied; i++)
                 if (body[i] == next) return Lose("You crossed your own tail.");
             body.Insert(0, next);
-            if (!eat) { body.RemoveAt(body.Count - 1); return StepResult.Moved; }
-            Score++;
+            if (!grow) body.RemoveAt(body.Count - 1);
+            for (int i = 0; i < digestion.Count; i++) digestion[i] += DigestionPerStep;
+            if (grow) digestion.RemoveAt(0);
+            if (eat) { Score++; digestion.Add(0); }
             if (body.Count == Width * Height)
             {
                 State = RunState.Won;
                 EndReason = "Every patch of the garden is yours!";
                 return StepResult.Won;
             }
-            SpawnFood();
-            return StepResult.Ate;
+            if (eat)
+            {
+                // Pending growth reserves the remaining cells, including the final apple.
+                if (body.Count + digestion.Count == Width * Height) Food = new Cell(-1, -1);
+                else SpawnFood();
+            }
+            return eat ? StepResult.Ate : StepResult.Moved;
         }
 
         private StepResult Lose(string reason)

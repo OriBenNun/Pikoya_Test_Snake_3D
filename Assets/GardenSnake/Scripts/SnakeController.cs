@@ -62,10 +62,10 @@ namespace GardenSnake
         private readonly List<Vector3> previous = new List<Vector3>();
         private Transform tail;
         private SnakeSkin skin;
+        private SnakeMouth mouth;
         private Transform apple;
         private float elapsed;
         private float currentStep;
-        private float pulse;
         private float slither;
         private float bank;
         private float appleAge;
@@ -112,6 +112,8 @@ namespace GardenSnake
             cameraHome = gameCamera.transform.localPosition;
             burstMaterial = burstRing.GetComponent<Renderer>().material;
             segments.Add(Instantiate(headPrefab, transform).transform);
+            mouth = segments[0].gameObject.AddComponent<SnakeMouth>();
+            mouth.Initialize(applePrefab);
             CollectEyelids();
             tail = new GameObject("Tail pose").transform;
             tail.SetParent(transform, false);
@@ -205,15 +207,18 @@ namespace GardenSnake
             elapsed -= currentStep;
             CapturePrevious();
             Vector3 eatenAt = World(Game.Food);
+            int oldLength = Game.Body.Count;
             StepResult result = Game.Step();
             currentStep = StepSeconds;
             EnsureSegments();
-            if (result == StepResult.Ate || result == StepResult.Won)
+            if (Game.Body.Count > oldLength)
             {
-                // The body grew by one; the piece that just joined is the last live segment.
                 grownIndex = Game.Body.Count - 2;
                 grownAge = 0;
-                pulse = 1;
+            }
+            if (result == StepResult.Ate)
+            {
+                mouth.Swallow(apple, currentStep);
                 appleAge = 0;
                 RecordBeat recordBeat = record.Apple(Game.Score);
                 UpdateBest();
@@ -336,8 +341,8 @@ namespace GardenSnake
                 bool wanted = i < live;
                 if (segments[i].gameObject.activeSelf != wanted) segments[i].gameObject.SetActive(wanted);
             }
-            if (apple.gameObject.activeSelf != (Game.State != RunState.Won))
-                apple.gameObject.SetActive(Game.State != RunState.Won);
+            bool showApple = Game.HasFood && Game.State != RunState.Won;
+            if (apple.gameObject.activeSelf != showApple) apple.gameObject.SetActive(showApple);
         }
 
         private void ResetVisuals()
@@ -346,13 +351,13 @@ namespace GardenSnake
             EnsureSegments();
             elapsed = 0;
             currentStep = StepSeconds;
-            pulse = 0;
             bank = 0;
             appleAge = 0;
             deathAge = 0;
             burstAge = 99;
             grownIndex = -1;
             grownAge = 99;
+            mouth.ResetPose();
             for (int i = 0; i < Game.Body.Count - 1; i++)
             {
                 segments[i].position = World(Game.Body[i]);
@@ -450,9 +455,8 @@ namespace GardenSnake
             bool moving = Game.State == RunState.Playing;
             bool dying = Game.State == RunState.Lost;
             deathAge = dying ? deathAge + delta : 0;
-            grownAge += delta;
+            if (Game.State != RunState.Paused) grownAge += delta;
             Blink(delta);
-            pulse = Mathf.MoveTowards(pulse, 0, Time.deltaTime * 3.5f);
             bank = Mathf.MoveTowards(bank, 0, delta * 3.4f);
             appleAge += delta;
             if (moving) slither += Time.deltaTime / currentStep;
@@ -460,6 +464,7 @@ namespace GardenSnake
             AnimateSnake(moving, dying);
             AnimateTrail(moving);
             AnimateApple();
+            mouth.Animate(Game, apple.position, Game.State == RunState.Paused ? 0 : delta);
             AnimateBurst(delta);
             float pace = Mathf.InverseLerp(initialStepSeconds, fastestStepSeconds, currentStep);
             float wanted = Game.State == RunState.Playing ? pace : 0;
@@ -485,12 +490,11 @@ namespace GardenSnake
                     position += side * (Mathf.Sin((slither - i * .42f) * 2.1f) * .055f);
                 }
                 float basis = i == 0 ? headScale : i == Game.Body.Count - 1 ? tailScale : bodyScale;
-                float bump = pulse * Mathf.Max(0, Mathf.Sin((1 - pulse) * 9 - i * .55f));
-                Vector3 scale = new Vector3(1 + bump * .18f, 1 + bump * .3f, 1 + bump * .18f);
+                Vector3 scale = Vector3.one;
                 if (i == grownIndex && grownAge < .2f)
                 {
                     float birth = grownAge / .2f;
-                    scale *= Mathf.Lerp(.3f, 1f, 1 - Mathf.Pow(1 - birth, 3));
+                    scale *= 1 + Mathf.Sin(birth * Mathf.PI) * .2f;
                 }
                 if (Game.State == RunState.Ready)
                 {
@@ -515,7 +519,7 @@ namespace GardenSnake
                     scale = Vector3.one * ((1 + swell) * shrink * shrink);
                     position += Vector3.up * (pop * .22f);
                 }
-                part.position = position + Vector3.up * (bump * .07f + cellWaves.HeightAt(position));
+                part.position = position + Vector3.up * cellWaves.HeightAt(position);
                 part.localScale = basis * scale;
                 if (i == 0)
                 {
@@ -528,7 +532,8 @@ namespace GardenSnake
                     if (toward.sqrMagnitude > .01f) part.rotation = Quaternion.LookRotation(toward);
                 }
             }
-            skin.Draw(segments, tail, Game.Body.Count, bodyScale, headScale, tailScale);
+            skin.Draw(segments, tail, Game.Body.Count, bodyScale, headScale, tailScale,
+                Game.Digestion, t, dying ? 0 : 1);
         }
 
         /// <summary>One expanding ring per apple: the pickup gets a shape, not just particles.</summary>
