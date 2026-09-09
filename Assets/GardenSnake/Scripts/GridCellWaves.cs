@@ -23,6 +23,7 @@ namespace GardenSnake
         [SerializeField] private Transform[] cells;
         [SerializeField] private int columns = 21;
         [SerializeField] private float maximumHeight = .48f;
+        [SerializeField, Range(.016f, .1f)] private float maximumFrameStep = .05f;
         [SerializeField] private Preset ripple = new Preset(Pattern.Ripple, .25f, 13, .6f, 1.5f);
         [SerializeField] private Preset celebration = new Preset(Pattern.Bloom, .44f, 15, .85f, 2);
         [SerializeField] private Preset sweep = new Preset(Pattern.Sweep, .25f, 15, .6f, 2);
@@ -84,7 +85,8 @@ namespace GardenSnake
             if (count == 0 || rest == null || (controller != null && controller.Game.State == RunState.Paused)) return;
             for (int i = count - 1; i >= 0; i--)
             {
-                active[i].age += Time.unscaledDeltaTime;
+                // Preserve the source beat after a stalled frame instead of jumping past it.
+                active[i].age += Mathf.Min(Time.unscaledDeltaTime, maximumFrameStep);
                 float maxDistance = columns + Mathf.CeilToInt(CellCount / (float)columns);
                 if (active[i].age > maxDistance / active[i].preset.speed + active[i].preset.duration + active[i].preset.width / active[i].preset.speed)
                     active[i] = active[--count];

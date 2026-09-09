@@ -27,7 +27,7 @@ class CommandError(RuntimeError):
 
 
 def cli(*args, timeout=120):
-    prefix = [] if args and args[0] == "job" else ["command"]
+    prefix = [] if args and args[0] == "job" else ["command", "--project-path", ROOT]
     result = subprocess.run(
         ["unity", *prefix, *args, "--no-banner", "--json"],
         cwd=ROOT, capture_output=True, text=True, timeout=timeout, shell=False)
