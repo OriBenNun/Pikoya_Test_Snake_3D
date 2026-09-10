@@ -138,8 +138,10 @@ namespace GardenSnake.Editor
             // ---- hint line ------------------------------------------------
             var hint = Anchored("Hints", root.transform, BottomLeft, new Vector2(46, 36), new Vector2(640, 24));
             var hintGroup = hint.gameObject.AddComponent<CanvasGroup>();
+            var hintPaper = Anchored("Paper", hint, Middle, Vector2.zero, new Vector2(668, 38));
+            Fill(hintPaper, pill, Paper.With(.94f)).type = Image.Type.Sliced;
             var hintLabel = Label("Line", hint, "WASD / ARROWS OR SWIPE TO STEER   ·   P PAUSE   ·   M SOUND", 12,
-                TextSoft, Vector2.zero, new Vector2(640, 24), TextAlignmentOptions.Left, BottomLeft);
+                TextStrong.With(.85f), Vector2.zero, new Vector2(640, 24), TextAlignmentOptions.Left, BottomLeft);
             hintLabel.characterSpacing = 8;
 
             // ---- corner buttons -------------------------------------------
@@ -157,7 +159,7 @@ namespace GardenSnake.Editor
             var card = Anchored("Run card", root.transform, Middle, Vector2.zero, new Vector2(660, 430));
             var cardShadow = Anchored("Shadow", card, Middle, new Vector2(0, -14), new Vector2(920, 640));
             Fill(cardShadow, glow, Ink.With(.34f));
-            var cardFill = Fill(card, panel, Paper);
+            var cardFill = Fill(FullScreen("Surface", card), panel, Paper);
             cardFill.type = Image.Type.Sliced;
             cardFill.pixelsPerUnitMultiplier = 1.6f;
             cardFill.raycastTarget = true;
@@ -176,17 +178,17 @@ namespace GardenSnake.Editor
             var tally = Anchored("Tally", card, Middle, new Vector2(0, 36), new Vector2(400, 76));
             var tallyValue = Label("Value", tally, "0", 50, AccentDeep, new Vector2(0, 6), new Vector2(400, 62));
             tallyValue.fontStyle = FontStyles.Bold;
-            var tallyCaption = Label("Caption", tally, "APPLES PICKED", 11, TextSoft,
+            var tallyCaption = Label("Caption", tally, "APPLES PICKED", 11, TextStrong.With(.8f),
                 new Vector2(0, -30), new Vector2(400, 20));
             tallyCaption.characterSpacing = 14;
 
-            var body = Label("Description", card, "", 18, TextSoft, new Vector2(0, -30), new Vector2(560, 66));
+            var body = Label("Description", card, "", 18, TextStrong.With(.85f), new Vector2(0, -30), new Vector2(560, 66));
             body.textWrappingMode = TextWrappingModes.Normal;
             body.lineSpacing = 14;
 
             var primary = TextButton("Primary", card, pill, "PLAY", new Vector2(0, -122), new Vector2(300, 62),
                 AccentDeep, Paper, out TMP_Text primaryLabel);
-            var keyHint = Label("Key hint", card, "OR PRESS SPACE", 11, TextSoft.With(.42f),
+            var keyHint = Label("Key hint", card, "OR PRESS SPACE", 11, TextStrong.With(.7f),
                 new Vector2(0, -182), new Vector2(400, 22));
             keyHint.characterSpacing = 12;
 
