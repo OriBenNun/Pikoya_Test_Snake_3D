@@ -15,7 +15,6 @@ namespace GardenSnake
         [SerializeField] private CanvasGroup brandGroup;
         [SerializeField] private TMP_Text scoreText;
         [SerializeField] private TMP_Text bestText;
-        [SerializeField] private CanvasGroup hintGroup;
         [SerializeField] private RectTransform toastRoot;
         [SerializeField] private TMP_Text toast;
         [SerializeField] private Image toastHalo;
@@ -34,6 +33,7 @@ namespace GardenSnake
         [SerializeField] private Button primaryButton;
         [SerializeField] private TMP_Text primaryLabel;
         [SerializeField] private RectTransform cardKeyHint;
+        [SerializeField] private RectTransform cardInstructions;
         [Header("Controls")]
         [SerializeField] private Button pauseButton;
         [SerializeField] private Image pauseGlyph;
@@ -85,13 +85,14 @@ namespace GardenSnake
         [SerializeField] private float cardStartY = -22;
         [Header("Card layout")]
         [SerializeField, Min(1)] private float cardWidth = 660;
-        [SerializeField, Tooltip("X: ready/paused height. Y: results height.")] private Vector2 cardHeights = new Vector2(372, 448);
-        [SerializeField, Tooltip("X: ready/paused Y position. Y: results Y position.")] private Vector2 eyebrowY = new Vector2(128, 168);
-        [SerializeField] private Vector2 titleY = new Vector2(74, 116);
+        [SerializeField, Tooltip("X: ready/paused height. Y: results height.")] private Vector2 cardHeights = new Vector2(520, 448);
+        [SerializeField, Tooltip("X: ready/paused Y position. Y: results Y position.")] private Vector2 eyebrowY = new Vector2(202, 168);
+        [SerializeField] private Vector2 titleY = new Vector2(150, 116);
         [SerializeField] private float tallyY = 40;
-        [SerializeField] private Vector2 bodyY = new Vector2(4, -34);
-        [SerializeField] private Vector2 primaryButtonY = new Vector2(-92, -130);
-        [SerializeField] private Vector2 keyHintY = new Vector2(-146, -186);
+        [SerializeField] private Vector2 bodyY = new Vector2(80, -34);
+        [SerializeField] private Vector2 primaryButtonY = new Vector2(-158, -130);
+        [SerializeField] private Vector2 keyHintY = new Vector2(-213, -186);
+        [SerializeField] private float instructionsY = -32;
         [Header("Copy")]
         [SerializeField] private string bestPrefix = "BEST ";
         [SerializeField] private string bestResultPrefix = "Best so far: ";
@@ -126,7 +127,6 @@ namespace GardenSnake
         private float bannerTime;
         private float cardTime;
         private float whisperTime;
-        private float hintTarget = 1;
         private RunState lastState = (RunState)(-1);
         private int shownScore = -1;
         private int shownBest = -1;
@@ -195,7 +195,6 @@ namespace GardenSnake
             cardTally.SetActive(ended);
             if (ended) cardTallyValue.text = Count(game.Score);
             LayoutCard(ended);
-            hintTarget = game.State == RunState.Playing && game.Score > 0 ? 0 : 1;
             if (!showCard) return;
             switch (game.State)
             {
@@ -235,6 +234,11 @@ namespace GardenSnake
             cardBody.rectTransform.anchoredPosition = new Vector2(0, ended ? bodyY.y : bodyY.x);
             ((RectTransform)primaryButton.transform).anchoredPosition = new Vector2(0, ended ? primaryButtonY.y : primaryButtonY.x);
             cardKeyHint.anchoredPosition = new Vector2(0, ended ? keyHintY.y : keyHintY.x);
+            if (cardInstructions != null)
+            {
+                cardInstructions.gameObject.SetActive(!ended);
+                cardInstructions.anchoredPosition = new Vector2(0, instructionsY);
+            }
         }
 
         private string Verdict(int score)
@@ -317,7 +321,6 @@ namespace GardenSnake
 
         private void AnimateChrome(float delta)
         {
-            hintGroup.alpha = Mathf.MoveTowards(hintGroup.alpha, hintTarget, delta * chromeFadeSpeed);
             brandGroup.alpha = Mathf.MoveTowards(brandGroup.alpha,
                 controller.Game.State == RunState.Playing ? playingBrandOpacity : 1f, delta * chromeFadeSpeed);
 

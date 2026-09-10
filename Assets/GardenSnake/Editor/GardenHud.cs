@@ -135,15 +135,6 @@ namespace GardenSnake.Editor
             banner.fontStyle = FontStyles.Bold;
             banner.characterSpacing = 16;
 
-            // ---- hint line ------------------------------------------------
-            var hint = Anchored("Hints", root.transform, BottomLeft, new Vector2(46, 36), new Vector2(640, 24));
-            var hintGroup = hint.gameObject.AddComponent<CanvasGroup>();
-            var hintPaper = Anchored("Paper", hint, Middle, Vector2.zero, new Vector2(668, 38));
-            Fill(hintPaper, pill, Paper.With(.94f)).type = Image.Type.Sliced;
-            var hintLabel = Label("Line", hint, "WASD / ARROWS OR SWIPE TO STEER   ·   P PAUSE   ·   M SOUND", 12,
-                TextStrong.With(.85f), Vector2.zero, new Vector2(640, 24), TextAlignmentOptions.Left, BottomLeft);
-            hintLabel.characterSpacing = 8;
-
             // ---- corner buttons -------------------------------------------
             var pauseButton = IconButton("Pause", root.transform, circle, pauseIcon,
                 BottomRight, new Vector2(-46, 40), 44, out Image pauseGlyph);
@@ -204,7 +195,6 @@ namespace GardenSnake.Editor
             GardenBuilder.Set(bound, "brandGroup", brandGroup);
             GardenBuilder.Set(bound, "scoreText", score);
             GardenBuilder.Set(bound, "bestText", best);
-            GardenBuilder.Set(bound, "hintGroup", hintGroup);
             GardenBuilder.Set(bound, "toastRoot", toastRoot);
             GardenBuilder.Set(bound, "toast", toast);
             GardenBuilder.Set(bound, "toastHalo", toastGlow.GetComponent<Image>());
@@ -231,9 +221,57 @@ namespace GardenSnake.Editor
             GardenBuilder.Set(bound, "soundOnSprite", soundOnIcon);
             GardenBuilder.Set(bound, "soundOffSprite", soundOffIcon);
             bound.ApplyModifiedPropertiesWithoutUndo();
+            ConfigureInstructions(hud);
 
             new GameObject("Event System", typeof(EventSystem), typeof(InputSystemUIInputModule));
             return hud;
+        }
+
+        /// <summary>Upgrades the existing card without replacing the HUD or its button bindings.</summary>
+        public static void ConfigureInstructions(SnakeHud hud)
+        {
+            var card = hud.transform.Find("Run card");
+            if (card == null) throw new InvalidOperationException("The run card is missing.");
+            font = card.Find("Title").GetComponent<TMP_Text>().font;
+            var oldHints = hud.transform.Find("Hints");
+            if (oldHints != null) UnityEngine.Object.DestroyImmediate(oldHints.gameObject);
+            var instructions = card.Find("Instructions") as RectTransform;
+            if (instructions == null)
+            {
+                instructions = Anchored("Instructions", card, Middle, new Vector2(0, -32), new Vector2(560, 112));
+                var surface = Fill(instructions, AssetDatabase.LoadAssetAtPath<Sprite>(GardenBuilder.Root + "/UI/Generated/Panel.png"),
+                    TextStrong.With(.055f));
+                surface.type = Image.Type.Sliced;
+                surface.pixelsPerUnitMultiplier = 2;
+                ControlColumn(instructions, "Steer", "STEER", "WASD / ARROWS", "or swipe", -132, 264);
+                ControlColumn(instructions, "Pause", "PAUSE", "P", "pause / resume", 70, 116);
+                ControlColumn(instructions, "Sound", "SOUND", "M", "sound on / off", 206, 116);
+                foreach (float x in new[] { 2f, 138f })
+                    Fill(Anchored("Divider", instructions, Middle, new Vector2(x, 0), new Vector2(1, 64)),
+                        null, TextStrong.With(.12f));
+            }
+            var bound = new SerializedObject(hud);
+            GardenBuilder.Set(bound, "cardInstructions", instructions);
+            bound.FindProperty("cardHeights").vector2Value = new Vector2(520, 448);
+            bound.FindProperty("eyebrowY").vector2Value = new Vector2(202, 168);
+            bound.FindProperty("titleY").vector2Value = new Vector2(150, 116);
+            bound.FindProperty("bodyY").vector2Value = new Vector2(80, -34);
+            bound.FindProperty("primaryButtonY").vector2Value = new Vector2(-158, -130);
+            bound.FindProperty("keyHintY").vector2Value = new Vector2(-213, -186);
+            bound.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(hud);
+        }
+
+        private static void ControlColumn(RectTransform parent, string name, string heading, string keys, string detail,
+            float x, float width)
+        {
+            var column = Anchored(name, parent, Middle, new Vector2(x, 0), new Vector2(width, 100));
+            var caption = Label("Action", column, heading, 10, TextStrong.With(.75f), new Vector2(0, 32), new Vector2(width, 18));
+            caption.characterSpacing = 12;
+            caption.fontStyle = FontStyles.Bold;
+            var key = Label("Keys", column, keys, 19, TextStrong, new Vector2(0, 2), new Vector2(width, 28));
+            key.fontStyle = FontStyles.Bold;
+            Label("Detail", column, detail, 12, TextStrong.With(.8f), new Vector2(0, -28), new Vector2(width, 20));
         }
 
         // ---------------------------------------------------------------- primitives
