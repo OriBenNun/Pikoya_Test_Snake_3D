@@ -11,10 +11,13 @@ namespace GardenSnake
         private bool ownsSettings;
         private readonly List<Transform> upperFace = new List<Transform>();
         private readonly List<Vector3> upperRest = new List<Vector3>();
+        private readonly List<Quaternion> upperRestRotation = new List<Quaternion>();
         private readonly List<Transform> eyes = new List<Transform>();
         private readonly List<Vector3> eyeRest = new List<Vector3>();
         private Transform cavity, lip, jaw, tongue, muzzle, swallowedApple;
         private Vector3 muzzleScale, appleStart, appleSize;
+        private Vector3 facePivot;
+        private float faceLever;
         private float swallowAge = 99, swallowDuration = .2f;
         private float excitementAge;
         public float Openness { get; private set; }
@@ -39,9 +42,12 @@ namespace GardenSnake
                 {
                     upperFace.Add(renderer.transform);
                     upperRest.Add(transform.InverseTransformPoint(renderer.transform.position));
+                    upperRestRotation.Add(Quaternion.Inverse(transform.rotation) * renderer.transform.rotation);
+                    if (part == "Head") facePivot = upperRest[upperRest.Count - 1];
                 }
             }
             CreateEyeRigs();
+            faceLever = Mathf.Max(.01f, Mathf.Abs(transform.InverseTransformPoint(muzzle.position).z - facePivot.z));
             muzzleScale = muzzle.localScale;
             cavity = Piece("Mouth interior", ink);
             lip = Piece("Stretchy mouth rim", cream);
@@ -136,8 +142,12 @@ namespace GardenSnake
 
         private void Pose()
         {
+            // Hinge at the head's neck-height center instead of lifting the neck off the body.
+            Quaternion opening = Quaternion.Euler(-Mathf.Atan2(settings.UpperFaceLift, faceLever)
+                * Mathf.Rad2Deg * Openness, 0, 0);
             for (int i = 0; i < upperFace.Count; i++)
-                upperFace[i].position = transform.TransformPoint(upperRest[i] + Vector3.up * (settings.UpperFaceLift * Openness));
+                upperFace[i].SetPositionAndRotation(transform.TransformPoint(facePivot + opening * (upperRest[i] - facePivot)),
+                    transform.rotation * opening * upperRestRotation[i]);
             // Imported facial meshes have local Y along the snout and local Z pointing upward.
             muzzle.localScale = Vector3.Scale(muzzleScale, new Vector3(1 + settings.MuzzleWidening * Openness,
                 1 - settings.MuzzleRetraction * Openness, 1));
@@ -146,8 +156,9 @@ namespace GardenSnake
                 Vector3 rest = eyeRest[i];
                 float bounce = Mathf.Sin(excitementAge * settings.EyeBounceFrequency * Mathf.PI * 2 + i * .8f)
                     * settings.EyeBounce * Openness;
-                eyes[i].localPosition = rest + new Vector3(Mathf.Sign(rest.x) * settings.EyeSpread * Openness,
-                    (settings.UpperFaceLift + settings.EyeLift) * Openness + bounce, 0);
+                eyes[i].localPosition = facePivot + opening * (rest - facePivot) +
+                    new Vector3(Mathf.Sign(rest.x) * settings.EyeSpread * Openness, settings.EyeLift * Openness + bounce, 0);
+                eyes[i].localRotation = opening;
                 eyes[i].localScale = Vector3.Lerp(Vector3.one, settings.ExcitedEyeScale, Openness);
             }
             cavity.localPosition = settings.CavityPosition + settings.CavityOpeningOffset * Openness;
