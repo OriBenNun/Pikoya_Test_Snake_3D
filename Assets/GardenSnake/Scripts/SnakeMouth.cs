@@ -11,9 +11,12 @@ namespace GardenSnake
         private bool ownsSettings;
         private readonly List<Transform> upperFace = new List<Transform>();
         private readonly List<Vector3> upperRest = new List<Vector3>();
-        private Transform cavity, jaw, tongue, muzzle, swallowedApple;
+        private readonly List<Transform> eyes = new List<Transform>();
+        private readonly List<Vector3> eyeRest = new List<Vector3>();
+        private Transform cavity, lip, jaw, tongue, muzzle, swallowedApple;
         private Vector3 muzzleScale, appleStart, appleSize;
         private float swallowAge = 99, swallowDuration = .2f;
+        private float excitementAge;
         public float Openness { get; private set; }
 
         public void Initialize(GameObject applePrefab, SnakeMouthSettings tuning = null)
@@ -32,16 +35,45 @@ namespace GardenSnake
                     renderer.enabled = false;
                     continue;
                 }
-                upperFace.Add(renderer.transform);
-                upperRest.Add(transform.InverseTransformPoint(renderer.transform.position));
+                if (!IsEyePart(part))
+                {
+                    upperFace.Add(renderer.transform);
+                    upperRest.Add(transform.InverseTransformPoint(renderer.transform.position));
+                }
             }
+            CreateEyeRigs();
             muzzleScale = muzzle.localScale;
             cavity = Piece("Mouth interior", ink);
+            lip = Piece("Stretchy mouth rim", cream);
             jaw = Piece("Lower jaw", cream);
             tongue = Piece("Mouth tongue", blush);
             swallowedApple = Instantiate(applePrefab, transform.parent).transform;
             swallowedApple.name = "Swallowed apple";
             ResetPose();
+        }
+
+        private static bool IsEyePart(string part) => part.StartsWith("Eye white") ||
+            part.StartsWith("Pupil") || part.StartsWith("Eye glint") || part.StartsWith("Eyebrow");
+
+        private void CreateEyeRigs()
+        {
+            var parts = GetComponentsInChildren<MeshRenderer>();
+            foreach (var white in parts)
+            {
+                if (!white.name.StartsWith("Eye white")) continue;
+                Vector3 rest = transform.InverseTransformPoint(white.transform.position);
+                var rig = new GameObject("Excited eye").transform;
+                rig.SetParent(transform, false);
+                rig.localPosition = rest;
+                foreach (var part in parts)
+                {
+                    if (!IsEyePart(part.name)) continue;
+                    float side = transform.InverseTransformPoint(part.transform.position).x;
+                    if (Mathf.Sign(side) == Mathf.Sign(rest.x)) part.transform.SetParent(rig, true);
+                }
+                eyes.Add(rig);
+                eyeRest.Add(rest);
+            }
         }
 
         private Transform Piece(string label, Material material)
@@ -70,6 +102,7 @@ namespace GardenSnake
         public void ResetPose()
         {
             swallowAge = 99;
+            excitementAge = 0;
             Openness = 0;
             swallowedApple.gameObject.SetActive(false);
             Pose();
@@ -78,6 +111,7 @@ namespace GardenSnake
         public void Animate(SnakeGame game, Vector3 foodPosition, float delta)
         {
             if (delta <= 0) return;
+            excitementAge += delta;
             bool swallowing = swallowAge < swallowDuration;
             if (swallowing)
             {
@@ -104,14 +138,29 @@ namespace GardenSnake
         {
             for (int i = 0; i < upperFace.Count; i++)
                 upperFace[i].position = transform.TransformPoint(upperRest[i] + Vector3.up * (settings.UpperFaceLift * Openness));
-            muzzle.localScale = Vector3.Scale(muzzleScale, new Vector3(1, 1, 1 - settings.MuzzleRetraction * Openness));
+            // Imported facial meshes have local Y along the snout and local Z pointing upward.
+            muzzle.localScale = Vector3.Scale(muzzleScale, new Vector3(1 + settings.MuzzleWidening * Openness,
+                1 - settings.MuzzleRetraction * Openness, 1));
+            for (int i = 0; i < eyes.Count; i++)
+            {
+                Vector3 rest = eyeRest[i];
+                float bounce = Mathf.Sin(excitementAge * settings.EyeBounceFrequency * Mathf.PI * 2 + i * .8f)
+                    * settings.EyeBounce * Openness;
+                eyes[i].localPosition = rest + new Vector3(Mathf.Sign(rest.x) * settings.EyeSpread * Openness,
+                    (settings.UpperFaceLift + settings.EyeLift) * Openness + bounce, 0);
+                eyes[i].localScale = Vector3.Lerp(Vector3.one, settings.ExcitedEyeScale, Openness);
+            }
             cavity.localPosition = settings.CavityPosition + settings.CavityOpeningOffset * Openness;
             cavity.localScale = settings.CavityScale + settings.CavityOpeningScale * Openness;
             cavity.localRotation = Quaternion.Euler(settings.CavityRotation);
+            lip.localPosition = cavity.localPosition - cavity.localRotation * Vector3.forward * settings.LipInset;
+            lip.localRotation = cavity.localRotation;
+            lip.localScale = cavity.localScale + settings.LipThickness;
+            lip.gameObject.SetActive(Openness > .05f);
             jaw.localPosition = settings.JawPosition + settings.JawOpeningOffset * Openness;
             jaw.localScale = settings.JawScale + settings.JawOpeningScale * Openness;
             tongue.localPosition = settings.TonguePosition + settings.TongueOpeningOffset * Openness;
-            tongue.localScale = settings.TongueScale;
+            tongue.localScale = settings.TongueScale + settings.TongueOpeningScale * Openness;
             tongue.gameObject.SetActive(Openness > settings.TongueThreshold);
         }
         private void OnDestroy()

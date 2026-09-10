@@ -21,4 +21,16 @@ The corner Resume glyph was blurred because its distance field used normalized c
 - Actual Sound-button input recorded idle scale 1.000, hover 1.035, press 0.942, and return to 1.000 after pointer exit. Release toggled audio exactly once; the harness restored the original mute state.
 - Evidence: `Artifacts/shots/sweep-buttons/`, `Artifacts/shots/button-motion/index.txt`, and `Artifacts/button-playthrough.txt`.
 
-Next pass follows the requested exaggerated pre-bite mouth and excited eyes, including visibility when facing away from the camera.
+## Pass 3: Exaggerated appetite and excited eyes
+
+Anticipation starts within 3.2 cells. The fully open mouth is 1.8 units wide, with a stretchy cream rim, a broader lower jaw, and a growing tongue. The upper face rises while the eyes spread, stretch to 1.8 times their resting height, and bounce slightly out of phase. The widened jaw and raised eyes remain visible in silhouette when the snake faces away.
+
+Eye whites, pupils, glints, and brows now share an eye rig so they enlarge together. Blinks use the imported model's vertical axis, yield to the anticipation pose, and freeze during Pause. All mouth and eye controls remain editable in `Assets/GardenSnake/Tuning/Snake Mouth.asset`.
+
+- Inspected the original mouth, two intermediate versions, the wider final version, and a speed-cap variant through contact sheets and selected full-size Game frames. Refinement added a cream outline and widened the jaw after reviewing the first captures.
+- Nine real-keyboard checks passed: resting face, anticipation before eating, pause, frozen facial transforms, resume/pickup, recovery and swallowed-apple cleanup, collision, results, and restart. Runtime errors: zero.
+- A temporary runtime speed variant reached 18 apples at the normal 0.115-second step cap (8.7 cells/sec). Inspected its approach, swallowing, turns, and collision frames. Runtime errors: zero. The temporary speed change was discarded by leaving Play Mode.
+- Final front and rear examples: `Artifacts/shots/mouth-big-wide/068.png` and `052.png`. Side examples appear in `mouth-big-wide/011.png` and `mouth-speed-cap/018.png`.
+- Evidence: `Artifacts/mouth-controls.txt`, `Artifacts/shots/mouth-big-wide/`, `Artifacts/shots/mouth-speed-cap/`, and their contact sheets. Storyboard runs restore the PlayerPrefs values present when each run starts.
+
+The sweep was wrapped up at the user's request after these three validated passes. Play Mode is stopped, the scene has no unsaved edits, and the saved best score remains 32. Pre-existing build-profile, generated-build, icon-metadata, and probe-file changes were left untouched.

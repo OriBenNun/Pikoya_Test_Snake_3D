@@ -506,10 +506,12 @@ namespace GardenSnake
             float open = blinkAge < nextBlink
                 ? 1
                 : 1 - Mathf.Sin(Mathf.Clamp01((blinkAge - nextBlink) / Mathf.Max(.01f, blinkDuration)) * Mathf.PI) * blinkClosure;
+            // Food gets wide-eyed attention; do not blink away the anticipation pose.
+            open = Mathf.Lerp(open, 1, mouth.Openness);
             for (int i = 0; i < eyelids.Length; i++)
             {
                 Vector3 rest = eyelidRest[i];
-                eyelids[i].localScale = new Vector3(rest.x, rest.y * open, rest.z);
+                eyelids[i].localScale = new Vector3(rest.x, rest.y, rest.z * open);
             }
         }
 
@@ -564,7 +566,7 @@ namespace GardenSnake
             bool dying = Game.State == RunState.Lost;
             deathAge = dying ? deathAge + delta : 0;
             if (Game.State != RunState.Paused) grownAge += delta;
-            Blink(delta);
+            Blink(Game.State == RunState.Paused ? 0 : delta);
             bank = Mathf.MoveTowards(bank, 0, delta * bankRecoverySpeed);
             appleAge += delta;
             if (moving) slither += Time.deltaTime / currentStep;
