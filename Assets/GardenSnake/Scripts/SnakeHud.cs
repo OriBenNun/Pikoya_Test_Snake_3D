@@ -15,7 +15,6 @@ namespace GardenSnake
         [SerializeField] private CanvasGroup brandGroup;
         [SerializeField] private TMP_Text scoreText;
         [SerializeField] private TMP_Text bestText;
-        [SerializeField] private CanvasGroup hintGroup;
         [SerializeField] private RectTransform toastRoot;
         [SerializeField] private TMP_Text toast;
         [SerializeField] private Image toastHalo;
@@ -34,6 +33,7 @@ namespace GardenSnake
         [SerializeField] private Button primaryButton;
         [SerializeField] private TMP_Text primaryLabel;
         [SerializeField] private RectTransform cardKeyHint;
+        [SerializeField] private RectTransform cardInstructions;
         [Header("Controls")]
         [SerializeField] private Button pauseButton;
         [SerializeField] private Image pauseGlyph;
@@ -43,6 +43,79 @@ namespace GardenSnake
         [SerializeField] private Image muteGlyph;
         [SerializeField] private Sprite soundOnSprite;
         [SerializeField] private Sprite soundOffSprite;
+
+        [Header("Chrome appearance")]
+        [SerializeField] private Color controlColor = new Color(.118f, .227f, .165f);
+        [SerializeField, Range(0, 1)] private float mutedOpacity = .35f;
+        [SerializeField, Range(0, 1)] private float soundOnOpacity = .85f;
+        [SerializeField, Range(0, 1)] private float playingBrandOpacity = .85f;
+        [SerializeField, Min(0)] private float chromeFadeSpeed = 1.6f;
+        [SerializeField] private Color bestColor = new Color(.118f, .227f, .165f, .72f);
+        [SerializeField] private Color bestFlashColor = new Color(.89f, .38f, .15f);
+        [SerializeField, Min(.01f)] private float bestFlashDuration = .6f;
+        [SerializeField, Min(0)] private float bestFlashScale = .1f;
+        [Header("Pickup toast")]
+        [SerializeField, Min(1)] private float pickupFontSize = 40;
+        [SerializeField, Min(1)] private float quietPickupFontSize = 28;
+        [SerializeField, Min(.01f)] private float pickupDuration = .95f;
+        [SerializeField, Min(.01f)] private float quietPickupDuration = .7f;
+        [SerializeField, Min(0)] private float toastFadeSpeed = 3.2f;
+        [SerializeField, Range(0, 1)] private float toastHaloOpacity = .75f;
+        [SerializeField, Range(0, 1)] private float quietToastHaloOpacity = .22f;
+        [SerializeField] private float toastStartHeight = 64;
+        [SerializeField] private float toastRise = 54;
+        [SerializeField, Min(0)] private float toastTopPadding = 70;
+        [SerializeField] private Vector2 toastScale = new Vector2(1.3f, .95f);
+        [SerializeField, Min(0)] private float toastScaleSpeed = 3;
+        [Header("Banner")]
+        [SerializeField, Min(.01f)] private float bannerDuration = 2;
+        [SerializeField, Min(0)] private float bannerFadeSpeed = 2.4f;
+        [SerializeField, Min(0)] private float bannerRiseSpeed = 6;
+        [SerializeField, Range(0, 1)] private float bannerFillOpacity = .96f;
+        [SerializeField, Min(0)] private float bannerStartScale = .82f;
+        [SerializeField, Min(.01f)] private float bannerEasePower = 3;
+        [Header("Card animation")]
+        [SerializeField, Min(0)] private float resultsDelay = .72f;
+        [SerializeField, Min(.01f)] private float cardFadeDuration = .22f;
+        [SerializeField, Min(.01f)] private float cardEasePower = 3;
+        [SerializeField, Range(0, 1)] private float scrimOpacity = .85f;
+        [SerializeField, Min(0)] private float scrimFadeInSpeed = 4;
+        [SerializeField, Min(0)] private float scrimFadeOutSpeed = 6;
+        [SerializeField, Min(0)] private float cardStartScale = .94f;
+        [SerializeField] private float cardStartY = -22;
+        [Header("Card layout")]
+        [SerializeField, Min(1)] private float cardWidth = 660;
+        [SerializeField, Tooltip("X: ready/paused height. Y: results height.")] private Vector2 cardHeights = new Vector2(520, 448);
+        [SerializeField, Tooltip("X: ready/paused Y position. Y: results Y position.")] private Vector2 eyebrowY = new Vector2(202, 168);
+        [SerializeField] private Vector2 titleY = new Vector2(150, 116);
+        [SerializeField] private float tallyY = 40;
+        [SerializeField] private Vector2 bodyY = new Vector2(80, -34);
+        [SerializeField] private Vector2 primaryButtonY = new Vector2(-158, -130);
+        [SerializeField] private Vector2 keyHintY = new Vector2(-213, -186);
+        [SerializeField] private float instructionsY = -32;
+        [Header("Copy")]
+        [SerializeField] private string bestPrefix = "BEST ";
+        [SerializeField] private string bestResultPrefix = "Best so far: ";
+        [SerializeField] private string readyEyebrow = "A SMALL GARDEN, A BIG APPETITE";
+        [SerializeField] private string readyTitle = "Room to grow";
+        [SerializeField, TextArea] private string readyBody = "Eat apples to grow longer.\nStay off the edges and your own tail.";
+        [SerializeField] private string playLabel = "PLAY";
+        [SerializeField] private string pausedEyebrow = "TAKE A BREATHER";
+        [SerializeField] private string pausedTitle = "On a leaf break";
+        [SerializeField, TextArea] private string pausedBody = "The garden will be right here\nwhenever you are ready.";
+        [SerializeField] private string resumeLabel = "RESUME";
+        [SerializeField] private string wonEyebrow = "WHAT A HARVEST";
+        [SerializeField] private string recordEyebrow = "A NEW PERSONAL BEST";
+        [SerializeField] private string lostEyebrow = "ONE MORE LITTLE GO?";
+        [SerializeField] private string wonTitle = "Garden complete";
+        [SerializeField] private string replayLabel = "PLAY AGAIN";
+        [SerializeField] private string startingVerdict = "Off to a start";
+        [SerializeField] private string decentVerdict = "A decent little run";
+        [SerializeField] private string goodVerdict = "That was a good one";
+        [SerializeField] private string magnificentVerdict = "A magnificent run";
+        [SerializeField, Min(0)] private int decentScore = 5;
+        [SerializeField, Min(0)] private int goodScore = 12;
+        [SerializeField, Min(0)] private int magnificentScore = 25;
 
         private SnakeController controller;
         private Camera view;
@@ -54,7 +127,6 @@ namespace GardenSnake
         private float bannerTime;
         private float cardTime;
         private float whisperTime;
-        private float hintTarget = 1;
         private RunState lastState = (RunState)(-1);
         private int shownScore = -1;
         private int shownBest = -1;
@@ -103,10 +175,10 @@ namespace GardenSnake
             if (shownBest != controller.Best)
             {
                 shownBest = controller.Best;
-                bestText.text = "BEST " + Count(controller.Best);
+                bestText.text = bestPrefix + Count(controller.Best);
             }
             muteGlyph.sprite = controller.Muted ? soundOffSprite : soundOnSprite;
-            muteGlyph.color = new Color(.118f, .227f, .165f, controller.Muted ? .35f : .85f);
+            muteGlyph.color = FadeTo(controlColor, controller.Muted ? mutedOpacity : soundOnOpacity);
             pauseGlyph.sprite = game.State == RunState.Paused ? resumeSprite : pauseSprite;
             pauseButton.interactable = game.State == RunState.Playing || game.State == RunState.Paused;
 
@@ -123,31 +195,30 @@ namespace GardenSnake
             cardTally.SetActive(ended);
             if (ended) cardTallyValue.text = Count(game.Score);
             LayoutCard(ended);
-            hintTarget = game.State == RunState.Playing && game.Score > 0 ? 0 : 1;
             if (!showCard) return;
             switch (game.State)
             {
                 case RunState.Ready:
-                    cardEyebrow.text = "A SMALL GARDEN, A BIG APPETITE";
-                    cardTitle.text = "Room to grow";
-                    cardBody.text = "Eat apples to grow longer.\nStay off the edges and your own tail.";
-                    primaryLabel.text = "PLAY";
+                    cardEyebrow.text = readyEyebrow;
+                    cardTitle.text = readyTitle;
+                    cardBody.text = readyBody;
+                    primaryLabel.text = playLabel;
                     break;
                 case RunState.Paused:
-                    cardEyebrow.text = "TAKE A BREATHER";
-                    cardTitle.text = "On a leaf break";
-                    cardBody.text = "The garden will be right here\nwhenever you are ready.";
-                    primaryLabel.text = "RESUME";
+                    cardEyebrow.text = pausedEyebrow;
+                    cardTitle.text = pausedTitle;
+                    cardBody.text = pausedBody;
+                    primaryLabel.text = resumeLabel;
                     break;
                 case RunState.Lost:
                 case RunState.Won:
                     bool won = game.State == RunState.Won;
-                    cardEyebrow.text = won ? "WHAT A HARVEST"
-                        : controller.Record.Broken ? "A NEW PERSONAL BEST"
-                        : "ONE MORE LITTLE GO?";
-                    cardTitle.text = won ? "Garden complete" : Verdict(game.Score);
-                    cardBody.text = game.EndReason + "\nBest so far: " + controller.Best;
-                    primaryLabel.text = "PLAY AGAIN";
+                    cardEyebrow.text = won ? wonEyebrow
+                        : controller.Record.Broken ? recordEyebrow
+                        : lostEyebrow;
+                    cardTitle.text = won ? wonTitle : Verdict(game.Score);
+                    cardBody.text = game.EndReason + "\n" + bestResultPrefix + controller.Best;
+                    primaryLabel.text = replayLabel;
                     break;
             }
         }
@@ -156,21 +227,26 @@ namespace GardenSnake
         private void LayoutCard(bool ended)
         {
             var rect = (RectTransform)card.transform;
-            rect.sizeDelta = new Vector2(660, ended ? 448 : 372);
-            cardEyebrow.rectTransform.anchoredPosition = new Vector2(0, ended ? 168 : 128);
-            cardTitle.rectTransform.anchoredPosition = new Vector2(0, ended ? 116 : 74);
-            ((RectTransform)cardTally.transform).anchoredPosition = new Vector2(0, 40);
-            cardBody.rectTransform.anchoredPosition = new Vector2(0, ended ? -34 : 4);
-            ((RectTransform)primaryButton.transform).anchoredPosition = new Vector2(0, ended ? -130 : -92);
-            cardKeyHint.anchoredPosition = new Vector2(0, ended ? -186 : -146);
+            rect.sizeDelta = new Vector2(cardWidth, ended ? cardHeights.y : cardHeights.x);
+            cardEyebrow.rectTransform.anchoredPosition = new Vector2(0, ended ? eyebrowY.y : eyebrowY.x);
+            cardTitle.rectTransform.anchoredPosition = new Vector2(0, ended ? titleY.y : titleY.x);
+            ((RectTransform)cardTally.transform).anchoredPosition = new Vector2(0, tallyY);
+            cardBody.rectTransform.anchoredPosition = new Vector2(0, ended ? bodyY.y : bodyY.x);
+            ((RectTransform)primaryButton.transform).anchoredPosition = new Vector2(0, ended ? primaryButtonY.y : primaryButtonY.x);
+            cardKeyHint.anchoredPosition = new Vector2(0, ended ? keyHintY.y : keyHintY.x);
+            if (cardInstructions != null)
+            {
+                cardInstructions.gameObject.SetActive(!ended);
+                cardInstructions.anchoredPosition = new Vector2(0, instructionsY);
+            }
         }
 
-        private static string Verdict(int score)
+        private string Verdict(int score)
         {
-            if (score >= 25) return "A magnificent run";
-            if (score >= 12) return "That was a good one";
-            if (score >= 5) return "A decent little run";
-            return "Off to a start";
+            if (score >= magnificentScore) return magnificentVerdict;
+            if (score >= goodScore) return goodVerdict;
+            if (score >= decentScore) return decentVerdict;
+            return startingVerdict;
         }
 
         /// <summary>A number that pops where the apple was, then drifts up and fades.</summary>
@@ -178,19 +254,19 @@ namespace GardenSnake
         {
             toast.text = message;
             toastQuiet = quiet;
-            toast.fontSize = quiet ? 28 : 40;
-            toastDuration = quiet ? .7f : .95f;
+            toast.fontSize = quiet ? quietPickupFontSize : pickupFontSize;
+            toastDuration = quiet ? quietPickupDuration : pickupDuration;
             toastTime = toastDuration;
             toastAnchor = ScreenAnchor(worldPosition);
             toastRoot.anchoredPosition = toastAnchor;
         }
 
-        public void WhisperBest() => whisperTime = .6f;
+        public void WhisperBest() => whisperTime = bestFlashDuration;
 
         public void ShowBanner(string message)
         {
             banner.text = message;
-            bannerTime = 2f;
+            bannerTime = bannerDuration;
         }
 
         private static Color FadeTo(Color color, float alpha) =>
@@ -210,9 +286,9 @@ namespace GardenSnake
             if (controller == null) return;
             float delta = Time.unscaledDeltaTime;
             whisperTime = Mathf.Max(0, whisperTime - delta);
-            float whisper = Mathf.Sin(whisperTime / .6f * Mathf.PI);
-            bestText.transform.localScale = Vector3.one * (1 + whisper * .1f);
-            bestText.color = Color.Lerp(new Color(.118f, .227f, .165f, .72f), new Color(.89f, .38f, .15f), whisper);
+            float whisper = Mathf.Sin(whisperTime / Mathf.Max(.01f, bestFlashDuration) * Mathf.PI);
+            bestText.transform.localScale = Vector3.one * (1 + whisper * bestFlashScale);
+            bestText.color = Color.Lerp(bestColor, bestFlashColor, whisper);
             AnimateToast(delta);
             AnimateBanner(delta);
             AnimateChrome(delta);
@@ -222,49 +298,48 @@ namespace GardenSnake
         private void AnimateToast(float delta)
         {
             toastTime = Mathf.Max(0, toastTime - delta);
-            float toastProgress = 1 - toastTime / toastDuration;
-            float toastFade = Mathf.Min(1, toastTime * 3.2f);
+            float toastProgress = 1 - toastTime / Mathf.Max(.01f, toastDuration);
+            float toastFade = Mathf.Min(1, toastTime * toastFadeSpeed);
             toast.alpha = toastFade;
-            toastHalo.color = FadeTo(toastHalo.color, toastFade * (toastQuiet ? .22f : .75f));
-            Vector2 lift = toastAnchor + new Vector2(0, 64 + toastProgress * 54);
-            toastRoot.anchoredPosition = new Vector2(lift.x, Mathf.Min(lift.y, canvasRect.rect.height * .5f - 70));
-            toastRoot.localScale = Vector3.one * Mathf.Lerp(1.3f, .95f, Mathf.Clamp01(toastProgress * 3f));
+            toastHalo.color = FadeTo(toastHalo.color, toastFade * (toastQuiet ? quietToastHaloOpacity : toastHaloOpacity));
+            Vector2 lift = toastAnchor + new Vector2(0, toastStartHeight + toastProgress * toastRise);
+            toastRoot.anchoredPosition = new Vector2(lift.x, Mathf.Min(lift.y, canvasRect.rect.height * .5f - toastTopPadding));
+            toastRoot.localScale = Vector3.one * Mathf.Lerp(toastScale.x, toastScale.y, Mathf.Clamp01(toastProgress * toastScaleSpeed));
 
         }
 
         private void AnimateBanner(float delta)
         {
             bannerTime = Mathf.Max(0, bannerTime - delta);
-            float bannerFade = Mathf.Min(1, bannerTime * 2.4f);
-            float bannerRise = Mathf.Clamp01((2f - bannerTime) * 6f);
+            float bannerFade = Mathf.Min(1, bannerTime * bannerFadeSpeed);
+            float bannerRise = Mathf.Clamp01((bannerDuration - bannerTime) * bannerRiseSpeed);
             banner.alpha = bannerFade;
-            bannerFill.color = FadeTo(bannerFill.color, bannerFade * .96f);
-            bannerRoot.localScale = Vector3.one * Mathf.Lerp(.82f, 1f, 1 - Mathf.Pow(1 - bannerRise, 3));
+            bannerFill.color = FadeTo(bannerFill.color, bannerFade * bannerFillOpacity);
+            bannerRoot.localScale = Vector3.one * Mathf.Lerp(bannerStartScale, 1f, 1 - Mathf.Pow(1 - bannerRise, bannerEasePower));
 
         }
 
         private void AnimateChrome(float delta)
         {
-            hintGroup.alpha = Mathf.MoveTowards(hintGroup.alpha, hintTarget, delta * 1.6f);
             brandGroup.alpha = Mathf.MoveTowards(brandGroup.alpha,
-                controller.Game.State == RunState.Playing ? .85f : 1f, delta * 1.6f);
+                controller.Game.State == RunState.Playing ? playingBrandOpacity : 1f, delta * chromeFadeSpeed);
 
         }
 
         private void AnimateCard(float delta)
         {
-            if (!card.activeSelf) { scrimGroup.alpha = Mathf.MoveTowards(scrimGroup.alpha, 0, delta * 6f); return; }
+            if (!card.activeSelf) { scrimGroup.alpha = Mathf.MoveTowards(scrimGroup.alpha, 0, delta * scrimFadeOutSpeed); return; }
             cardTime += delta;
             bool ended = lastState == RunState.Lost || lastState == RunState.Won;
             // A short beat after a death lets the collision land before the card interrupts.
-            float t = Mathf.Clamp01((cardTime - (ended ? .72f : 0)) / .22f);
-            float eased = 1 - Mathf.Pow(1 - t, 3);
+            float t = Mathf.Clamp01((cardTime - (ended ? resultsDelay : 0)) / Mathf.Max(.01f, cardFadeDuration));
+            float eased = 1 - Mathf.Pow(1 - t, cardEasePower);
             cardGroup.alpha = t;
             cardGroup.interactable = t >= 1;
             cardGroup.blocksRaycasts = t > 0;
-            scrimGroup.alpha = Mathf.MoveTowards(scrimGroup.alpha, t * .85f, delta * 4f);
-            card.transform.localScale = Vector3.one * Mathf.Lerp(.94f, 1, eased);
-            ((RectTransform)card.transform).anchoredPosition = new Vector2(0, Mathf.Lerp(-22, 0, eased));
+            scrimGroup.alpha = Mathf.MoveTowards(scrimGroup.alpha, t * scrimOpacity, delta * scrimFadeInSpeed);
+            card.transform.localScale = Vector3.one * Mathf.Lerp(cardStartScale, 1, eased);
+            ((RectTransform)card.transform).anchoredPosition = new Vector2(0, Mathf.Lerp(cardStartY, 0, eased));
         }
     }
 }

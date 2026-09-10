@@ -71,13 +71,15 @@ layouts need a dedicated UI pass.
   writes a screenshot filmstrip.
 - `Assets/GardenSnake/Tests/Editor`: simulation regression tests.
 - `Tools/Blender/GardenSnake.blend`: original editable Blender source.
-- `Tools/Blender/create_assets.py`: deterministic model generation and FBX export.
+- `Tools/Blender/create_assets.py`: model generation and FBX export using Blender 5.2 LTS.
+- `Tools/Blender/polish_assets.py`: individually authored shape and surface corrections.
+- `Tools/Blender/inspect_assets.py`: front/back renders of every source model for visual review.
 - `Tools/Harness/gs.py`: Unity CLI wrapper used to drive the Editor from a terminal.
 
 ## Rebuild assets and scene
 
 ```powershell
-& 'C:\Program Files\Blender Foundation\Blender 3.5\blender.exe' --background --python Tools/Blender/create_assets.py
+& 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' --background --python Tools/Blender/create_assets.py
 python Tools/generate_audio.py
 ```
 
@@ -110,5 +112,7 @@ python Tools/Harness/gs.py playtest run 40 8
 That enters Play mode, steers with real Input System events, restarts after each death, and writes a
 filmstrip to `Artifacts/shots` plus a report to `Artifacts/playtest.txt`. Synthetic input verifies
 behaviour; final game-feel judgement still benefits from a human playtest.
+
+See [model polish and verification](Docs/ModelPolish.md) for the model audit and capture workflow.
 
 See [technical notes](Docs/TechnicalNotes.md) for asset provenance, AI disclosure, and next steps.

@@ -140,6 +140,53 @@ def polish(name, objects):
         replace_mesh(blade,vertices,faces,False)
         bevel=blade.modifiers.new('Rounded blade edge','BEVEL'); bevel.width=.025; bevel.segments=3
         blade.modifiers.new('Blade normals','WEIGHTED_NORMAL')
+    elif name == 'Bush':
+        # Flowers sit on the union of the three foliage lobes, not inside a neighboring lobe.
+        for o in find('Berry'):
+            objects.remove(o); bpy.data.objects.remove(o, do_unlink=True)
+        lobes = [(-.45,0,.43,.5,.4,.5),(.35,.1,.52,.62,.496,.62),(0,-.18,.38,.5,.4,.5)]
+        groups = {'Bush petals': [], 'Bush flower centers': [], 'Bush leaf accents': []}
+
+        def detail(group, location, scale, rotation, material):
+            bpy.ops.mesh.primitive_uv_sphere_add(segments=12, ring_count=8, location=location)
+            ob = bpy.context.object
+            ob.scale = scale; ob.rotation_mode = 'QUATERNION'; ob.rotation_quaternion = rotation
+            ob.data.materials.append(bpy.data.materials[material])
+            for face in ob.data.polygons: face.use_smooth = True
+            groups[group].append(ob)
+
+        from mathutils import Quaternion
+        locations = [(-.63,-.08),(-.43,-.25),(-.35,.12),(-.13,-.37),(.05,-.28),
+                     (.29,-.29),(.49,-.12),(.58,.13),(.32,.29),(.08,.12),(-.09,.32)]
+        for index,(x,y) in enumerate(locations):
+            surface = []
+            for cx,cy,cz,rx,ry,rz in lobes:
+                q = 1-((x-cx)/rx)**2-((y-cy)/ry)**2
+                if q > 0: surface.append((cz+rz*math.sqrt(q),cx,cy,cz,rx,ry,rz))
+            z,cx,cy,cz,rx,ry,rz = max(surface)
+            normal = Vector(((x-cx)/rx**2,(y-cy)/ry**2,(z-cz)/rz**2)).normalized()
+            rotation = normal.to_track_quat('Z','Y')
+            center = Vector((x,y,z)) + normal*.025
+            size = .88 + (index%3)*.12
+            for petal in range(5):
+                angle = petal*math.tau/5 + index*.63
+                local = Vector((math.cos(angle)*.082*size,math.sin(angle)*.082*size,.012))
+                detail('Bush petals',center+rotation@local,(.083*size,.053*size,.022),
+                       rotation@Quaternion((0,0,1),angle),'Blush' if index%3 else 'Cream')
+            detail('Bush flower centers',center+normal*.036,(.044*size,.044*size,.028),rotation,'Petal')
+            leaf_angle = index*1.7
+            leaf_offset = rotation@Vector((math.cos(leaf_angle)*.16,math.sin(leaf_angle)*.16,-.025))
+            detail('Bush leaf accents',center+leaf_offset,(.12,.045,.018),
+                   rotation@Quaternion((0,0,1),leaf_angle),'Leaf')
+        # Keep each material group editable while avoiding one renderer per petal in Unity.
+        for label, parts in groups.items():
+            bpy.ops.object.select_all(action='DESELECT')
+            for ob in parts: ob.select_set(True)
+            bpy.context.view_layer.objects.active = parts[0]
+            bpy.ops.object.join()
+            ob = bpy.context.object; ob.name = label
+            bpy.ops.object.transform_apply(location=False,rotation=True,scale=True)
+            objects.append(ob)
     elif name == 'Tree':
         for o,loc in zip(find('Garden apple'),[(-.62,-.59,2.12),(.40,-.88,2.47),(1.02,-.58,1.93)]): o.location=loc
     elif name == 'Lavender':

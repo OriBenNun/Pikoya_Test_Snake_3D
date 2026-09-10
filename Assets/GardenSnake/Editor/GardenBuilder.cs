@@ -60,6 +60,7 @@ namespace GardenSnake.Editor
             Transform board = CreateBoard();
             CreateSurroundings();
             GardenDecor.Create();
+            GardenWildlifeBuilder.Create();
 
             var game = new GameObject("Snake Game").AddComponent<SnakeController>();
             var audio = game.gameObject.AddComponent<AudioSource>();
@@ -107,6 +108,7 @@ namespace GardenSnake.Editor
             settings.FindProperty("boardHeight").intValue = BoardHeight;
             settings.ApplyModifiedPropertiesWithoutUndo();
 
+            GardenTuning.Bind(game);
             GardenFeel.Create(game, hud, board, pickupParticles);
 
             EditorSceneManager.SaveScene(scene, ScenePath);

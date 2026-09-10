@@ -65,25 +65,28 @@ namespace GardenSnake.Editor
                 {
                     case 0:
                         RequireText("Room to grow");
-                        Capture("ready");
+                        if (EditorApplication.timeSinceStartup - stageAt < .35) { Capture("ready"); return; }
+                        if (EditorApplication.timeSinceStartup - stageAt < .7) return;
                         KeyPress(Key.Space);
                         Next("Ready screen and keyboard start");
                         break;
                     case 1:
                         if (controller.Game.Score < 1) return;
-                        if (controller.Game.Body.Count != 4) throw new Exception("Pickup did not grow the snake.");
+                        if (controller.Game.Digestion.Count == 0 && controller.Game.Body.Count < 4)
+                            throw new Exception("Pickup did not start digestion.");
                         Capture("pickup");
                         KeyPress(Key.UpArrow);
                         Next("Apple pickup, score, growth");
                         break;
                     case 2:
-                        if (controller.Game.Heading != Direction.Up || controller.Game.Body[0].Y <= 6) return;
+                        if (controller.Game.Heading != Direction.Up || controller.Game.Body[0].Y <= 6 || controller.Game.Body.Count < 4) return;
                         Capture("playing");
                         KeyPress(Key.P);
                         Next("Arrow input turns upward");
                         break;
                     case 3:
                         if (controller.Game.State != RunState.Paused) return;
+                        if (controller.Game.Body.Count != 4) throw new Exception("Digestion did not grow the snake.");
                         pausedCell = controller.Game.Body[0];
                         RequireText("On a leaf break");
                         Next("Pause input and pause card");
@@ -91,6 +94,7 @@ namespace GardenSnake.Editor
                     case 4:
                         if (EditorApplication.timeSinceStartup - stageAt < .6) return;
                         if (controller.Game.Body[0] != pausedCell) throw new Exception("Snake moved while paused.");
+                        Capture("paused");
                         Click("Sound");
                         Next("Paused simulation remains fixed");
                         break;
@@ -110,7 +114,7 @@ namespace GardenSnake.Editor
                         Next("Wall collision and results card");
                         break;
                     case 8:
-                        if (EditorApplication.timeSinceStartup - stageAt < .9) return;
+                        if (EditorApplication.timeSinceStartup - stageAt < 1.25) return;
                         Capture("results");
                         Click("Primary");
                         Next("Results restart button clicked");
