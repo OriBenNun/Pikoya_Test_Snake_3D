@@ -98,7 +98,7 @@ namespace GardenSnake.Editor
             {
                 Vector2 centred = (point - Half(size)) / size;
                 centred.x -= .04f;
-                return Fill(Triangle(centred, .3f) - .02f);
+                return Fill((Triangle(centred, .3f) - .02f) * size);
             });
 
         public static Sprite SoundIcon(string name, int size, bool on) =>

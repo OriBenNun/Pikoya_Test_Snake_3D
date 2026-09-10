@@ -26125,7 +26125,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4280957470
   m_fontColor: {r: 0.11764706, g: 0.22745098, b: 0.16470589, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -26138,7 +26138,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -44085,7 +44085,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 3425319454
   m_fontColor: {r: 0.11764706, g: 0.22745098, b: 0.16470589, a: 0.8}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -44098,7 +44098,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -46325,6 +46325,7 @@ GameObject:
   - component: {fileID: 895224330}
   - component: {fileID: 895224329}
   - component: {fileID: 895224331}
+  - component: {fileID: 895224332}
   m_Layer: 0
   m_Name: Primary
   m_TagString: Untagged
@@ -46434,6 +46435,22 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &895224332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 895224327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d04ab24a0905d85459ad4d0ca8c76a11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GardenSnake.ButtonFeel
+  hoverScale: 1.035
+  pressScale: 0.94
+  settleTime: 0.065
+  releaseKick: 1.2
 --- !u!1001 &895735016
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -46880,6 +46897,7 @@ GameObject:
   - component: {fileID: 902663914}
   - component: {fileID: 902663913}
   - component: {fileID: 902663915}
+  - component: {fileID: 902663916}
   m_Layer: 0
   m_Name: Sound
   m_TagString: Untagged
@@ -46989,6 +47007,22 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &902663916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 902663911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d04ab24a0905d85459ad4d0ca8c76a11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GardenSnake.ButtonFeel
+  hoverScale: 1.035
+  pressScale: 0.94
+  settleTime: 0.065
+  releaseKick: 1.2
 --- !u!1 &906155096
 GameObject:
   m_ObjectHideFlags: 0
@@ -65403,7 +65437,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4280957470
   m_fontColor: {r: 0.11764706, g: 0.22745098, b: 0.16470589, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -65416,7 +65450,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -81238,7 +81272,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 3207215646
   m_fontColor: {r: 0.11764706, g: 0.22745098, b: 0.16470589, a: 0.75}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -81251,7 +81285,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -87140,7 +87174,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 3425319454
   m_fontColor: {r: 0.11764706, g: 0.22745098, b: 0.16470589, a: 0.8}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -87153,7 +87187,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -92286,7 +92320,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 3425319454
   m_fontColor: {r: 0.11764706, g: 0.22745098, b: 0.16470589, a: 0.8}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -92299,7 +92333,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -99234,7 +99268,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 3207215646
   m_fontColor: {r: 0.11764706, g: 0.22745098, b: 0.16470589, a: 0.75}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -99247,7 +99281,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -108831,7 +108865,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4280957470
   m_fontColor: {r: 0.11764706, g: 0.22745098, b: 0.16470589, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -108844,7 +108878,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -109922,7 +109956,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 3207215646
   m_fontColor: {r: 0.11764706, g: 0.22745098, b: 0.16470589, a: 0.75}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -109935,7 +109969,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -113754,6 +113788,7 @@ GameObject:
   - component: {fileID: 2102355611}
   - component: {fileID: 2102355610}
   - component: {fileID: 2102355612}
+  - component: {fileID: 2102355613}
   m_Layer: 0
   m_Name: Pause
   m_TagString: Untagged
@@ -113863,6 +113898,22 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2102355613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2102355608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d04ab24a0905d85459ad4d0ca8c76a11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GardenSnake.ButtonFeel
+  hoverScale: 1.035
+  pressScale: 0.94
+  settleTime: 0.065
+  releaseKick: 1.2
 --- !u!1 &2103431413
 GameObject:
   m_ObjectHideFlags: 0

@@ -360,6 +360,7 @@ namespace GardenSnake.Editor
 
         private static void Style(Button button, Image target)
         {
+            button.gameObject.AddComponent<ButtonFeel>();
             button.targetGraphic = target;
             button.transition = Selectable.Transition.ColorTint;
             var colors = button.colors;
