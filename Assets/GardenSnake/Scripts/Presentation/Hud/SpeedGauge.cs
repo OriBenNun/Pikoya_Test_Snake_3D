@@ -69,24 +69,27 @@ namespace GardenSnake
         [Header("Mesh quality")]
         [SerializeField, Range(8, 128)] private int discSegments = 40;
         [SerializeField, Range(1, 30)] private float arcSegmentDegrees = 5;
-        private SnakeController controller;
+        private GameLoopManager loop;
         private float displayed, velocity, kick, previousPace = -1;
+        private float drawnDisplayed = float.NaN, drawnKick = float.NaN;
         private int shownSpeed = -1, shownBand = -1;
         public float DisplayedPace => displayed;
-        public float TargetPace => controller == null ? 0 : controller.Pace;
+        public float TargetPace => loop == null ? 0 : loop.Pace;
+
+        /// <summary>The HUD hands the gauge the loop it should read; it looks nothing up itself.</summary>
+        public void Bind(GameLoopManager gameLoop) => loop = gameLoop;
 
         protected override void Start()
         {
             base.Start();
             raycastTarget = false;
-            controller = FindFirstObjectByType<SnakeController>();
         }
 
         private void Update()
         {
-            if (controller == null || controller.Game == null) return;
-            float target = controller.Pace;
-            bool paused = controller.Game.State == RunState.Paused;
+            if (loop == null || loop.Game == null) return;
+            float target = loop.Pace;
+            bool paused = loop.Game.State == RunState.Paused;
             float dt = paused ? 0 : Mathf.Min(Time.unscaledDeltaTime, .033f);
             if (target > previousPace + kickThreshold && previousPace >= 0) { kick = 1; velocity += kickVelocity; }
             previousPace = target;
@@ -94,7 +97,7 @@ namespace GardenSnake
             displayed = Mathf.Clamp(displayed + velocity * dt, -needleOvershoot, 1 + needleOvershoot);
             kick = Mathf.MoveTowards(kick, 0, dt * kickDecay);
             rectTransform.localScale = new Vector3(1 + kick * kickStretch.x, 1 + kick * kickStretch.y, 1);
-            int speed = Mathf.RoundToInt(10 / controller.StepSeconds);
+            int speed = Mathf.RoundToInt(10 / loop.StepSeconds);
             if (shownSpeed != speed)
             {
                 shownSpeed = speed;
@@ -106,7 +109,13 @@ namespace GardenSnake
                 shownBand = band;
                 caption.text = band == 4 ? pausedCaption : band == 3 ? zoomiesCaption : band == 2 ? zippyCaption : band == 1 ? cruisingCaption : idleCaption;
             }
-            if (dt > 0) SetVerticesDirty();
+            // The face is a full procedural mesh, so rebuilding it costs an allocation every time.
+            // A settled needle draws the same face as last frame; leave it alone until it moves.
+            if (dt <= 0) return;
+            if (Mathf.Abs(displayed - drawnDisplayed) < .0002f && Mathf.Abs(kick - drawnKick) < .0002f) return;
+            drawnDisplayed = displayed;
+            drawnKick = kick;
+            SetVerticesDirty();
         }
 
         protected override void OnPopulateMesh(VertexHelper vh)

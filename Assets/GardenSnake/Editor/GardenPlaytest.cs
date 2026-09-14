@@ -20,7 +20,7 @@ namespace GardenSnake.Editor
         private const string ShotFolder = "Artifacts/shots";
         private const string ReportPath = "Artifacts/playtest.txt";
 
-        private static SnakeController controller;
+        private static GameLoopManager controller;
         private static Keyboard keyboard;
         private static InputSettings.BackgroundBehavior backgroundBehavior;
         private static double endsAt;
@@ -40,7 +40,7 @@ namespace GardenSnake.Editor
         public static string Run(string runLabel, float seconds, float everySeconds)
         {
             if (!EditorApplication.isPlaying) return "not-playing";
-            controller = UnityEngine.Object.FindAnyObjectByType<SnakeController>();
+            controller = UnityEngine.Object.FindAnyObjectByType<GameLoopManager>();
             if (controller == null) return "no-controller";
             Directory.CreateDirectory(ShotFolder);
             label = runLabel;

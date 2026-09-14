@@ -11,11 +11,10 @@ namespace GardenSnake.Editor
     /// </summary>
     public static class GardenFeel
     {
-        public static void Create(SnakeController game, SnakeHud hud, Transform board, ParticleSystem burst)
+        public static void Create(FeedbackManager feedback, SnakeHud hud, ParticleSystem burst)
         {
             var root = new GameObject("Feel").transform;
-            root.SetParent(game.transform, false);
-            var feel = root.gameObject.AddComponent<SnakeFeel>();
+            root.SetParent(feedback.transform, false);
             var flash = UnityEngine.Object.FindAnyObjectByType<MMFlash>();
             Transform scoreTransform = hud.ScoreTransform;
 
@@ -48,17 +47,14 @@ namespace GardenSnake.Editor
             MMF_Player whisper = Player("Record apple whisper", root);
             Particles(whisper, burst, 6);
 
-            var bound = new SerializedObject(feel);
-            GardenBuilder.Set(bound, "recordApple", whisper);
-            GardenBuilder.Set(bound, "pickup", pickup);
-            GardenBuilder.Set(bound, "death", death);
-            GardenBuilder.Set(bound, "runStart", start);
-            GardenBuilder.Set(bound, "newBest", best);
+            // The players live inside the feedback layer's own serialized block.
+            var bound = new SerializedObject(feedback);
+            GardenBuilder.Set(bound, "feel.recordApple", whisper);
+            GardenBuilder.Set(bound, "feel.pickup", pickup);
+            GardenBuilder.Set(bound, "feel.death", death);
+            GardenBuilder.Set(bound, "feel.runStart", start);
+            GardenBuilder.Set(bound, "feel.newBest", best);
             bound.ApplyModifiedPropertiesWithoutUndo();
-
-            var controller = new SerializedObject(game);
-            GardenBuilder.Set(controller, "feel", feel);
-            controller.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static MMF_Player Player(string name, Transform parent)

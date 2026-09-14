@@ -6,8 +6,9 @@ using UnityEngine.UI;
 namespace GardenSnake
 {
     /// <summary>
-    /// Presentation only. The HUD never touches the simulation; it reads the controller and decides
+    /// Presentation only. The HUD never touches the simulation; it reads the game loop and decides
     /// how loud to be, fading its own chrome out of the way as soon as a run is actually going.
+    /// The toasts and banners it throws up are asked for by the feedback layer.
     /// </summary>
     public sealed class SnakeHud : MonoBehaviour
     {
@@ -34,6 +35,8 @@ namespace GardenSnake
         [SerializeField] private TMP_Text primaryLabel;
         [SerializeField] private RectTransform cardKeyHint;
         [SerializeField] private RectTransform cardInstructions;
+        [Header("Readouts")]
+        [SerializeField] private SpeedGauge gauge;
         [Header("Controls")]
         [SerializeField] private Button pauseButton;
         [SerializeField] private Image pauseGlyph;
@@ -117,8 +120,10 @@ namespace GardenSnake
         [SerializeField, Min(0)] private int goodScore = 12;
         [SerializeField, Min(0)] private int magnificentScore = 25;
 
-        private SnakeController controller;
-        private Camera view;
+        [Header("Scene")]
+        [SerializeField] private GameLoopManager loop;
+        [SerializeField] private PlayerController input;
+        [SerializeField] private Camera view;
         private RectTransform canvasRect;
         private Vector2 toastAnchor;
         private float toastTime;
@@ -145,40 +150,46 @@ namespace GardenSnake
 
         public Transform ScoreTransform => scoreText != null ? scoreText.transform : null;
 
-        public void Bind(SnakeController game, Camera gameCamera)
+        private void Start()
         {
-            controller = game;
-            view = gameCamera;
             canvasRect = (RectTransform)transform;
             // This visual dimmer must not swallow corner controls or board swipes.
             scrimGroup.blocksRaycasts = false;
-            primaryButton.onClick.AddListener(controller.PrimaryAction);
-            pauseButton.onClick.AddListener(controller.TogglePause);
-            muteButton.onClick.AddListener(controller.ToggleMute);
+            // Buttons are input, so they ask the input layer rather than the game directly.
+            primaryButton.onClick.AddListener(input.RequestPrimary);
+            pauseButton.onClick.AddListener(input.RequestPause);
+            muteButton.onClick.AddListener(input.RequestMute);
             foreach (Button button in new[] { primaryButton, pauseButton, muteButton })
-                button.onClick.AddListener(controller.Click);
+                button.onClick.AddListener(loop.Click);
+            if (gauge != null) gauge.Bind(loop);
             toast.alpha = 0;
             toastHalo.color = FadeTo(toastHalo.color, 0);
             banner.alpha = 0;
             bannerFill.color = FadeTo(bannerFill.color, 0);
+            loop.Changed += Refresh;
             Refresh();
+        }
+
+        private void OnDestroy()
+        {
+            if (loop != null) loop.Changed -= Refresh;
         }
 
         public void Refresh()
         {
-            SnakeGame game = controller.Game;
+            SnakeGame game = loop.Game;
             if (shownScore != game.Score)
             {
                 shownScore = game.Score;
                 scoreText.text = Count(game.Score);
             }
-            if (shownBest != controller.Best)
+            if (shownBest != loop.Best)
             {
-                shownBest = controller.Best;
-                bestText.text = bestPrefix + Count(controller.Best);
+                shownBest = loop.Best;
+                bestText.text = bestPrefix + Count(loop.Best);
             }
-            muteGlyph.sprite = controller.Muted ? soundOffSprite : soundOnSprite;
-            muteGlyph.color = FadeTo(controlColor, controller.Muted ? mutedOpacity : soundOnOpacity);
+            muteGlyph.sprite = loop.Muted ? soundOffSprite : soundOnSprite;
+            muteGlyph.color = FadeTo(controlColor, loop.Muted ? mutedOpacity : soundOnOpacity);
             pauseGlyph.sprite = game.State == RunState.Paused ? resumeSprite : pauseSprite;
             pauseButton.interactable = game.State == RunState.Playing || game.State == RunState.Paused;
 
@@ -214,10 +225,10 @@ namespace GardenSnake
                 case RunState.Won:
                     bool won = game.State == RunState.Won;
                     cardEyebrow.text = won ? wonEyebrow
-                        : controller.Record.Broken ? recordEyebrow
+                        : loop.Record.Broken ? recordEyebrow
                         : lostEyebrow;
                     cardTitle.text = won ? wonTitle : Verdict(game.Score);
-                    cardBody.text = game.EndReason + "\n" + bestResultPrefix + controller.Best;
+                    cardBody.text = game.EndReason + "\n" + bestResultPrefix + loop.Best;
                     primaryLabel.text = replayLabel;
                     break;
             }
@@ -282,8 +293,8 @@ namespace GardenSnake
 
         private void Update()
         {
-            // The controller wires the HUD up in its Awake; until then there is nothing to draw.
-            if (controller == null) return;
+            // Start binds the HUD; until then there is nothing to draw.
+            if (canvasRect == null) return;
             float delta = Time.unscaledDeltaTime;
             whisperTime = Mathf.Max(0, whisperTime - delta);
             float whisper = Mathf.Sin(whisperTime / Mathf.Max(.01f, bestFlashDuration) * Mathf.PI);
@@ -322,7 +333,7 @@ namespace GardenSnake
         private void AnimateChrome(float delta)
         {
             brandGroup.alpha = Mathf.MoveTowards(brandGroup.alpha,
-                controller.Game.State == RunState.Playing ? playingBrandOpacity : 1f, delta * chromeFadeSpeed);
+                loop.Game.State == RunState.Playing ? playingBrandOpacity : 1f, delta * chromeFadeSpeed);
 
         }
 

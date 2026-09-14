@@ -1,0 +1,20 @@
+{
+    "name": "GardenSnake.Presentation",
+    "rootNamespace": "GardenSnake",
+    "references": [
+        "GardenSnake.Core",
+        "GardenSnake.Gameplay",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
+        "Unity.RenderPipelines.Core.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

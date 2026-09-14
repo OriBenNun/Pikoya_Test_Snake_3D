@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GardenSnake
 {
     /// <summary>Position-phased wind and travelling feedback gusts, with rooted vegetation pivots.</summary>
-    public sealed class GardenWind : MonoBehaviour
+    public sealed class GardenWind : GardenDweller
     {
         [Header("Vegetation (collected on entering Play Mode)")]
         [SerializeField] private Transform[] stems;
@@ -42,9 +42,7 @@ namespace GardenSnake
         [SerializeField, Min(0)] private float pulseAmplitude = 12f;
         private Quaternion[] rest;
         private float[] pulseAt, pulseStrength;
-        private SnakeFeel feel;
         public int MovingCount => stems == null ? 0 : stems.Length;
-        public int ReactionCount { get; private set; }
 
         private void Awake()
         {
@@ -67,29 +65,24 @@ namespace GardenSnake
             }
         }
 
-        private void OnEnable()
+        protected override void OnDisable()
         {
-            feel = FindFirstObjectByType<SnakeFeel>();
-            if (feel != null) feel.Reacted += React;
-        }
-
-        private void OnDisable()
-        {
-            if (feel != null) feel.Reacted -= React;
+            base.OnDisable();
             if (rest == null) return;
             for (int i = 0; i < stems.Length; i++) if (stems[i] != null) stems[i].localRotation = rest[i];
         }
 
-        private void React(SnakeFeel.Beat beat, Vector3 at, float strength)
+        protected override void React(Beat beat, Vector3 at, float strength)
         {
             if (!reactToFeedback) return;
-            ReactionCount++;
+            // A death pulls the meadow the other way, so the whole garden recoils with the snake.
+            float signed = strength * (beat == Beat.Death ? deathStrength : 1f);
             for (int i = 0; i < stems.Length; i++)
             {
                 if (stems[i] == null) continue;
                 float distance = Vector3.Distance(stems[i].position, at);
-                pulseAt[i] = Time.time + distance / Mathf.Max(.1f, propagationSpeed);
-                pulseStrength[i] = strength * (beat == SnakeFeel.Beat.Death ? deathStrength : 1f) / (1f + distance * Mathf.Max(0, distanceFalloff));
+                pulseAt[i] = Time.time + TravelTime(distance, propagationSpeed);
+                pulseStrength[i] = Carried(signed, distance, distanceFalloff);
             }
         }
 

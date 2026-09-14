@@ -8,10 +8,10 @@ namespace GardenSnake.Editor
     {
         public const string Folder = "Assets/GardenSnake/Tuning";
 
-        public static void Bind(SnakeController controller)
+        public static void Bind(SnakeManager snake)
         {
             if (!AssetDatabase.IsValidFolder(Folder)) AssetDatabase.CreateFolder("Assets/GardenSnake", "Tuning");
-            var serialized = new SerializedObject(controller);
+            var serialized = new SerializedObject(snake);
             Assign<SnakeSkinSettings>(serialized, "skinSettings", "Snake Skin");
             Assign<SnakeMouthSettings>(serialized, "mouthSettings", "Snake Mouth");
             serialized.ApplyModifiedPropertiesWithoutUndo();

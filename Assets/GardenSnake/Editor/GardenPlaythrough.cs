@@ -13,7 +13,7 @@ namespace GardenSnake.Editor
     /// <summary>Runs the real controls and UI in Play mode; never changes simulation state directly.</summary>
     public static class GardenPlaythrough
     {
-        private static SnakeController controller;
+        private static GameLoopManager controller;
         private static int stage;
         private static double stageAt;
         private static int releaseAt;
@@ -29,7 +29,7 @@ namespace GardenSnake.Editor
         public static void Start()
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play mode first.");
-            controller = UnityEngine.Object.FindFirstObjectByType<SnakeController>();
+            controller = UnityEngine.Object.FindFirstObjectByType<GameLoopManager>();
             if (controller == null || controller.Game.State != RunState.Ready)
                 throw new InvalidOperationException("Run verification from a fresh Ready screen.");
             var gameView = EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView"));

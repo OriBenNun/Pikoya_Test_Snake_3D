@@ -3,7 +3,14 @@ using UnityEngine;
 
 namespace GardenSnake
 {
-    /// <summary>Bounded, additive visual waves. Cell coordinates and collision never move.</summary>
+    /// <summary>
+    /// Bounded, additive visual waves. Cell coordinates and collision never move.
+    /// <para>
+    /// It knows nothing about the run: whoever triggers a wave also tells it when the garden
+    /// should hold still, so the board can be exercised on its own.
+    /// </para>
+    /// </summary>
+    [DefaultExecutionOrder(-150)]
     public sealed class GridCellWaves : MonoBehaviour
     {
         public enum Pattern { Ripple, Bloom, Sweep, CheckerHop }
@@ -53,9 +60,11 @@ namespace GardenSnake
         private static readonly Shape DefaultShape = new Shape();
         private Vector3[] rest;
         private int count;
-        private SnakeController controller;
         public int ActiveCount => count;
         public int CellCount => cells == null ? 0 : cells.Length;
+
+        /// <summary>While set, live waves keep their age and the board stops moving.</summary>
+        public bool Frozen { get; set; }
 
         private void Awake()
         {
@@ -63,7 +72,6 @@ namespace GardenSnake
             active = new Wave[Mathf.Clamp(maximumConcurrentWaves, 1, 64)];
             rest = new Vector3[CellCount];
             for (int i = 0; i < rest.Length; i++) if (cells[i] != null) rest[i] = cells[i].localPosition;
-            controller = FindFirstObjectByType<SnakeController>();
         }
 
         public void Play(Pattern pattern, Cell source, float strength = 1)
@@ -107,7 +115,7 @@ namespace GardenSnake
 
         private void Update()
         {
-            if (count == 0 || rest == null || (controller != null && controller.Game != null && controller.Game.State == RunState.Paused)) return;
+            if (count == 0 || rest == null || Frozen) return;
             for (int i = count - 1; i >= 0; i--)
             {
                 // Preserve the source beat after a stalled frame instead of jumping past it.

@@ -3,7 +3,7 @@ using UnityEngine;
 namespace GardenSnake
 {
     /// <summary>Decorative animation only. Routes stay in authored garden patches, outside the snake board.</summary>
-    public sealed class GardenAnimal : MonoBehaviour
+    public sealed class GardenAnimal : GardenDweller
     {
         public enum Species { Bird, Bunny, Turtle, Butterfly, Ladybug }
         public enum Activity { Rest, Fly, Hop, Graze, Crawl, Hide }
@@ -127,8 +127,6 @@ namespace GardenSnake
         public Activity State { get; private set; }
         public int FlightCount { get; private set; }
         public int RestCount { get; private set; }
-        public int ReactionCount { get; private set; }
-        private SnakeFeel feel;
         private Vector3 from, to, bodyScale, headScale;
         private Vector3 headPosition;
         private Quaternion headRotation;
@@ -142,7 +140,7 @@ namespace GardenSnake
         private float elapsed, duration, excitement, pendingAt = -1;
         private float pendingStrength, curiosity, tempo;
         private System.Random random;
-        private SnakeFeel.Beat pendingBeat;
+        private Beat pendingBeat;
         private bool destinationB, atPerch;
 
         private void Awake()
@@ -167,21 +165,13 @@ namespace GardenSnake
             else RestCount++;
         }
 
-        private void OnEnable()
+        protected override void React(Beat beat, Vector3 at, float strength)
         {
-            feel = FindFirstObjectByType<SnakeFeel>();
-            if (feel != null) feel.Reacted += React;
-        }
-
-        private void OnDisable() { if (feel != null) feel.Reacted -= React; }
-
-        private void React(SnakeFeel.Beat beat, Vector3 at, float strength)
-        {
-            ReactionCount++;
             pendingBeat = beat;
             float distance = Vector3.Distance(transform.position, at);
-            pendingAt = Time.time + distance / Mathf.Max(.001f, reactionPropagationSpeed) + Range(reactionDelayRange.x, reactionDelayRange.y);
-            pendingStrength = strength / Mathf.Max(.001f, 1 + distance * reactionDistanceAttenuation);
+            pendingAt = Time.time + TravelTime(distance, reactionPropagationSpeed) +
+                Range(reactionDelayRange.x, reactionDelayRange.y);
+            pendingStrength = Carried(strength, distance, reactionDistanceAttenuation);
         }
 
         private float Range(float min, float max) => Mathf.Lerp(min, max, (float)random.NextDouble());
@@ -214,12 +204,12 @@ namespace GardenSnake
                 pendingAt = -1;
                 excitement = Mathf.Max(excitement, pendingStrength);
                 curiosity = reactionCuriosity;
-                if (species == Species.Turtle && pendingBeat == SnakeFeel.Beat.Death)
+                if (species == Species.Turtle && pendingBeat == Beat.Death)
                 {
                     State = Activity.Hide; elapsed = 0; duration = Mathf.Max(.001f, hideSeconds);
                 }
                 else if (State != Activity.Fly && State != Activity.Hop &&
-                    (pendingBeat == SnakeFeel.Beat.Death || pendingBeat == SnakeFeel.Beat.NewBest ||
+                    (pendingBeat == Beat.Death || pendingBeat == Beat.NewBest ||
                      Range(0, 1) < pendingStrength * reactionTravelChance)) BeginTravel();
             }
             bool moving = State == Activity.Fly || State == Activity.Hop || State == Activity.Crawl;

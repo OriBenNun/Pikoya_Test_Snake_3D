@@ -111,7 +111,8 @@ namespace GardenSnake
             // Hide the neck's open end inside the head, and taper the final cell to a single tip.
             widths[0] *= settings.NeckWidth;
             widths[bodyCount - 1] *= settings.TailWidth;
-            skinRenderer.enabled = widths[0] > .001f || widths[bodyCount - 1] > .001f;
+            bool visible = widths[0] > .001f || widths[bodyCount - 1] > .001f;
+            if (skinRenderer.enabled != visible) skinRenderer.enabled = visible;
             vertices.Clear(); normals.Clear();
             if (rebuildTopology) { top.Clear(); belly.Clear(); markings.Clear(); }
             int rings = (count - 1) * SamplesPerCell + 1;

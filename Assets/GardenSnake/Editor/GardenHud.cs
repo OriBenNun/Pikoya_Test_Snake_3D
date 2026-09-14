@@ -62,7 +62,7 @@ namespace GardenSnake.Editor
             AssetDatabase.SaveAssets();
         }
 
-        public static SnakeHud Create()
+        public static SnakeHud Create(GameLoopManager loop, PlayerController input, Camera view)
         {
             Sprite panel = GardenSprites.RoundedRect("Panel", 96, 28);
             Sprite pill = GardenSprites.RoundedRect("Pill", 64, 30);
@@ -220,6 +220,10 @@ namespace GardenSnake.Editor
             GardenBuilder.Set(bound, "muteGlyph", muteGlyph);
             GardenBuilder.Set(bound, "soundOnSprite", soundOnIcon);
             GardenBuilder.Set(bound, "soundOffSprite", soundOffIcon);
+            GardenBuilder.Set(bound, "gauge", gauge);
+            GardenBuilder.Set(bound, "loop", loop);
+            GardenBuilder.Set(bound, "input", input);
+            GardenBuilder.Set(bound, "view", view);
             bound.ApplyModifiedPropertiesWithoutUndo();
             ConfigureInstructions(hud);
 

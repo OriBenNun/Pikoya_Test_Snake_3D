@@ -62,54 +62,84 @@ namespace GardenSnake.Editor
             GardenDecor.Create();
             GardenWildlifeBuilder.Create();
 
-            var game = new GameObject("Snake Game").AddComponent<SnakeController>();
-            var audio = game.gameObject.AddComponent<AudioSource>();
+            // One object carries the four layers, so their wiring is visible in one Inspector.
+            var root = new GameObject("Snake Game");
+            var input = root.AddComponent<PlayerController>();
+            var loop = root.AddComponent<GameLoopManager>();
+            var snake = root.AddComponent<SnakeManager>();
+            var feedback = root.AddComponent<FeedbackManager>();
+            var audio = root.AddComponent<AudioSource>();
             audio.playOnAwake = false;
             audio.spatialBlend = 0;
             var music = new GameObject("Ambience", typeof(AudioSource));
-            music.transform.SetParent(game.transform, false);
+            music.transform.SetParent(root.transform, false);
             var musicSource = music.GetComponent<AudioSource>();
             musicSource.clip = Clip("Ambience");
             musicSource.loop = true;
             musicSource.playOnAwake = false;
             musicSource.volume = .28f;
             musicSource.spatialBlend = 0;
+            var cameraRigComponent = cameraRig.gameObject.AddComponent<GameCameraRig>();
             Transform appleMarker = CreateAppleMarker();
             Transform burstRing = CreateBurstRing();
             ParticleSystem pickupParticles = CreatePickupBurst();
             ParticleSystem trailParticles = CreateSnakeTrail();
             CreateDustMotes();
-            SnakeHud hud = GardenHud.Create();
+            var appleView = new GameObject("Apple").AddComponent<AppleView>();
+            appleView.transform.SetParent(root.transform, false);
+            GridCellWaves cellWaves = board.GetComponent<GridCellWaves>();
+            SnakeHud hud = GardenHud.Create(loop, input, camera);
 
-            var settings = new SerializedObject(game);
-            Set(settings, "headPrefab", TintHead(Prefab("SnakeHead")));
-            Set(settings, "bodyPrefab", Prefab("SnakeBody"));
-            Set(settings, "tailPrefab", Prefab("SnakeTail"));
-            Set(settings, "applePrefab", Prefab("Apple"));
-            Set(settings, "gameCamera", camera);
-            Set(settings, "cameraRig", cameraRig);
-            Set(settings, "paceVolume", GameObject.Find("Pace").GetComponent<Volume>());
-            Set(settings, "appleMarker", appleMarker);
-            Set(settings, "burstRing", burstRing);
-            Set(settings, "pickupParticles", pickupParticles);
-            Set(settings, "trailParticles", trailParticles);
-            Set(settings, "audioSource", audio);
-            Set(settings, "musicSource", musicSource);
-            Set(settings, "hud", hud);
-            Set(settings, "cellWaves", board.GetComponent<GridCellWaves>());
-            settings.FindProperty("hudBandBottom").floatValue = .15f;
-            Set(settings, "pickupSound", Clip("Pickup"));
-            Set(settings, "turnSound", Clip("Turn"));
-            Set(settings, "loseSound", Clip("Lose"));
-            Set(settings, "startSound", Clip("Start"));
-            Set(settings, "bestSound", Clip("Best"));
-            Set(settings, "clickSound", Clip("Click"));
-            settings.FindProperty("boardWidth").intValue = BoardWidth;
-            settings.FindProperty("boardHeight").intValue = BoardHeight;
-            settings.ApplyModifiedPropertiesWithoutUndo();
+            // ---- rules and meta loop -------------------------------------
+            var rules = new SerializedObject(loop);
+            Set(rules, "input", input);
+            rules.FindProperty("boardWidth").intValue = BoardWidth;
+            rules.FindProperty("boardHeight").intValue = BoardHeight;
+            rules.ApplyModifiedPropertiesWithoutUndo();
 
-            GardenTuning.Bind(game);
-            GardenFeel.Create(game, hud, board, pickupParticles);
+            // ---- the snake's visuals -------------------------------------
+            var visuals = new SerializedObject(snake);
+            Set(visuals, "headPrefab", TintHead(Prefab("SnakeHead")));
+            Set(visuals, "bodyPrefab", Prefab("SnakeBody"));
+            Set(visuals, "loop", loop);
+            Set(visuals, "appleView", appleView);
+            Set(visuals, "board", cellWaves);
+            visuals.ApplyModifiedPropertiesWithoutUndo();
+
+            var fruit = new SerializedObject(appleView);
+            Set(fruit, "applePrefab", Prefab("Apple"));
+            Set(fruit, "marker", appleMarker);
+            Set(fruit, "loop", loop);
+            Set(fruit, "board", cellWaves);
+            fruit.ApplyModifiedPropertiesWithoutUndo();
+
+            var framing = new SerializedObject(cameraRigComponent);
+            Set(framing, "view", camera);
+            Set(framing, "loop", loop);
+            framing.ApplyModifiedPropertiesWithoutUndo();
+
+            // ---- the reaction layer --------------------------------------
+            var reactions = new SerializedObject(feedback);
+            Set(reactions, "loop", loop);
+            Set(reactions, "snake", snake);
+            Set(reactions, "hud", hud);
+            Set(reactions, "cellWaves", cellWaves);
+            Set(reactions, "paceVolume", GameObject.Find("Pace").GetComponent<Volume>());
+            Set(reactions, "burstRing", burstRing);
+            Set(reactions, "pickupParticles", pickupParticles);
+            Set(reactions, "trailParticles", trailParticles);
+            Set(reactions, "audioSource", audio);
+            Set(reactions, "musicSource", musicSource);
+            Set(reactions, "pickupSound", Clip("Pickup"));
+            Set(reactions, "turnSound", Clip("Turn"));
+            Set(reactions, "loseSound", Clip("Lose"));
+            Set(reactions, "startSound", Clip("Start"));
+            Set(reactions, "bestSound", Clip("Best"));
+            Set(reactions, "clickSound", Clip("Click"));
+            reactions.ApplyModifiedPropertiesWithoutUndo();
+
+            GardenTuning.Bind(snake);
+            GardenFeel.Create(feedback, hud, pickupParticles);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
