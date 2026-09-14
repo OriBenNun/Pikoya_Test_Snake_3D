@@ -1,0 +1,1702 @@
+[
+  {
+    "species": "Bird",
+    "bindings": {
+      "body": 1,
+      "head": 3,
+      "leftWing": 24,
+      "rightWing": 27,
+      "limbs": [
+        14,
+        19
+      ]
+    },
+    "nodes": [
+      {
+        "id": 0,
+        "name": "Bird",
+        "parent": -1,
+        "fbxName": "Bird_000_Bird",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 1,
+        "name": "Body",
+        "parent": 0,
+        "fbxName": "Bird_001_Body",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 2,
+        "name": "Body shape",
+        "parent": 1,
+        "fbxName": "Bird_002_Body shape",
+        "mesh": "Bird_002_Body shape",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Aqua"
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Head",
+        "parent": 1,
+        "fbxName": "Bird_003_Head",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 4,
+        "name": "Head shape",
+        "parent": 3,
+        "fbxName": "Bird_004_Head shape",
+        "mesh": "Bird_004_Head shape",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Aqua"
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Beak",
+        "parent": 3,
+        "fbxName": "Bird_005_Beak",
+        "mesh": "Bird_005_Beak",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 6,
+        "name": "Eye",
+        "parent": 3,
+        "fbxName": "Bird_006_Eye",
+        "mesh": "Bird_006_Eye",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 7,
+        "name": "Eye sparkle",
+        "parent": 3,
+        "fbxName": "Bird_007_Eye sparkle",
+        "mesh": "Bird_007_Eye sparkle",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 8,
+        "name": "Eye",
+        "parent": 3,
+        "fbxName": "Bird_008_Eye",
+        "mesh": "Bird_008_Eye",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 9,
+        "name": "Eye sparkle",
+        "parent": 3,
+        "fbxName": "Bird_009_Eye sparkle",
+        "mesh": "Bird_009_Eye sparkle",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Cream bib",
+        "parent": 1,
+        "fbxName": "Bird_010_Cream bib",
+        "mesh": "Bird_010_Cream bib",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 11,
+        "name": "Tail feather",
+        "parent": 1,
+        "fbxName": "Bird_011_Tail feather",
+        "mesh": "Bird_011_Tail feather",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeFeather"
+        ]
+      },
+      {
+        "id": 12,
+        "name": "Tail feather",
+        "parent": 1,
+        "fbxName": "Bird_012_Tail feather",
+        "mesh": "Bird_012_Tail feather",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Aqua"
+        ]
+      },
+      {
+        "id": 13,
+        "name": "Tail feather",
+        "parent": 1,
+        "fbxName": "Bird_013_Tail feather",
+        "mesh": "Bird_013_Tail feather",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeFeather"
+        ]
+      },
+      {
+        "id": 14,
+        "name": "Foot",
+        "parent": 1,
+        "fbxName": "Bird_014_Foot",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 15,
+        "name": "Ankle",
+        "parent": 14,
+        "fbxName": "Bird_015_Ankle",
+        "mesh": "Bird_015_Ankle",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 16,
+        "name": "Toe",
+        "parent": 14,
+        "fbxName": "Bird_016_Toe",
+        "mesh": "Bird_016_Toe",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 17,
+        "name": "Toe",
+        "parent": 14,
+        "fbxName": "Bird_017_Toe",
+        "mesh": "Bird_017_Toe",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 18,
+        "name": "Toe",
+        "parent": 14,
+        "fbxName": "Bird_018_Toe",
+        "mesh": "Bird_018_Toe",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 19,
+        "name": "Foot",
+        "parent": 1,
+        "fbxName": "Bird_019_Foot",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 20,
+        "name": "Ankle",
+        "parent": 19,
+        "fbxName": "Bird_020_Ankle",
+        "mesh": "Bird_020_Ankle",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 21,
+        "name": "Toe",
+        "parent": 19,
+        "fbxName": "Bird_021_Toe",
+        "mesh": "Bird_021_Toe",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 22,
+        "name": "Toe",
+        "parent": 19,
+        "fbxName": "Bird_022_Toe",
+        "mesh": "Bird_022_Toe",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 23,
+        "name": "Toe",
+        "parent": 19,
+        "fbxName": "Bird_023_Toe",
+        "mesh": "Bird_023_Toe",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 24,
+        "name": "Left wing",
+        "parent": 1,
+        "fbxName": "Bird_024_Left wing",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 25,
+        "name": "Wing surface",
+        "parent": 24,
+        "fbxName": "Bird_025_Wing surface",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 26,
+        "name": "Flight feathers",
+        "parent": 25,
+        "fbxName": "Bird_026_Flight feathers",
+        "mesh": "Bird_026_Flight feathers",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Aqua"
+        ]
+      },
+      {
+        "id": 27,
+        "name": "Right wing",
+        "parent": 1,
+        "fbxName": "Bird_027_Right wing",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 28,
+        "name": "Wing surface",
+        "parent": 27,
+        "fbxName": "Bird_028_Wing surface",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 29,
+        "name": "Flight feathers",
+        "parent": 28,
+        "fbxName": "Bird_029_Flight feathers",
+        "mesh": "Bird_029_Flight feathers",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Aqua"
+        ]
+      }
+    ]
+  },
+  {
+    "species": "Bunny",
+    "bindings": {
+      "body": 1,
+      "head": 4,
+      "limbs": [
+        23,
+        25,
+        29,
+        31
+      ],
+      "ears": [
+        6,
+        11
+      ]
+    },
+    "nodes": [
+      {
+        "id": 0,
+        "name": "Bunny",
+        "parent": -1,
+        "fbxName": "Bunny_000_Bunny",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 1,
+        "name": "Body",
+        "parent": 0,
+        "fbxName": "Bunny_001_Body",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 2,
+        "name": "Pear body",
+        "parent": 1,
+        "fbxName": "Bunny_002_Pear body",
+        "mesh": "Bunny_002_Pear body",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Cotton tail",
+        "parent": 1,
+        "fbxName": "Bunny_003_Cotton tail",
+        "mesh": "Bunny_003_Cotton tail",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 4,
+        "name": "Head",
+        "parent": 1,
+        "fbxName": "Bunny_004_Head",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 5,
+        "name": "Cheeks",
+        "parent": 4,
+        "fbxName": "Bunny_005_Cheeks",
+        "mesh": "Bunny_005_Cheeks",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 6,
+        "name": "Ear",
+        "parent": 4,
+        "fbxName": "Bunny_006_Ear",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 7,
+        "name": "Velvet ear",
+        "parent": 6,
+        "fbxName": "Bunny_007_Velvet ear",
+        "mesh": "Bunny_007_Velvet ear",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 8,
+        "name": "Pink inner ear",
+        "parent": 6,
+        "fbxName": "Bunny_008_Pink inner ear",
+        "mesh": "Bunny_008_Pink inner ear",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalBlush"
+        ]
+      },
+      {
+        "id": 9,
+        "name": "Muzzle",
+        "parent": 4,
+        "fbxName": "Bunny_009_Muzzle",
+        "mesh": "Bunny_009_Muzzle",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Blush",
+        "parent": 4,
+        "fbxName": "Bunny_010_Blush",
+        "mesh": "Bunny_010_Blush",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalBlush"
+        ]
+      },
+      {
+        "id": 11,
+        "name": "Ear",
+        "parent": 4,
+        "fbxName": "Bunny_011_Ear",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 12,
+        "name": "Velvet ear",
+        "parent": 11,
+        "fbxName": "Bunny_012_Velvet ear",
+        "mesh": "Bunny_012_Velvet ear",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 13,
+        "name": "Pink inner ear",
+        "parent": 11,
+        "fbxName": "Bunny_013_Pink inner ear",
+        "mesh": "Bunny_013_Pink inner ear",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalBlush"
+        ]
+      },
+      {
+        "id": 14,
+        "name": "Muzzle",
+        "parent": 4,
+        "fbxName": "Bunny_014_Muzzle",
+        "mesh": "Bunny_014_Muzzle",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 15,
+        "name": "Blush",
+        "parent": 4,
+        "fbxName": "Bunny_015_Blush",
+        "mesh": "Bunny_015_Blush",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalBlush"
+        ]
+      },
+      {
+        "id": 16,
+        "name": "Eye",
+        "parent": 4,
+        "fbxName": "Bunny_016_Eye",
+        "mesh": "Bunny_016_Eye",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 17,
+        "name": "Eye sparkle",
+        "parent": 4,
+        "fbxName": "Bunny_017_Eye sparkle",
+        "mesh": "Bunny_017_Eye sparkle",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 18,
+        "name": "Eye",
+        "parent": 4,
+        "fbxName": "Bunny_018_Eye",
+        "mesh": "Bunny_018_Eye",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 19,
+        "name": "Eye sparkle",
+        "parent": 4,
+        "fbxName": "Bunny_019_Eye sparkle",
+        "mesh": "Bunny_019_Eye sparkle",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 20,
+        "name": "Nose",
+        "parent": 4,
+        "fbxName": "Bunny_020_Nose",
+        "mesh": "Bunny_020_Nose",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalBlush"
+        ]
+      },
+      {
+        "id": 21,
+        "name": "Mouth",
+        "parent": 4,
+        "fbxName": "Bunny_021_Mouth",
+        "mesh": "Bunny_021_Mouth",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 22,
+        "name": "Haunch",
+        "parent": 1,
+        "fbxName": "Bunny_022_Haunch",
+        "mesh": "Bunny_022_Haunch",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 23,
+        "name": "Hind paw",
+        "parent": 1,
+        "fbxName": "Bunny_023_Hind paw",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 24,
+        "name": "Hind foot",
+        "parent": 23,
+        "fbxName": "Bunny_024_Hind foot",
+        "mesh": "Bunny_024_Hind foot",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 25,
+        "name": "Forepaw",
+        "parent": 1,
+        "fbxName": "Bunny_025_Forepaw",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 26,
+        "name": "Foreleg",
+        "parent": 25,
+        "fbxName": "Bunny_026_Foreleg",
+        "mesh": "Bunny_026_Foreleg",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 27,
+        "name": "Toes",
+        "parent": 25,
+        "fbxName": "Bunny_027_Toes",
+        "mesh": "Bunny_027_Toes",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 28,
+        "name": "Haunch",
+        "parent": 1,
+        "fbxName": "Bunny_028_Haunch",
+        "mesh": "Bunny_028_Haunch",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 29,
+        "name": "Hind paw",
+        "parent": 1,
+        "fbxName": "Bunny_029_Hind paw",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 30,
+        "name": "Hind foot",
+        "parent": 29,
+        "fbxName": "Bunny_030_Hind foot",
+        "mesh": "Bunny_030_Hind foot",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 31,
+        "name": "Forepaw",
+        "parent": 1,
+        "fbxName": "Bunny_031_Forepaw",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 32,
+        "name": "Foreleg",
+        "parent": 31,
+        "fbxName": "Bunny_032_Foreleg",
+        "mesh": "Bunny_032_Foreleg",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 33,
+        "name": "Toes",
+        "parent": 31,
+        "fbxName": "Bunny_033_Toes",
+        "mesh": "Bunny_033_Toes",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      }
+    ]
+  },
+  {
+    "species": "Turtle",
+    "bindings": {
+      "body": 1,
+      "head": 11,
+      "limbs": [
+        17,
+        19,
+        21,
+        23
+      ]
+    },
+    "nodes": [
+      {
+        "id": 0,
+        "name": "Turtle",
+        "parent": -1,
+        "fbxName": "Turtle_000_Turtle",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 1,
+        "name": "Body",
+        "parent": 0,
+        "fbxName": "Turtle_001_Body",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 2,
+        "name": "Shell rim",
+        "parent": 1,
+        "fbxName": "Turtle_002_Shell rim",
+        "mesh": "Turtle_002_Shell rim",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeSkin"
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Domed shell",
+        "parent": 1,
+        "fbxName": "Turtle_003_Domed shell",
+        "mesh": "Turtle_003_Domed shell",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeSeam"
+        ]
+      },
+      {
+        "id": 4,
+        "name": "Crown scute",
+        "parent": 1,
+        "fbxName": "Turtle_004_Crown scute",
+        "mesh": "Turtle_004_Crown scute",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeShell"
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Shell scute",
+        "parent": 1,
+        "fbxName": "Turtle_005_Shell scute",
+        "mesh": "Turtle_005_Shell scute",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeShell"
+        ]
+      },
+      {
+        "id": 6,
+        "name": "Shell scute",
+        "parent": 1,
+        "fbxName": "Turtle_006_Shell scute",
+        "mesh": "Turtle_006_Shell scute",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeShellLight"
+        ]
+      },
+      {
+        "id": 7,
+        "name": "Shell scute",
+        "parent": 1,
+        "fbxName": "Turtle_007_Shell scute",
+        "mesh": "Turtle_007_Shell scute",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeShell"
+        ]
+      },
+      {
+        "id": 8,
+        "name": "Shell scute",
+        "parent": 1,
+        "fbxName": "Turtle_008_Shell scute",
+        "mesh": "Turtle_008_Shell scute",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeShellLight"
+        ]
+      },
+      {
+        "id": 9,
+        "name": "Shell scute",
+        "parent": 1,
+        "fbxName": "Turtle_009_Shell scute",
+        "mesh": "Turtle_009_Shell scute",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeShell"
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Shell scute",
+        "parent": 1,
+        "fbxName": "Turtle_010_Shell scute",
+        "mesh": "Turtle_010_Shell scute",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeShellLight"
+        ]
+      },
+      {
+        "id": 11,
+        "name": "Head",
+        "parent": 1,
+        "fbxName": "Turtle_011_Head",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 12,
+        "name": "Head shape",
+        "parent": 11,
+        "fbxName": "Turtle_012_Head shape",
+        "mesh": "Turtle_012_Head shape",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeSkin"
+        ]
+      },
+      {
+        "id": 13,
+        "name": "Eye",
+        "parent": 11,
+        "fbxName": "Turtle_013_Eye",
+        "mesh": "Turtle_013_Eye",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 14,
+        "name": "Eye sparkle",
+        "parent": 11,
+        "fbxName": "Turtle_014_Eye sparkle",
+        "mesh": "Turtle_014_Eye sparkle",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 15,
+        "name": "Eye",
+        "parent": 11,
+        "fbxName": "Turtle_015_Eye",
+        "mesh": "Turtle_015_Eye",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 16,
+        "name": "Eye sparkle",
+        "parent": 11,
+        "fbxName": "Turtle_016_Eye sparkle",
+        "mesh": "Turtle_016_Eye sparkle",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 17,
+        "name": "Foot",
+        "parent": 1,
+        "fbxName": "Turtle_017_Foot",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 18,
+        "name": "Flipper",
+        "parent": 17,
+        "fbxName": "Turtle_018_Flipper",
+        "mesh": "Turtle_018_Flipper",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeSkin"
+        ]
+      },
+      {
+        "id": 19,
+        "name": "Foot",
+        "parent": 1,
+        "fbxName": "Turtle_019_Foot",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 20,
+        "name": "Flipper",
+        "parent": 19,
+        "fbxName": "Turtle_020_Flipper",
+        "mesh": "Turtle_020_Flipper",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeSkin"
+        ]
+      },
+      {
+        "id": 21,
+        "name": "Foot",
+        "parent": 1,
+        "fbxName": "Turtle_021_Foot",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 22,
+        "name": "Flipper",
+        "parent": 21,
+        "fbxName": "Turtle_022_Flipper",
+        "mesh": "Turtle_022_Flipper",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeSkin"
+        ]
+      },
+      {
+        "id": 23,
+        "name": "Foot",
+        "parent": 1,
+        "fbxName": "Turtle_023_Foot",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 24,
+        "name": "Flipper",
+        "parent": 23,
+        "fbxName": "Turtle_024_Flipper",
+        "mesh": "Turtle_024_Flipper",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeSkin"
+        ]
+      }
+    ]
+  },
+  {
+    "species": "Butterfly",
+    "bindings": {
+      "body": 1,
+      "head": 3,
+      "leftWing": 9,
+      "rightWing": 19,
+      "limbs": []
+    },
+    "nodes": [
+      {
+        "id": 0,
+        "name": "Butterfly",
+        "parent": -1,
+        "fbxName": "Butterfly_000_Butterfly",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 1,
+        "name": "Body",
+        "parent": 0,
+        "fbxName": "Butterfly_001_Body",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 2,
+        "name": "Body shape",
+        "parent": 1,
+        "fbxName": "Butterfly_002_Body shape",
+        "mesh": "Butterfly_002_Body shape",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Head",
+        "parent": 1,
+        "fbxName": "Butterfly_003_Head",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 4,
+        "name": "Head shape",
+        "parent": 3,
+        "fbxName": "Butterfly_004_Head shape",
+        "mesh": "Butterfly_004_Head shape",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Antenna",
+        "parent": 3,
+        "fbxName": "Butterfly_005_Antenna",
+        "mesh": "Butterfly_005_Antenna",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 6,
+        "name": "Antenna tip",
+        "parent": 3,
+        "fbxName": "Butterfly_006_Antenna tip",
+        "mesh": "Butterfly_006_Antenna tip",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 7,
+        "name": "Antenna",
+        "parent": 3,
+        "fbxName": "Butterfly_007_Antenna",
+        "mesh": "Butterfly_007_Antenna",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 8,
+        "name": "Antenna tip",
+        "parent": 3,
+        "fbxName": "Butterfly_008_Antenna tip",
+        "mesh": "Butterfly_008_Antenna tip",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 9,
+        "name": "Left wing",
+        "parent": 1,
+        "fbxName": "Butterfly_009_Left wing",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 10,
+        "name": "Wing surface",
+        "parent": 9,
+        "fbxName": "Butterfly_010_Wing surface",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 11,
+        "name": "Flight feathers",
+        "parent": 10,
+        "fbxName": "Butterfly_011_Flight feathers",
+        "mesh": "Butterfly_011_Flight feathers",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 12,
+        "name": "Wing color",
+        "parent": 10,
+        "fbxName": "Butterfly_012_Wing color",
+        "mesh": "Butterfly_012_Wing color",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeWing"
+        ]
+      },
+      {
+        "id": 13,
+        "name": "Eyespot border",
+        "parent": 10,
+        "fbxName": "Butterfly_013_Eyespot border",
+        "mesh": "Butterfly_013_Eyespot border",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 14,
+        "name": "Eyespot",
+        "parent": 10,
+        "fbxName": "Butterfly_014_Eyespot",
+        "mesh": "Butterfly_014_Eyespot",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 15,
+        "name": "Hindwing mark",
+        "parent": 10,
+        "fbxName": "Butterfly_015_Hindwing mark",
+        "mesh": "Butterfly_015_Hindwing mark",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Coral"
+        ]
+      },
+      {
+        "id": 16,
+        "name": "Eyespot border",
+        "parent": 10,
+        "fbxName": "Butterfly_016_Eyespot border",
+        "mesh": "Butterfly_016_Eyespot border",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 17,
+        "name": "Eyespot",
+        "parent": 10,
+        "fbxName": "Butterfly_017_Eyespot",
+        "mesh": "Butterfly_017_Eyespot",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 18,
+        "name": "Hindwing mark",
+        "parent": 10,
+        "fbxName": "Butterfly_018_Hindwing mark",
+        "mesh": "Butterfly_018_Hindwing mark",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Coral"
+        ]
+      },
+      {
+        "id": 19,
+        "name": "Right wing",
+        "parent": 1,
+        "fbxName": "Butterfly_019_Right wing",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 20,
+        "name": "Wing surface",
+        "parent": 19,
+        "fbxName": "Butterfly_020_Wing surface",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 21,
+        "name": "Flight feathers",
+        "parent": 20,
+        "fbxName": "Butterfly_021_Flight feathers",
+        "mesh": "Butterfly_021_Flight feathers",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 22,
+        "name": "Wing color",
+        "parent": 20,
+        "fbxName": "Butterfly_022_Wing color",
+        "mesh": "Butterfly_022_Wing color",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "WildlifeWing"
+        ]
+      },
+      {
+        "id": 23,
+        "name": "Eyespot border",
+        "parent": 20,
+        "fbxName": "Butterfly_023_Eyespot border",
+        "mesh": "Butterfly_023_Eyespot border",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 24,
+        "name": "Eyespot",
+        "parent": 20,
+        "fbxName": "Butterfly_024_Eyespot",
+        "mesh": "Butterfly_024_Eyespot",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 25,
+        "name": "Hindwing mark",
+        "parent": 20,
+        "fbxName": "Butterfly_025_Hindwing mark",
+        "mesh": "Butterfly_025_Hindwing mark",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Coral"
+        ]
+      },
+      {
+        "id": 26,
+        "name": "Eyespot border",
+        "parent": 20,
+        "fbxName": "Butterfly_026_Eyespot border",
+        "mesh": "Butterfly_026_Eyespot border",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 27,
+        "name": "Eyespot",
+        "parent": 20,
+        "fbxName": "Butterfly_027_Eyespot",
+        "mesh": "Butterfly_027_Eyespot",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "PetalButter"
+        ]
+      },
+      {
+        "id": 28,
+        "name": "Hindwing mark",
+        "parent": 20,
+        "fbxName": "Butterfly_028_Hindwing mark",
+        "mesh": "Butterfly_028_Hindwing mark",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Coral"
+        ]
+      }
+    ]
+  },
+  {
+    "species": "Ladybug",
+    "bindings": {
+      "body": 1,
+      "head": 3,
+      "limbs": [
+        11,
+        13,
+        15,
+        17,
+        19,
+        21
+      ]
+    },
+    "nodes": [
+      {
+        "id": 0,
+        "name": "Ladybug",
+        "parent": -1,
+        "fbxName": "Ladybug_000_Ladybug",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 1,
+        "name": "Body",
+        "parent": 0,
+        "fbxName": "Ladybug_001_Body",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 2,
+        "name": "Red shell",
+        "parent": 1,
+        "fbxName": "Ladybug_002_Red shell",
+        "mesh": "Ladybug_002_Red shell",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Coral"
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Head",
+        "parent": 1,
+        "fbxName": "Ladybug_003_Head",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 4,
+        "name": "Head shape",
+        "parent": 3,
+        "fbxName": "Ladybug_004_Head shape",
+        "mesh": "Ladybug_004_Head shape",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Eye white",
+        "parent": 3,
+        "fbxName": "Ladybug_005_Eye white",
+        "mesh": "Ladybug_005_Eye white",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 6,
+        "name": "Pupil",
+        "parent": 3,
+        "fbxName": "Ladybug_006_Pupil",
+        "mesh": "Ladybug_006_Pupil",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 7,
+        "name": "Eye glint",
+        "parent": 3,
+        "fbxName": "Ladybug_007_Eye glint",
+        "mesh": "Ladybug_007_Eye glint",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 8,
+        "name": "Eye white",
+        "parent": 3,
+        "fbxName": "Ladybug_008_Eye white",
+        "mesh": "Ladybug_008_Eye white",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 9,
+        "name": "Pupil",
+        "parent": 3,
+        "fbxName": "Ladybug_009_Pupil",
+        "mesh": "Ladybug_009_Pupil",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Eye glint",
+        "parent": 3,
+        "fbxName": "Ladybug_010_Eye glint",
+        "mesh": "Ladybug_010_Eye glint",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Cream"
+        ]
+      },
+      {
+        "id": 11,
+        "name": "Leg",
+        "parent": 1,
+        "fbxName": "Ladybug_011_Leg",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 12,
+        "name": "Leg shape",
+        "parent": 11,
+        "fbxName": "Ladybug_012_Leg shape",
+        "mesh": "Ladybug_012_Leg shape",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 13,
+        "name": "Leg",
+        "parent": 1,
+        "fbxName": "Ladybug_013_Leg",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 14,
+        "name": "Leg shape",
+        "parent": 13,
+        "fbxName": "Ladybug_014_Leg shape",
+        "mesh": "Ladybug_014_Leg shape",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 15,
+        "name": "Leg",
+        "parent": 1,
+        "fbxName": "Ladybug_015_Leg",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 16,
+        "name": "Leg shape",
+        "parent": 15,
+        "fbxName": "Ladybug_016_Leg shape",
+        "mesh": "Ladybug_016_Leg shape",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 17,
+        "name": "Leg",
+        "parent": 1,
+        "fbxName": "Ladybug_017_Leg",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 18,
+        "name": "Leg shape",
+        "parent": 17,
+        "fbxName": "Ladybug_018_Leg shape",
+        "mesh": "Ladybug_018_Leg shape",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 19,
+        "name": "Leg",
+        "parent": 1,
+        "fbxName": "Ladybug_019_Leg",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 20,
+        "name": "Leg shape",
+        "parent": 19,
+        "fbxName": "Ladybug_020_Leg shape",
+        "mesh": "Ladybug_020_Leg shape",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 21,
+        "name": "Leg",
+        "parent": 1,
+        "fbxName": "Ladybug_021_Leg",
+        "mesh": null,
+        "cast": 0,
+        "receive": false,
+        "materials": []
+      },
+      {
+        "id": 22,
+        "name": "Leg shape",
+        "parent": 21,
+        "fbxName": "Ladybug_022_Leg shape",
+        "mesh": "Ladybug_022_Leg shape",
+        "cast": 1,
+        "receive": true,
+        "materials": [
+          "Ink"
+        ]
+      },
+      {
+        "id": 23,
+        "name": "Shell markings",
+        "parent": 1,
+        "fbxName": "Ladybug_023_Shell markings",
+        "mesh": "Ladybug_023_Shell markings",
+        "cast": 0,
+        "receive": false,
+        "materials": [
+          "Ink"
+        ]
+      }
+    ]
+  }
+]
