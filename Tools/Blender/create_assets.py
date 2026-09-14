@@ -53,7 +53,9 @@ def finish(obj, name, mat):
     return obj
 
 def sphere(name, loc, scale, mat, segments=20):
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=max(32, segments), ring_count=24, location=loc)
+    hero_detail = name in ('Head', 'Muzzle', 'Eye white', 'Pupil', 'Eye glint', 'Cheek')
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=max(48 if hero_detail else 32, segments),
+                                      ring_count=32 if hero_detail else 24, location=loc)
     obj = bpy.context.object
     obj.scale = scale
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)

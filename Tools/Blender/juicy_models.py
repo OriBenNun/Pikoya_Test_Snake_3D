@@ -167,7 +167,7 @@ def sculpt(name, objects):
             deform(ob, lambda v,shift=shift: Vector((v.x*1.16+shift, v.y-.006, v.z*1.16)))
             # A second tiny sparkle joins the same mesh and follows the existing eye rig.
             center = ob.location+Vector((.045+shift,-.012,-.080))
-            bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=10)
+            bpy.ops.mesh.primitive_uv_sphere_add(segments=32,ring_count=20)
             temp = bpy.context.object
             vertices = [center+Vector((v.co.x*.013,v.co.y*.009,v.co.z*.016)) for v in temp.data.vertices]
             faces = [tuple(p.vertices) for p in temp.data.polygons]
