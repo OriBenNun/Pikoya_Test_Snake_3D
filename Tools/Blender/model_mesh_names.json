@@ -1,0 +1,183 @@
+{
+  "Apple": {
+    "Apple flesh": "Sphere.030 polished.001",
+    "Leaf": "Sphere.032",
+    "Stem": "Cube.004"
+  },
+  "Bush": {
+    "Bush flower centers": "Sphere.019",
+    "Bush leaf accents": "Sphere.020",
+    "Bush lobe": "Sphere.060",
+    "Bush lobe.001": "Sphere.061",
+    "Bush lobe.002": "Sphere.062",
+    "Bush petals": "Sphere.014"
+  },
+  "Daisy": {
+    "Daisy center": "Sphere.106",
+    "Daisy petal": "Sphere.097",
+    "Daisy petal.001": "Sphere.098",
+    "Daisy petal.002": "Sphere.099",
+    "Daisy petal.003": "Sphere.100",
+    "Daisy petal.004": "Sphere.101",
+    "Daisy petal.005": "Sphere.102",
+    "Daisy petal.006": "Sphere.103",
+    "Daisy petal.007": "Sphere.104",
+    "Daisy petal.008": "Sphere.105",
+    "Stem.006": "Cone.019"
+  },
+  "Flower": {
+    "Petal": "Sphere.030",
+    "Petal.001": "Sphere.033",
+    "Petal.002": "Sphere.034",
+    "Petal.003": "Sphere.035",
+    "Petal.004": "Sphere.036",
+    "Pollen": "Sphere.037",
+    "Stem.001": "Cube.007"
+  },
+  "FlowerPot": {
+    "Pot": "Cone.014 polished",
+    "Pot rim": "Torus.002",
+    "Pot soil": "Cone.015",
+    "Sprout": "Sphere.072",
+    "Sprout.001": "Sphere.073",
+    "Sprout.002": "Sphere.074",
+    "Sprout.003": "Sphere.075",
+    "Sprout.004": "Sphere.076"
+  },
+  "Gnome": {
+    "Boot": "Sphere.038",
+    "Boot.001": "Sphere.039",
+    "Coat": "Sphere.040",
+    "Face": "Sphere.041",
+    "Fluffy beard": "Sphere.042",
+    "Fluffy beard.001": "Sphere.043",
+    "Fluffy beard.002": "Sphere.044",
+    "Fluffy beard.003": "Sphere.045",
+    "Fluffy beard.004": "Sphere.046",
+    "Hand": "Sphere.051",
+    "Hand.001": "Sphere.052",
+    "Happy eye": "Sphere.048",
+    "Happy eye.001": "Sphere.049",
+    "Hat brim": "Sphere.050",
+    "Nose": "Sphere.047",
+    "Pointy hat": "Cone polished",
+    "Sleeve": "Cone.001",
+    "Sleeve.001": "Cone.002"
+  },
+  "Lavender": {
+    "Lavender": "Sphere.082",
+    "Lavender.001": "Sphere.083",
+    "Lavender.002": "Sphere.084",
+    "Lavender.003": "Sphere.085",
+    "Lavender.004": "Sphere.086",
+    "Lavender.005": "Sphere.087",
+    "Lavender.006": "Sphere.088",
+    "Lavender.007": "Sphere.089",
+    "Lavender.008": "Sphere.090",
+    "Lavender.009": "Sphere.091",
+    "Lavender.010": "Sphere.092",
+    "Lavender.011": "Sphere.093",
+    "Lavender.012": "Sphere.094",
+    "Lavender.013": "Sphere.095",
+    "Lavender.014": "Sphere.096",
+    "Stem.003": "Cone.016",
+    "Stem.004": "Cone.017",
+    "Stem.005": "Cone.018"
+  },
+  "Planter": {
+    "Garden base": "Cube.006"
+  },
+  "Rake": {
+    "Rake crossbar": "Cone.007",
+    "Rake handle": "Cone.006",
+    "Rake tooth": "Cone.008",
+    "Rake tooth.001": "Cone.009",
+    "Rake tooth.002": "Cone.010",
+    "Rake tooth.003": "Cone.011",
+    "Rake tooth.004": "Cone.012",
+    "Rake tooth.005": "Cone.013"
+  },
+  "RimLong": {
+    "Glazed rim": "Cube.008"
+  },
+  "RimShort": {
+    "Glazed rim.001": "Cube.009"
+  },
+  "Rock": {
+    "River stone": "Icosphere"
+  },
+  "SnakeBody": {
+    "Belly": "Sphere.025",
+    "Body": "Sphere.024",
+    "Dorsal spot": "Sphere.026 polished.001",
+    "Side freckle": "Sphere.027",
+    "Side freckle.001": "Sphere.028"
+  },
+  "SnakeHead": {
+    "Cheek": "Sphere.005",
+    "Cheek.001": "Sphere.011",
+    "Eye glint": "Sphere.004",
+    "Eye glint.001": "Sphere.010",
+    "Eye white": "Sphere.002",
+    "Eye white.001": "Sphere.008",
+    "Eyebrow": "Sphere.007",
+    "Eyebrow.001": "Sphere.013",
+    "Freckle": "Sphere.024 polished",
+    "Freckle.001": "Sphere.025 polished",
+    "Freckle.002": "Sphere.026 polished",
+    "Head": "Sphere",
+    "Muzzle": "Sphere.001",
+    "Nostril": "Sphere.006",
+    "Nostril.001": "Sphere.012",
+    "Pupil": "Sphere.003",
+    "Pupil.001": "Sphere.009",
+    "Smile": "Continuous smile.001",
+    "Tiny tooth": "Cube.003",
+    "Tiny tooth.001": "Cube.004",
+    "Tongue": "Sphere.023"
+  },
+  "SnakeTail": {
+    "Tail": "Sphere.026",
+    "Tail spot": "Sphere.030 polished",
+    "Tail tip": "Sphere.029"
+  },
+  "Spade": {
+    "Spade blade": "Cube.010 polished.001",
+    "Spade grip": "Torus.001",
+    "Spade handle": "Cone.004"
+  },
+  "Tile": {
+    "Garden tile": "Cube.005"
+  },
+  "Tree": {
+    "Branch": "Cone.003",
+    "Garden apple": "Sphere.057",
+    "Garden apple.001": "Sphere.058",
+    "Garden apple.002": "Sphere.059",
+    "Puffy canopy": "Sphere.053",
+    "Puffy canopy.001": "Sphere.054",
+    "Puffy canopy.002": "Sphere.055",
+    "Puffy canopy.003": "Sphere.056",
+    "Trunk": "Cone"
+  },
+  "Tulip": {
+    "Leaf.001": "Sphere.081",
+    "Stem.002": "Cone.014",
+    "Tulip cup": "Sphere.077",
+    "Tulip petal": "Sphere.078",
+    "Tulip petal.001": "Sphere.079",
+    "Tulip petal.002": "Sphere.080"
+  },
+  "WateringCan": {
+    "Can body": "Cube.010",
+    "Can mouth": "Cone.004 polished",
+    "Handle": "Torus",
+    "Rose": "Sphere.066",
+    "Spout": "Cone.005",
+    "Water hole": "Sphere.067",
+    "Water hole.001": "Sphere.068",
+    "Water hole.002": "Sphere.069",
+    "Water hole.003": "Sphere.070",
+    "Water hole.004": "Sphere.071"
+  }
+}
