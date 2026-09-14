@@ -112,7 +112,7 @@ namespace GardenSnake.Gameplay
 
         private readonly List<Cell> body = new();
         private readonly List<float> digestion = new();
-        private readonly Queue<Direction> turns = new(2);
+        private readonly Queue<Direction> turns = new(2); // TODO: change to 3 and test
         private System.Random random;
 
         /// <summary>Head first, tail last.</summary>
@@ -238,11 +238,8 @@ namespace GardenSnake.Gameplay
             Changed?.Invoke();
         }
 
-        /// <summary>
-        /// One entry point, deliberately not overloaded: an overload set here is ambiguous to
-        /// reflection, which is how the Play mode drivers reach it.
-        /// </summary>
-        public void Turn(Direction wish)
+
+        private void Turn(Direction wish)
         {
             if (State == RunState.Ready) PrimaryAction();
             if (State != RunState.Playing || turns.Count >= rules.turnBufferSize) return;
@@ -256,14 +253,14 @@ namespace GardenSnake.Gameplay
             TurnAccepted?.Invoke(TurnSign(Heading, wish));
         }
 
-        public void TogglePause()
+        private void TogglePause()
         {
             if (State == RunState.Playing) { State = RunState.Paused; turns.Clear(); }
             else if (State == RunState.Paused) State = RunState.Playing;
             Changed?.Invoke();
         }
 
-        public void ToggleMute()
+        private void ToggleMute()
         {
             muted = !muted;
             PlayerPrefs.SetInt(MutedKey, muted ? 1 : 0);
@@ -416,7 +413,7 @@ namespace GardenSnake.Gameplay
 
         /// <summary>Where a cell sits in the world. The one place board coordinates become metres.</summary>
         public Vector3 World(Cell cell) =>
-            new Vector3(cell.X - (Columns - 1) * .5f, 0, cell.Y - (Rows - 1) * .5f);
+            new (cell.X - (Columns - 1) * .5f, 0, cell.Y - (Rows - 1) * .5f);
 
         public static Cell Offset(Direction direction) => direction switch
         {
