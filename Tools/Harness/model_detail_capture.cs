@@ -10,7 +10,9 @@ void Capture(GameObject source, string label, bool back = false) {
     var previous = RenderTexture.active;
     try {
         foreach (var behaviour in model.GetComponentsInChildren<MonoBehaviour>()) behaviour.enabled = false;
-        model.transform.SetPositionAndRotation(new Vector3(10000, 10000, 10000), Quaternion.identity);
+        // Layer isolation is sufficient. Large coordinates quantize tiny surface
+        // details and introduce false z-fighting in inspection captures.
+        model.transform.SetPositionAndRotation(new Vector3(0, 20, 0), Quaternion.identity);
         foreach (var t in model.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = 31;
         var renderers = model.GetComponentsInChildren<Renderer>();
         var bounds = renderers[0].bounds;

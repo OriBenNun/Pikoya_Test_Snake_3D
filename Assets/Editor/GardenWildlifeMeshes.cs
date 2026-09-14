@@ -50,7 +50,14 @@ namespace GardenSnake.Editor
             AssetDatabase.SaveAssets();
         }
 
-        public static Mesh Get(string name) => meshes[name];
+        public static Mesh Get(string name)
+        {
+            if (meshes.TryGetValue(name, out Mesh mesh)) return mesh;
+            mesh = AssetDatabase.LoadAssetAtPath<Mesh>(Folder + "/" + name + ".asset");
+            if (mesh == null) throw new InvalidOperationException("Missing authored wildlife mesh: " + name);
+            meshes[name] = mesh;
+            return mesh;
+        }
 
         private static void Save(string name, Mesh mesh)
         {
@@ -58,7 +65,9 @@ namespace GardenSnake.Editor
             var existing = AssetDatabase.LoadAssetAtPath<Mesh>(path);
             mesh.name = name;
             if (existing == null) { AssetDatabase.CreateAsset(mesh, path); existing = mesh; }
-            else { EditorUtility.CopySerialized(mesh, existing); UnityEngine.Object.DestroyImmediate(mesh); }
+            // Existing assets contain the Blender art pass. Rebuilding scene rigs
+            // must preserve those sculpted meshes and their stable references.
+            else UnityEngine.Object.DestroyImmediate(mesh);
             meshes[name] = existing;
         }
 

@@ -1,6 +1,7 @@
 var rows = new System.Collections.Generic.List<string>();
 var failures = new System.Collections.Generic.List<string>();
-foreach (var path in System.IO.Directory.GetFiles("Assets/Art/Models", "*.fbx")) {
+var paths = System.IO.Directory.GetFiles("Assets/Art/Models", "*.fbx");
+foreach (var path in paths) {
     var model = AssetDatabase.LoadAssetAtPath<GameObject>(path);
     if (model == null) { failures.Add("Missing model " + path); continue; }
     foreach (var asset in AssetDatabase.LoadAllAssetsAtPath(path)) {
@@ -23,4 +24,4 @@ string label = SessionState.GetString("ModelSweep.Audit", "before");
 System.IO.Directory.CreateDirectory("Artifacts/model-sweep/unity-" + label);
 System.IO.File.WriteAllLines("Artifacts/model-sweep/unity-" + label + "/mesh-ids.txt", rows);
 System.IO.File.WriteAllLines("Artifacts/model-sweep/unity-" + label + "/failures.txt", failures);
-return "models=20 meshes=" + rows.Count + " failures=" + failures.Count + " " + string.Join(";", failures);
+return "models=" + paths.Length + " meshes=" + rows.Count + " failures=" + failures.Count + " " + string.Join(";", failures);

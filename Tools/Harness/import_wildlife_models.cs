@@ -1,11 +1,12 @@
 if (Application.isPlaying) throw new System.InvalidOperationException("Stop Play Mode before importing meshes.");
-string source = "Artifacts/model-sweep/wildlife";
+string source = SessionState.GetString("ModelSweep.MeshSource", "Artifacts/model-sweep/wildlife");
 int count = 0;
 foreach (var path in System.IO.Directory.GetFiles(source, "*.meshbin")) {
     string name = System.IO.Path.GetFileNameWithoutExtension(path);
     string target = "Assets/Art/Wildlife/" + name + ".asset";
     var mesh = AssetDatabase.LoadAssetAtPath<Mesh>(target);
-    if (mesh == null) throw new System.InvalidOperationException("Missing existing mesh: " + target);
+    bool create = mesh == null && (name == "LadybugShell" || name == "LadybugMarkings");
+    if (mesh == null && !create) throw new System.InvalidOperationException("Missing existing mesh: " + target);
     Vector3[] vertices, normals;
     int[] indices;
     using (var reader = new System.IO.BinaryReader(System.IO.File.OpenRead(path))) {
@@ -26,11 +27,13 @@ foreach (var path in System.IO.Directory.GetFiles(source, "*.meshbin")) {
         if (reader.BaseStream.Position != reader.BaseStream.Length)
             throw new System.InvalidOperationException("Trailing mesh data: " + name);
     }
-    Undo.RecordObject(mesh, "Polish wildlife model");
+    if (create) mesh = new Mesh { name = name };
+    else Undo.RecordObject(mesh, "Polish wildlife model");
     mesh.Clear(); mesh.vertices = vertices; mesh.normals = normals; mesh.triangles = indices;
     mesh.RecalculateBounds();
+    if (create) AssetDatabase.CreateAsset(mesh, target);
     EditorUtility.SetDirty(mesh);
     AssetDatabase.SaveAssetIfDirty(mesh);
     count++;
 }
-return "Imported " + count + " Blender wildlife meshes into their existing Unity assets.";
+return "Imported " + count + " Blender wildlife meshes.";

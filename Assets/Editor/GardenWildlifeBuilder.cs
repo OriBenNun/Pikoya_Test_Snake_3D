@@ -222,11 +222,11 @@ namespace GardenSnake.Editor
             }
             else
             {
-                Part("Red shell", body, new Vector3(0, .15f, 0), new Vector3(.31f, .26f, .39f), "Coral");
-                Part("Wing seam", body, new Vector3(0, .267f, 0), new Vector3(.018f, .02f, .3f), "Ink");
+                Sculpt("Red shell", "LadybugShell", body, new Vector3(0, .15f, 0), new Vector3(.31f, .26f, .39f), "Coral");
+                Sculpt("Shell markings", "LadybugMarkings", body, Vector3.zero, Vector3.one, "Ink");
                 head = Group("Head", body, new Vector3(0, .13f, .2f));
                 Part("Head shape", head, Vector3.zero, Vector3.one * .17f, "Ink");
-                for (int i = 0; i < 4; i++) Part("Spot", body, new Vector3(i % 2 == 0 ? -.085f : .085f, .25f, i < 2 ? .085f : -.085f), new Vector3(.065f, .022f, .065f), "Ink");
+                LadybugEyes(head);
                 for (int i = 0; i < 6; i++)
                 {
                     var leg = Group("Leg", body, new Vector3(i % 2 == 0 ? -.14f : .14f, .06f, (i / 2 - 1) * .1f));
@@ -278,6 +278,41 @@ namespace GardenSnake.Editor
             }
         }
 
+        /// <summary>Updates only ladybug art, keeping existing paths and animation rigs.</summary>
+        public static int PolishLadybugs()
+        {
+            if (Application.isPlaying) throw new InvalidOperationException("Stop Play Mode before editing wildlife art.");
+            int count = 0;
+            foreach (var animal in UnityEngine.Object.FindObjectsByType<GardenAnimal>(FindObjectsSortMode.None))
+            {
+                Transform body = animal.transform.Find("Body");
+                Transform shell = body != null ? body.Find("Red shell") : null;
+                if (shell == null) continue;
+                shell.GetComponent<MeshFilter>().sharedMesh = GardenWildlifeMeshes.Get("LadybugShell");
+                for (int i = body.childCount - 1; i >= 0; i--)
+                {
+                    Transform part = body.GetChild(i);
+                    if (part.name is "Spot" or "Wing seam" or "Shell markings")
+                        UnityEngine.Object.DestroyImmediate(part.gameObject);
+                }
+                Sculpt("Shell markings", "LadybugMarkings", body, Vector3.zero, Vector3.one, "Ink");
+                LadybugEyes(body.Find("Head"));
+                count++;
+            }
+            return count;
+        }
+
+        private static void LadybugEyes(Transform head)
+        {
+            if (head.Find("Eye white") != null) return;
+            for (int side = -1; side <= 1; side += 2)
+            {
+                Part("Eye white", head, new Vector3(side * .033f, .025f, .071f), new Vector3(.045f, .048f, .023f), "Cream");
+                Part("Pupil", head, new Vector3(side * .032f, .025f, .082f), new Vector3(.023f, .029f, .012f), "Ink");
+                Part("Eye glint", head, new Vector3(side * .032f - .004f, .032f, .088f), Vector3.one * .008f, "Cream");
+            }
+        }
+
         private static Transform Group(string name, Transform parent, Vector3 position)
         {
             var t = new GameObject(name).transform; t.SetParent(parent, false); t.localPosition = position; return t;
@@ -297,7 +332,15 @@ namespace GardenSnake.Editor
         {
             var t = Group(name, parent, position); t.localScale = scale;
             t.gameObject.AddComponent<MeshFilter>().sharedMesh = GardenWildlifeMeshes.Get(mesh);
-            t.gameObject.AddComponent<MeshRenderer>().sharedMaterial = SharedMaterial(material);
+            var renderer = t.gameObject.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = SharedMaterial(material);
+            if (mesh == "LadybugMarkings")
+            {
+                // Painted surface detail must not cast a second, almost coincident
+                // shadow onto its shell or receive the shell's shadow acne.
+                renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                renderer.receiveShadows = false;
+            }
             return t;
         }
 
@@ -305,11 +348,9 @@ namespace GardenSnake.Editor
         {
             string path = GardenBuilder.Root + "/Materials/" + name + ".mat";
             var material = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (material == null)
-            {
-                material = new Material(SharedMaterial("Aqua")) { name = name };
-                AssetDatabase.CreateAsset(material, path);
-            }
+            if (material != null) return; // Preserve the authored palette and finish on rebuild.
+            material = new Material(SharedMaterial("Aqua")) { name = name };
+            AssetDatabase.CreateAsset(material, path);
             material.SetColor("_BaseColor", GardenPalette.Hex(hex));
             material.SetFloat("_Smoothness", .26f);
             EditorUtility.SetDirty(material);
