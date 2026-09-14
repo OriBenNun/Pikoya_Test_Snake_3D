@@ -3,10 +3,11 @@ import bpy
 import math
 import os
 import runpy
+import json
 from mathutils import Vector
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-OUT = os.path.join(ROOT, "Assets/Art/Models")
+OUT = os.environ.get('GARDEN_MODEL_OUTPUT', os.path.join(ROOT, "Assets/Art/Models"))
 os.makedirs(OUT, exist_ok=True)
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
@@ -39,6 +40,9 @@ mats = {
     'Base': material('Base', (.12, .26, .20)),
 }
 polish = runpy.run_path(os.path.join(os.path.dirname(__file__), 'polish_assets.py'))['polish']
+sculpt = runpy.run_path(os.path.join(os.path.dirname(__file__), 'juicy_models.py'))['sculpt']
+with open(os.path.join(os.path.dirname(__file__), 'model_mesh_names.json')) as file:
+    mesh_names = json.load(file)
 assets = {}
 current = []
 
@@ -74,6 +78,17 @@ def box(name, loc, scale, mat, bevel=.1):
 
 def export(name):
     polish(name, current)
+    sculpt(name, current)
+    for obj in current:
+        bpy.context.view_layer.objects.active = obj
+        for modifier in list(obj.modifiers):
+            bpy.ops.object.modifier_apply(modifier=modifier.name)
+    # Preserve FBX geometry names as well as node names for existing mesh references.
+    for mesh in bpy.data.meshes:
+        mesh.name = '__working_' + str(mesh.as_pointer())
+    for obj in current:
+        obj.data.name = mesh_names[name][obj.name]
+    bpy.context.view_layer.update()
     bpy.ops.object.select_all(action='DESELECT')
     for obj in current:
         obj.select_set(True)
@@ -248,7 +263,8 @@ for index, (name, objects) in enumerate(assets.items()):
         for old in list(obj.users_collection):
             old.objects.unlink(obj)
         collection.objects.link(obj)
+        obj.data.name = name + ' - ' + obj.name
         obj.location.x += (index % 4) * 2.5
         obj.location.y += (index // 4) * 2.5
-bpy.ops.wm.save_as_mainfile(filepath=os.path.join(ROOT, 'Tools/Blender/GardenSnake.blend'))
+bpy.ops.wm.save_as_mainfile(filepath=os.environ.get('GARDEN_BLEND_OUTPUT', os.path.join(ROOT, 'Tools/Blender/GardenSnake.blend')))
 print('GARDEN_ASSETS_OK: ' + ', '.join(assets))

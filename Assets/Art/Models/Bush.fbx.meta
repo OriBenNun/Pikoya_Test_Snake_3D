@@ -42,6 +42,16 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: FoliageShade
+    second: {fileID: 2100000, guid: d07d6897ce50a624695c10e548c4b6e5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: FoliageSun
+    second: {fileID: 2100000, guid: 381ea577a3e585e48b5796a25b6e651d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Ink
     second: {fileID: 2100000, guid: b964e728a2752c74d958cced96a2457f, type: 2}
   - first:
