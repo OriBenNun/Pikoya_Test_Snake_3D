@@ -1,4 +1,3 @@
-using GardenSnake.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -87,9 +86,9 @@ namespace GardenSnake
 
         private void Update()
         {
-            if (loop == null || loop.Game == null) return;
+            if (loop == null) return;
             float target = loop.Pace;
-            bool paused = loop.Game.State == RunState.Paused;
+            bool paused = loop.State == RunState.Paused;
             float dt = paused ? 0 : Mathf.Min(Time.unscaledDeltaTime, .033f);
             if (target > previousPace + kickThreshold && previousPace >= 0) { kick = 1; velocity += kickVelocity; }
             previousPace = target;

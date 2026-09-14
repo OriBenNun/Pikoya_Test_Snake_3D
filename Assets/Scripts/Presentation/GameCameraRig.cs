@@ -1,4 +1,3 @@
-using GardenSnake.Core;
 using UnityEngine;
 
 namespace GardenSnake
@@ -35,7 +34,7 @@ namespace GardenSnake
         private void Update()
         {
             if (!Mathf.Approximately(lastAspect, view.aspect)) FrameBoard();
-            float target = fitSize * (loop.Game.State == RunState.Playing ? 1f : restingZoom);
+            float target = fitSize * (loop.State == RunState.Playing ? 1f : restingZoom);
             viewSize = Mathf.Lerp(viewSize, target, 1 - Mathf.Exp(-zoomSpeed * Time.unscaledDeltaTime));
             view.orthographicSize = viewSize;
             // Slide the view so the leftover space splits into the two bands we asked for.

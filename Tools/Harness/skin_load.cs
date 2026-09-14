@@ -6,9 +6,8 @@ if (!Application.isPlaying) throw new System.InvalidOperationException("Play Mod
 var loop = UnityEngine.Object.FindFirstObjectByType<GardenSnake.GameLoopManager>();
 var visuals = UnityEngine.Object.FindFirstObjectByType<GardenSnake.SnakeManager>();
 var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-var game = loop.Game;
-var body = (System.Collections.Generic.List<GardenSnake.Core.Cell>)game.GetType().GetField("body", flags).GetValue(game);
-var digestion = (System.Collections.Generic.List<float>)game.GetType().GetField("digestion", flags).GetValue(game);
+var body = (System.Collections.Generic.List<GardenSnake.Cell>)loop.GetType().GetField("body", flags).GetValue(loop);
+var digestion = (System.Collections.Generic.List<float>)loop.GetType().GetField("digestion", flags).GetValue(loop);
 var reset = visuals.GetType().GetMethod("ResetVisuals", flags);
 var skinR = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Scripts, "GardenSnake.Skin", 1);
 var report = new System.Collections.Generic.List<string>();
@@ -16,9 +15,12 @@ int[] lengths = { 10, 30, 60, 100, 160 };
 int stage = 0, lastFrame = -1, frames = 0, cycle = 0;
 var steady = new System.Collections.Generic.List<double>();
 var grow = new System.Collections.Generic.List<double>();
-GardenSnake.Core.Cell At(int i) { int row = i / 19; return new GardenSnake.Core.Cell(row % 2 == 0 ? 19 - i % 19 : 1 + i % 19, Mathf.Min(11, row)); }
+GardenSnake.Cell At(int i) { int row = i / 19; return new GardenSnake.Cell(row % 2 == 0 ? 19 - i % 19 : 1 + i % 19, Mathf.Min(11, row)); }
+// The rules live on the loop now, so staging means putting it into a paused run and
+// replacing the snake underneath it.
+var setState = typeof(GardenSnake.GameLoopManager).GetProperty("State").GetSetMethod(true);
 void Stage() {
-    game.Reset(); game.Start(); game.TogglePause();
+    setState.Invoke(loop, new object[] { GardenSnake.RunState.Paused });
     body.Clear(); digestion.Clear();
     for (int i = 0; i < lengths[stage]; i++) body.Add(At(i));
     reset.Invoke(visuals, null);

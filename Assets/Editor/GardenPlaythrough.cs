@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using GardenSnake.Core;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -30,7 +29,7 @@ namespace GardenSnake.Editor
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play mode first.");
             controller = UnityEngine.Object.FindFirstObjectByType<GameLoopManager>();
-            if (controller == null || controller.Game.State != RunState.Ready)
+            if (controller == null || controller.State != RunState.Ready)
                 throw new InvalidOperationException("Run verification from a fresh Ready screen.");
             var gameView = EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView"));
             gameView.Focus();
@@ -71,29 +70,29 @@ namespace GardenSnake.Editor
                         Next("Ready screen and keyboard start");
                         break;
                     case 1:
-                        if (controller.Game.Score < 1) return;
-                        if (controller.Game.Digestion.Count == 0 && controller.Game.Body.Count < 4)
+                        if (controller.Score < 1) return;
+                        if (controller.Digestion.Count == 0 && controller.Body.Count < 4)
                             throw new Exception("Pickup did not start digestion.");
                         Capture("pickup");
                         KeyPress(Key.UpArrow);
                         Next("Apple pickup, score, growth");
                         break;
                     case 2:
-                        if (controller.Game.Heading != Direction.Up || controller.Game.Body[0].Y <= 6 || controller.Game.Body.Count < 4) return;
+                        if (controller.Heading != Direction.Up || controller.Body[0].Y <= 6 || controller.Body.Count < 4) return;
                         Capture("playing");
                         KeyPress(Key.P);
                         Next("Arrow input turns upward");
                         break;
                     case 3:
-                        if (controller.Game.State != RunState.Paused) return;
-                        if (controller.Game.Body.Count != 4) throw new Exception("Digestion did not grow the snake.");
-                        pausedCell = controller.Game.Body[0];
+                        if (controller.State != RunState.Paused) return;
+                        if (controller.Body.Count != 4) throw new Exception("Digestion did not grow the snake.");
+                        pausedCell = controller.Body[0];
                         RequireText("On a leaf break");
                         Next("Pause input and pause card");
                         break;
                     case 4:
                         if (EditorApplication.timeSinceStartup - stageAt < .6) return;
-                        if (controller.Game.Body[0] != pausedCell) throw new Exception("Snake moved while paused.");
+                        if (controller.Body[0] != pausedCell) throw new Exception("Snake moved while paused.");
                         Capture("paused");
                         Click("Sound");
                         Next("Paused simulation remains fixed");
@@ -104,12 +103,12 @@ namespace GardenSnake.Editor
                         Next("Sound button toggles audio");
                         break;
                     case 6:
-                        if (controller.Game.State != RunState.Playing) return;
+                        if (controller.State != RunState.Playing) return;
                         KeyPress(Key.M);
                         Next("Resume button resumes play");
                         break;
                     case 7:
-                        if (controller.Game.State != RunState.Lost) return;
+                        if (controller.State != RunState.Lost) return;
                         RequireText("garden edge");
                         Next("Wall collision and results card");
                         break;
@@ -120,13 +119,13 @@ namespace GardenSnake.Editor
                         Next("Results restart button clicked");
                         break;
                     case 9:
-                        if (controller.Game.State != RunState.Playing) return;
-                        if (controller.Game.Score != 0 || controller.Game.Body.Count != 3) throw new Exception("Restart did not reset run.");
+                        if (controller.State != RunState.Playing) return;
+                        if (controller.Score != 0 || controller.Body.Count != 3) throw new Exception("Restart did not reset run.");
                         KeyPress(Key.P);
                         Next("Restart resets score and length");
                         break;
                     case 10:
-                        if (controller.Game.State != RunState.Paused) return;
+                        if (controller.State != RunState.Paused) return;
                         Finish(null);
                         break;
                 }

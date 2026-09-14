@@ -55,14 +55,14 @@ namespace GardenSnake
         public void Respawn()
         {
             age = 0;
-            apple.position = loop.World(loop.Game.Food);
+            apple.position = loop.World(loop.Food);
         }
 
         /// <summary>Put the apple straight onto its cell with no arrival, for a fresh board.</summary>
         public void Settle()
         {
             age = 0;
-            apple.position = loop.World(loop.Game.Food);
+            apple.position = loop.World(loop.Food);
         }
 
         public void Show(bool visible)
@@ -76,7 +76,7 @@ namespace GardenSnake
         public void Animate()
         {
             age += Time.unscaledDeltaTime;
-            Vector3 cell = loop.World(loop.Game.Food);
+            Vector3 cell = loop.World(loop.Food);
             float lift = board.HeightAt(cell);
             float breathe = Mathf.Sin(Time.unscaledTime * BreathFrequency);
             // A fresh apple drops in with a little overshoot rather than blinking into place.

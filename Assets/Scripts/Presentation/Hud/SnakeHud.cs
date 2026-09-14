@@ -1,4 +1,3 @@
-using GardenSnake.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -177,11 +176,10 @@ namespace GardenSnake
 
         public void Refresh()
         {
-            SnakeGame game = loop.Game;
-            if (shownScore != game.Score)
+            if (shownScore != loop.Score)
             {
-                shownScore = game.Score;
-                scoreText.text = Count(game.Score);
+                shownScore = loop.Score;
+                scoreText.text = Count(loop.Score);
             }
             if (shownBest != loop.Best)
             {
@@ -190,24 +188,24 @@ namespace GardenSnake
             }
             muteGlyph.sprite = loop.Muted ? soundOffSprite : soundOnSprite;
             muteGlyph.color = FadeTo(controlColor, loop.Muted ? mutedOpacity : soundOnOpacity);
-            pauseGlyph.sprite = game.State == RunState.Paused ? resumeSprite : pauseSprite;
-            pauseButton.interactable = game.State == RunState.Playing || game.State == RunState.Paused;
+            pauseGlyph.sprite = loop.State == RunState.Paused ? resumeSprite : pauseSprite;
+            pauseButton.interactable = loop.State == RunState.Playing || loop.State == RunState.Paused;
 
-            if (lastState != game.State)
+            if (lastState != loop.State)
             {
-                if (game.State == RunState.Playing && lastState != RunState.Paused)
+                if (loop.State == RunState.Playing && lastState != RunState.Paused)
                     toastTime = bannerTime = whisperTime = 0;
                 cardTime = 0;
-                lastState = game.State;
+                lastState = loop.State;
             }
-            bool showCard = game.State != RunState.Playing;
+            bool showCard = loop.State != RunState.Playing;
             card.SetActive(showCard);
-            bool ended = game.State == RunState.Lost || game.State == RunState.Won;
+            bool ended = loop.State == RunState.Lost || loop.State == RunState.Won;
             cardTally.SetActive(ended);
-            if (ended) cardTallyValue.text = Count(game.Score);
+            if (ended) cardTallyValue.text = Count(loop.Score);
             LayoutCard(ended);
             if (!showCard) return;
-            switch (game.State)
+            switch (loop.State)
             {
                 case RunState.Ready:
                     cardEyebrow.text = readyEyebrow;
@@ -223,12 +221,12 @@ namespace GardenSnake
                     break;
                 case RunState.Lost:
                 case RunState.Won:
-                    bool won = game.State == RunState.Won;
+                    bool won = loop.State == RunState.Won;
                     cardEyebrow.text = won ? wonEyebrow
-                        : loop.Record.Broken ? recordEyebrow
+                        : loop.RecordBroken ? recordEyebrow
                         : lostEyebrow;
-                    cardTitle.text = won ? wonTitle : Verdict(game.Score);
-                    cardBody.text = game.EndReason + "\n" + bestResultPrefix + loop.Best;
+                    cardTitle.text = won ? wonTitle : Verdict(loop.Score);
+                    cardBody.text = loop.EndReason + "\n" + bestResultPrefix + loop.Best;
                     primaryLabel.text = replayLabel;
                     break;
             }
@@ -333,7 +331,7 @@ namespace GardenSnake
         private void AnimateChrome(float delta)
         {
             brandGroup.alpha = Mathf.MoveTowards(brandGroup.alpha,
-                loop.Game.State == RunState.Playing ? playingBrandOpacity : 1f, delta * chromeFadeSpeed);
+                loop.State == RunState.Playing ? playingBrandOpacity : 1f, delta * chromeFadeSpeed);
 
         }
 

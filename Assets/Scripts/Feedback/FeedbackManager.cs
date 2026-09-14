@@ -1,4 +1,3 @@
-using GardenSnake.Core;
 using MoreMountains.Feedbacks;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -159,7 +158,7 @@ namespace GardenSnake
             cellWaves.Clear();
             Play(startSound, sound.startPitch, sound.startVolume);
             Strike(Beat.RunStart, feel.runStart, head, feel.runStartIntensity);
-            cellWaves.Play(waves.start, loop.Game.Body[0], waves.startIntensity);
+            cellWaves.Play(waves.start, loop.Body[0], waves.startIntensity);
         }
 
         private void OnAppleEaten(AppleBeat apple)
@@ -174,7 +173,7 @@ namespace GardenSnake
             hud.ShowPickup(extended ? "+1 <size=55%>best</size>" : "+1", apple.At, extended);
             if (apple.Record == RecordBeat.Broken)
             {
-                cellWaves.Play(waves.best, loop.Game.Body[0], waves.bestIntensity);
+                cellWaves.Play(waves.best, loop.Body[0], waves.bestIntensity);
                 Strike(Beat.NewBest, feel.newBest, apple.At, feel.newBestIntensity);
                 Play(bestSound, sound.bestPitch, sound.bestVolume);
                 hud.ShowBanner("NEW BEST");
@@ -187,14 +186,14 @@ namespace GardenSnake
             }
             else if (apple.Score % waves.milestoneAppleInterval == 0)
             {
-                cellWaves.Play(waves.milestone, loop.Game.Body[0], waves.milestoneIntensity);
+                cellWaves.Play(waves.milestone, loop.Body[0], waves.milestoneIntensity);
                 hud.ShowBanner(apple.Score + " APPLES");
             }
         }
 
         private void OnRunEnded(StepResult result)
         {
-            Cell head = loop.Game.Body[0];
+            Cell head = loop.Body[0];
             Vector3 at = loop.World(head);
             if (result == StepResult.Lost)
             {
@@ -216,7 +215,7 @@ namespace GardenSnake
 
         private void OnClicked() => Play(clickSound, sound.clickPitch, sound.clickVolume);
 
-        private void OnChanged() => cellWaves.Frozen = loop.Game.State == RunState.Paused;
+        private void OnChanged() => cellWaves.Frozen = loop.State == RunState.Paused;
 
         private void OnVisualsReset()
         {
@@ -235,7 +234,7 @@ namespace GardenSnake
         private void Update()
         {
             float delta = Time.unscaledDeltaTime;
-            bool moving = loop.Game.State == RunState.Playing;
+            bool moving = loop.State == RunState.Playing;
             AnimateBurst(delta);
             AnimateTrail(moving);
             float wanted = moving ? loop.CurrentPace : 0;

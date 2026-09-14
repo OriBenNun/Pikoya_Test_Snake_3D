@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using GardenSnake.Core;
 using UnityEngine;
 
 namespace GardenSnake
@@ -114,7 +113,7 @@ namespace GardenSnake
             Pose();
         }
 
-        public void Animate(SnakeGame game, Vector3 foodPosition, float delta)
+        public void Animate(GameLoopManager loop, Vector3 foodPosition, float delta)
         {
             if (delta <= 0) return;
             excitementAge += delta;
@@ -133,9 +132,9 @@ namespace GardenSnake
             offset.y = 0;
             float ahead = Vector3.Dot(offset, transform.forward);
             float sideways = Mathf.Abs(Vector3.Dot(offset, transform.right));
-            float target = game.State == RunState.Playing && game.HasFood && ahead > 0 && sideways < settings.AnticipationHalfWidth
+            float target = loop.State == RunState.Playing && loop.HasFood && ahead > 0 && sideways < settings.AnticipationHalfWidth
                 ? Mathf.SmoothStep(0, 1, (settings.AnticipationDistance - ahead) / Mathf.Max(.01f, settings.AnticipationRamp)) : 0;
-            if (swallowing && game.State != RunState.Lost) target = Mathf.Max(target, 1 - Mathf.Clamp01(swallowAge / swallowDuration));
+            if (swallowing && loop.State != RunState.Lost) target = Mathf.Max(target, 1 - Mathf.Clamp01(swallowAge / swallowDuration));
             Openness = Mathf.MoveTowards(Openness, target, delta * settings.JawSpeed);
             Pose();
         }

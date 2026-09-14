@@ -64,15 +64,18 @@ back up.
 | Layer | Component | Job |
 | --- | --- | --- |
 | Input | `PlayerController` | Reads the keyboard and the pointer, announces what the player asked for, and holds no game state. |
-| Rules | `GameLoopManager` | Owns the simulation, the fixed movement step, the record between runs, and the pause and sound preferences. |
+| Rules | `GameLoopManager` | Owns the snake, the board, the fixed movement step, the record between runs, and the pause and sound preferences. |
 | Visuals | `SnakeManager` | Draws the animal — body poses, continuous skin, face, blink, growth, death — from whatever the loop says is true. |
 | Reactions | `FeedbackManager` | Observes the loop and answers each beat: sound, Feel players, board waves, the pickup ring, the sparkle trail, the pace vignette, HUD toasts. |
+
+The rules live on `GameLoopManager` itself — the body, the turn buffer, digestion, food spawning,
+the win and lose conditions. There is no separate simulation object behind it to delegate through,
+so the rest of the game reads `loop.State`, `loop.Body` and `loop.Score` directly.
 
 The compiler enforces the layering. Each layer is its own assembly, and an assembly can only
 reference the ones beneath it:
 
-    Assets/Scripts/Core          deterministic grid simulation, no Unity references
-    Assets/Scripts/Gameplay      GameLoopManager, PlayerController, the garden's beat channel
+    Assets/Scripts/Gameplay      the rules, the loop, input, the garden's beat channel
     Assets/Scripts/Presentation  SnakeManager, the skin and face, apple, camera, HUD, gauge
     Assets/Scripts/Feedback      FeedbackManager
     Assets/Scripts/Garden        the meadow's wind and the wildlife
@@ -111,9 +114,7 @@ assets, and serialized references are wired by the builder.
 
 ## Verification
 
-Use Unity Test Runner in Edit mode with filter `GardenSnake.Tests`. Ten tests cover movement gating,
-pause, reverse rejection, buffered corners, apple growth/spawning, wall and self collision, entering
-a vacated tail cell, reset, deterministic randomness, and a full-board win.
+Verification is by Play mode and captured frames rather than unit tests.
 
 For the integration check, enter Play mode from a fresh start screen, then select
 **Garden Snake > Verify controls in Play mode**. Keep the Game view focused during the check. The

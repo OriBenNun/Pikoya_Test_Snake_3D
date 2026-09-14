@@ -2,7 +2,6 @@
     "name": "GardenSnake.Presentation",
     "rootNamespace": "GardenSnake",
     "references": [
-        "GardenSnake.Core",
         "GardenSnake.Gameplay",
         "Unity.TextMeshPro",
         "UnityEngine.UI",

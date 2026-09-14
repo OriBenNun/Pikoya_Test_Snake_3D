@@ -72,10 +72,9 @@ def state():
     return evaluate("""
 var controller = UnityEngine.Object.FindAnyObjectByType<GardenSnake.GameLoopManager>();
 if (controller == null) return "no-controller";
-var game = controller.Game;
 return string.Format("state={0} score={1} len={2} head={3},{4} food={5},{6} best={7} step={8:0.000}",
-  game.State, game.Score, game.Body.Count, game.Body[0].X, game.Body[0].Y,
-  game.Food.X, game.Food.Y, controller.Best, controller.StepSeconds);
+  controller.State, controller.Score, controller.Body.Count, controller.Body[0].X, controller.Body[0].Y,
+  controller.Food.X, controller.Food.Y, controller.Best, controller.StepSeconds);
 """)
 
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using GardenSnake.Core;
 using UnityEngine;
 
 namespace GardenSnake
@@ -135,11 +134,10 @@ namespace GardenSnake
 
         private void OnStepped(StepResult result)
         {
-            SnakeGame game = loop.Game;
-            int grown = game.Body.Count > previousLength ? game.Body.Count - 2 : -1;
+            int grown = loop.Body.Count > previousLength ? loop.Body.Count - 2 : -1;
             // The simulation grows at the start of a step. Let the last lump settle into the
             // tail over that step instead of disappearing between two rendered frames.
-            finishingDigestion = game.Body.Count > previousLength;
+            finishingDigestion = loop.Body.Count > previousLength;
             EnsureSegments();
             if (grown < 0) return;
             grownIndex = grown;
@@ -163,29 +161,28 @@ namespace GardenSnake
 
         private void Update()
         {
-            SnakeGame game = loop.Game;
             float delta = Time.unscaledDeltaTime;
-            bool moving = game.State == RunState.Playing;
-            bool dying = game.State == RunState.Lost;
+            bool moving = loop.State == RunState.Playing;
+            bool dying = loop.State == RunState.Lost;
             deathAge = dying ? deathAge + delta : 0;
-            if (game.State != RunState.Paused) grownAge += delta;
-            Blink(game.State == RunState.Paused ? 0 : delta);
+            if (loop.State != RunState.Paused) grownAge += delta;
+            Blink(loop.State == RunState.Paused ? 0 : delta);
             bank = Mathf.MoveTowards(bank, 0, delta * BankRecoverySpeed);
             if (moving) slither += Time.deltaTime / loop.CurrentStep;
 
-            AnimateBody(game, dying);
+            AnimateBody(dying);
             appleView.Animate();
-            mouth.Animate(game, appleView.Apple.position, game.State == RunState.Paused ? 0 : delta);
+            mouth.Animate(loop, appleView.Apple.position, loop.State == RunState.Paused ? 0 : delta);
         }
 
-        private void AnimateBody(SnakeGame game, bool dying)
+        private void AnimateBody(bool dying)
         {
             float t = loop.StepProgress;
-            int count = game.Body.Count;
+            int count = loop.Body.Count;
             for (int i = 0; i < count; i++)
             {
                 Transform part = i == count - 1 ? tail : segments[i];
-                Vector3 target = loop.World(game.Body[i]);
+                Vector3 target = loop.World(loop.Body[i]);
                 Vector3 from = previous[i];
                 Vector3 position = Vector3.Lerp(from, target, t);
                 Vector3 along = target - from;
@@ -201,7 +198,7 @@ namespace GardenSnake
                     float birth = grownAge / GrowthDuration;
                     scale *= 1 + Mathf.Sin(birth * Mathf.PI) * GrowthSwell;
                 }
-                if (game.State == RunState.Ready)
+                if (loop.State == RunState.Ready)
                 {
                     float breath = Mathf.Sin(Time.unscaledTime * IdleBreathFrequency - i * IdleBreathSegmentPhase) * IdleBreathAmplitude;
                     scale += new Vector3(-breath, breath * IdleBreathStretch, -breath);
@@ -211,7 +208,7 @@ namespace GardenSnake
                 {
                     // The head shoves into whatever stopped it before the snake gives up.
                     float recoil = Mathf.Sin(deathAge / DeathRecoilDuration * Mathf.PI) * DeathRecoilDistance;
-                    position += (loop.World(game.Body[0]) - loop.World(game.Body[1])).normalized * recoil;
+                    position += (loop.World(loop.Body[0]) - loop.World(loop.Body[1])).normalized * recoil;
                 }
                 if (dying)
                 {
@@ -228,7 +225,7 @@ namespace GardenSnake
                 part.localScale = basis * scale;
                 if (i == 0)
                 {
-                    Quaternion facing = Rotation(game.Heading) * Quaternion.Euler(0, 0, bank * BankAngle);
+                    Quaternion facing = Rotation(loop.Heading) * Quaternion.Euler(0, 0, bank * BankAngle);
                     part.rotation = Quaternion.Slerp(part.rotation, facing, Time.unscaledDeltaTime * HeadTurnSpeed);
                 }
                 else
@@ -237,7 +234,7 @@ namespace GardenSnake
                     if (toward.sqrMagnitude > .01f) part.rotation = Quaternion.LookRotation(toward);
                 }
             }
-            CollectDigestion(game);
+            CollectDigestion();
             skin.Draw(segments, tail, count, bodyScale, headScale, tailScale,
                 visualDigestion, digestionAnchors, t, dying ? 0 : 1, finishingDigestion);
         }
@@ -246,19 +243,19 @@ namespace GardenSnake
         /// Swallowed apples stay pinned to the cell they were picked up on. Indexed, not foreach:
         /// enumerating the simulation's read-only list through its interface allocates every frame.
         /// </summary>
-        private void CollectDigestion(SnakeGame game)
+        private void CollectDigestion()
         {
             visualDigestion.Clear();
             digestionAnchors.Clear();
-            IReadOnlyList<float> pending = game.Digestion;
+            IReadOnlyList<float> pending = loop.Digestion;
             for (int i = 0; i < pending.Count; i++)
             {
                 float progress = pending[i];
                 visualDigestion.Add(progress);
-                digestionAnchors.Add(loop.World(game.Body[Mathf.Clamp((int)progress, 0, game.Body.Count - 1)]));
+                digestionAnchors.Add(loop.World(loop.Body[Mathf.Clamp((int)progress, 0, loop.Body.Count - 1)]));
             }
             if (!finishingDigestion) return;
-            visualDigestion.Add(game.Body.Count - 1);
+            visualDigestion.Add(loop.Body.Count - 1);
             digestionAnchors.Add(finishingAnchor);
         }
 
@@ -286,35 +283,32 @@ namespace GardenSnake
 
         private void CapturePrevious()
         {
-            SnakeGame game = loop.Game;
-            previousLength = game.Body.Count;
-            finishingAnchor = loop.World(game.Body[previousLength - 1]);
-            IReadOnlyList<Cell> body = game.Body;
+            previousLength = loop.Body.Count;
+            finishingAnchor = loop.World(loop.Body[previousLength - 1]);
+            IReadOnlyList<Cell> body = loop.Body;
             for (int i = 0; i < previousLength; i++) previous[i] = loop.World(body[i]);
             capturedCount = previousLength;
         }
 
         private void EnsureSegments()
         {
-            SnakeGame game = loop.Game;
             // A new segment starts where the one in front of it was, not at the world origin.
-            while (capturedCount < game.Body.Count)
+            while (capturedCount < loop.Body.Count)
             {
                 previous[capturedCount] = previous[Mathf.Max(0, capturedCount - 1)];
                 capturedCount++;
             }
-            int live = game.Body.Count - 1;
+            int live = loop.Body.Count - 1;
             for (int i = 0; i < segments.Count; i++)
             {
                 bool wanted = i < live;
                 if (segments[i].gameObject.activeSelf != wanted) segments[i].gameObject.SetActive(wanted);
             }
-            appleView.Show(game.HasFood && game.State != RunState.Won);
+            appleView.Show(loop.HasFood && loop.State != RunState.Won);
         }
 
         private void ResetVisuals()
         {
-            SnakeGame game = loop.Game;
             CapturePrevious();
             finishingDigestion = false;
             EnsureSegments();
@@ -325,13 +319,13 @@ namespace GardenSnake
             visualDigestion.Clear();
             digestionAnchors.Clear();
             mouth.ResetPose();
-            for (int i = 0; i < game.Body.Count - 1; i++)
+            for (int i = 0; i < loop.Body.Count - 1; i++)
             {
-                segments[i].position = loop.World(game.Body[i]);
+                segments[i].position = loop.World(loop.Body[i]);
                 segments[i].localScale = Vector3.one * (i == 0 ? headScale : bodyScale);
             }
-            segments[0].rotation = Rotation(game.Heading);
-            tail.position = loop.World(game.Body[game.Body.Count - 1]);
+            segments[0].rotation = Rotation(loop.Heading);
+            tail.position = loop.World(loop.Body[loop.Body.Count - 1]);
             tail.localScale = Vector3.one * tailScale;
             appleView.Settle();
             VisualsReset?.Invoke();

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using GardenSnake.Core;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -90,17 +89,16 @@ namespace GardenSnake.Editor
                 nextShotAt = now + shotInterval;
                 Capture();
             }
-            var game = controller.Game;
             // Moments worth a frame of their own: the bite, the wilt, and the results card.
             for (int i = pending.Count - 1; i >= 0; i--)
                 if (now >= pending[i]) { pending.RemoveAt(i); Capture(); }
-            if (game.Score != lastScore)
+            if (controller.Score != lastScore)
             {
-                if (game.Score > lastScore) pending.Add(now + .12);
-                lastScore = game.Score;
+                if (controller.Score > lastScore) pending.Add(now + .12);
+                lastScore = controller.Score;
             }
-            bestScore = Mathf.Max(bestScore, game.Score);
-            switch (game.State)
+            bestScore = Mathf.Max(bestScore, controller.Score);
+            switch (controller.State)
             {
                 case RunState.Ready:
                     if (restartAt == 0) restartAt = now + .35;
@@ -113,7 +111,7 @@ namespace GardenSnake.Editor
                         restartAt = now + 2.4;
                         pending.Add(now + .2);
                         pending.Add(now + 1.3);
-                        notes.Add($"run {runs}: {game.Score} apples, {game.EndReason}");
+                        notes.Add($"run {runs}: {controller.Score} apples, {controller.EndReason}");
                     }
                     if (now >= restartAt) { restartAt = 0; runs++; Press(Key.Space); }
                     break;
@@ -124,7 +122,7 @@ namespace GardenSnake.Editor
                     break;
                 case RunState.Playing:
                     restartAt = 0;
-                    Steer(game);
+                    Steer();
                     break;
             }
             if (now >= endsAt) Finish(null);
@@ -137,39 +135,39 @@ namespace GardenSnake.Editor
         }
 
         /// <summary>Greedy chase that refuses moves into a wall or an occupied cell.</summary>
-        private static void Steer(SnakeGame game)
+        private static void Steer()
         {
-            Cell head = game.Body[0];
-            Cell food = game.Food;
+            Cell head = controller.Body[0];
+            Cell food = controller.Food;
             var wishes = new List<Direction>();
             if (food.X != head.X) wishes.Add(food.X > head.X ? Direction.Right : Direction.Left);
             if (food.Y != head.Y) wishes.Add(food.Y > head.Y ? Direction.Up : Direction.Down);
-            foreach (Direction fallback in new[] { game.Heading, Direction.Up, Direction.Right, Direction.Down, Direction.Left })
+            foreach (Direction fallback in new[] { controller.Heading, Direction.Up, Direction.Right, Direction.Down, Direction.Left })
                 if (!wishes.Contains(fallback)) wishes.Add(fallback);
             foreach (Direction wish in wishes)
             {
-                if (!Safe(game, wish)) continue;
-                if (wish == game.Heading) return;
+                if (!Safe(wish)) continue;
+                if (wish == controller.Heading) return;
                 Press(KeyFor(wish));
                 return;
             }
         }
 
-        private static bool Safe(SnakeGame game, Direction direction)
+        private static bool Safe(Direction direction)
         {
-            Cell next = game.Body[0] + SnakeGame.Offset(direction);
-            if (next.X < 0 || next.Y < 0 || next.X >= game.Width || next.Y >= game.Height) return false;
-            for (int i = 0; i < game.Body.Count - 1; i++)
-                if (game.Body[i] == next) return false;
+            Cell next = controller.Body[0] + GameLoopManager.Offset(direction);
+            if (next.X < 0 || next.Y < 0 || next.X >= controller.BoardWidth || next.Y >= controller.BoardHeight) return false;
+            for (int i = 0; i < controller.Body.Count - 1; i++)
+                if (controller.Body[i] == next) return false;
             // one-step lookahead keeps the pilot out of pockets it cannot leave
             int exits = 0;
             foreach (Direction option in new[] { Direction.Up, Direction.Right, Direction.Down, Direction.Left })
             {
-                Cell after = next + SnakeGame.Offset(option);
-                if (after.X < 0 || after.Y < 0 || after.X >= game.Width || after.Y >= game.Height) continue;
+                Cell after = next + GameLoopManager.Offset(option);
+                if (after.X < 0 || after.Y < 0 || after.X >= controller.BoardWidth || after.Y >= controller.BoardHeight) continue;
                 bool blocked = false;
-                for (int i = 0; i < game.Body.Count - 2; i++)
-                    if (game.Body[i] == after) blocked = true;
+                for (int i = 0; i < controller.Body.Count - 2; i++)
+                    if (controller.Body[i] == after) blocked = true;
                 if (!blocked) exits++;
             }
             return exits > 0;

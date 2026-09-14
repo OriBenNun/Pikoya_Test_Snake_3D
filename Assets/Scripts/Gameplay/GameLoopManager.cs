@@ -1,9 +1,31 @@
 using System;
-using GardenSnake.Core;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GardenSnake
 {
+    /// <summary>A patch of the board. Two ints and the handful of operators a grid needs.</summary>
+    public readonly struct Cell : IEquatable<Cell>
+    {
+        public readonly int X;
+        public readonly int Y;
+        public Cell(int x, int y) { X = x; Y = y; }
+        public bool Equals(Cell other) => X == other.X && Y == other.Y;
+        public override bool Equals(object obj) => obj is Cell other && Equals(other);
+        public override int GetHashCode() => unchecked(X * 397 ^ Y);
+        public override string ToString() => X + "," + Y;
+        public static bool operator ==(Cell a, Cell b) => a.Equals(b);
+        public static bool operator !=(Cell a, Cell b) => !a.Equals(b);
+        public static Cell operator +(Cell a, Cell b) => new Cell(a.X + b.X, a.Y + b.Y);
+    }
+
+    public enum Direction { Up, Right, Down, Left }
+    public enum RunState { Ready, Playing, Paused, Lost, Won }
+    public enum StepResult { None, Moved, Ate, Lost, Won }
+
+    /// <summary>What an apple was worth against the record this run started with.</summary>
+    public enum RecordBeat { None, Broken, Extended }
+
     /// <summary>What an eaten apple was worth, and where it was eaten.</summary>
     public readonly struct AppleBeat
     {
@@ -21,9 +43,14 @@ namespace GardenSnake
     }
 
     /// <summary>
-    /// The rules and the meta loop. It owns the simulation, the fixed movement step, the record
-    /// that survives between runs, and the pause and sound preferences. It decides <em>what</em>
-    /// happened and announces it; it never decides how any of it should look or sound.
+    /// The rules and the meta loop. It owns the snake, the board, the fixed movement step, the
+    /// record that survives between runs, and the pause and sound preferences. It decides
+    /// <em>what</em> happened and announces it; it never decides how any of it should look or
+    /// sound.
+    /// <para>
+    /// Cells are <see cref="Cell"/> in board space, where (0,0) is the bottom left patch.
+    /// <see cref="World"/> is the one place those become metres.
+    /// </para>
     /// </summary>
     [DefaultExecutionOrder(-200)]
     public sealed class GameLoopManager : MonoBehaviour
@@ -51,10 +78,16 @@ namespace GardenSnake
         private const string MutedKey = "GardenSnake.Muted";
         // One stalled browser frame must not advance the snake through several cells unseen.
         private const float MaximumCatchUp = .1f;
+        /// <summary>Food keeps its pickup cell as the snake slides over it: one body index per move.</summary>
+        public const float DigestionPerStep = 1f;
+        /// <summary>The board has no food on it at all.</summary>
+        private static readonly Cell NoFood = new Cell(-1, -1);
+
+        // ---- events ------------------------------------------------------------------------
 
         /// <summary>Anything a readout could be showing has changed.</summary>
         public event Action Changed;
-        /// <summary>Raised immediately before the simulation advances one cell.</summary>
+        /// <summary>Raised immediately before the snake advances one cell.</summary>
         public event Action Stepping;
         /// <summary>Raised immediately after it advances, with what the step turned out to be.</summary>
         public event Action<StepResult> Stepped;
@@ -63,48 +96,82 @@ namespace GardenSnake
         public event Action<AppleBeat> AppleEaten;
         /// <summary>The run is over: <see cref="StepResult.Lost"/> or <see cref="StepResult.Won"/>.</summary>
         public event Action<StepResult> RunEnded;
-        /// <summary>A turn the simulation accepted: -1 to the left, 1 to the right.</summary>
+        /// <summary>A turn the rules accepted: -1 to the left, 1 to the right.</summary>
         public event Action<int> TurnAccepted;
         public event Action<bool> MuteChanged;
         /// <summary>The small confirmation every button press earns.</summary>
         public event Action Clicked;
 
-        private readonly RunRecord record = new RunRecord();
+        // ---- the snake ---------------------------------------------------------------------
+
+        private readonly List<Cell> body = new List<Cell>();
+        private readonly List<float> digestion = new List<float>();
+        private readonly Queue<Direction> turns = new Queue<Direction>(2);
+        private System.Random random;
+
+        /// <summary>Head first, tail last.</summary>
+        public IReadOnlyList<Cell> Body => body;
+        /// <summary>How far each swallowed apple has travelled down the body, in body indices.</summary>
+        public IReadOnlyList<float> Digestion => digestion;
+        public Cell Food { get; private set; }
+        public bool HasFood => Food.X >= 0;
+        public Direction Heading { get; private set; }
+        public RunState State { get; private set; }
+        public int Score { get; private set; }
+        public string EndReason { get; private set; } = string.Empty;
+        public int BoardWidth => boardWidth;
+        public int BoardHeight => boardHeight;
+
+        // ---- the record --------------------------------------------------------------------
+
         private float elapsed;
         private float currentStep;
         private float endTime;
         private int best;
+        private int scoreAtLastApple;
         private bool bestUnsaved;
         private bool hasPlayed;
         private bool muted;
 
-        public SnakeGame Game { get; private set; }
-        public RunRecord Record => record;
-        public int RecordCelebrations { get; private set; }
-        public int RecordWhispers { get; private set; }
         public int Best => best;
         public bool Muted => muted;
-        public int BoardWidth => boardWidth;
-        public int BoardHeight => boardHeight;
+        /// <summary>The record this run is measured against, captured when it started.</summary>
+        public int PreviousBest { get; private set; }
+        /// <summary>False on a player's very first run, when there is no record to beat yet.</summary>
+        public bool RecordEligible { get; private set; }
+        /// <summary>This run has already passed the record it started with.</summary>
+        public bool RecordBroken { get; private set; }
+        public int RecordCelebrations { get; private set; }
+        public int RecordWhispers { get; private set; }
+
+        // ---- timing ------------------------------------------------------------------------
 
         /// <summary>Seconds per cell at the current score; the step in force may still be the last one.</summary>
-        public float StepSeconds => Mathf.Max(fastestStepSeconds, initialStepSeconds - Game.Score * speedGainPerApple);
+        public float StepSeconds => Mathf.Max(fastestStepSeconds, initialStepSeconds - Score * speedGainPerApple);
         /// <summary>The step the snake is actually moving on right now.</summary>
         public float CurrentStep => currentStep;
         /// <summary>How far through the current step the snake is, 0 to 1.</summary>
-        public float StepProgress => Game.State == RunState.Playing || Game.State == RunState.Paused
+        public float StepProgress => State == RunState.Playing || State == RunState.Paused
             ? Mathf.Clamp01(elapsed / currentStep) : 1;
         /// <summary>Pace at the current score, for readouts.</summary>
         public float Pace => Mathf.InverseLerp(initialStepSeconds, fastestStepSeconds, StepSeconds);
         /// <summary>Pace of the step in force, for anything that has to move with the snake.</summary>
         public float CurrentPace => Mathf.InverseLerp(initialStepSeconds, fastestStepSeconds, currentStep);
 
+        // ---------------------------------------------------------------- lifecycle
+
         private void Awake()
         {
             Application.targetFrameRate = targetFrameRate;
             Application.runInBackground = runInBackground;
-            Game = new SnakeGame(boardWidth, boardHeight, Environment.TickCount,
-                initialLength, turnBufferSize, firstAppleDistance);
+            boardWidth = Mathf.Max(6, boardWidth);
+            boardHeight = Mathf.Max(6, boardHeight);
+            initialLength = Mathf.Clamp(initialLength, 2, boardWidth / 2 + 1);
+            turnBufferSize = Mathf.Clamp(turnBufferSize, 1, 8);
+            firstAppleDistance = Mathf.Clamp(firstAppleDistance, 1, boardWidth - boardWidth / 2 - 1);
+            random = new System.Random(Environment.TickCount);
+            body.Capacity = boardWidth * boardHeight;
+            ResetRun();
             best = PlayerPrefs.GetInt(BestKey, 0);
             hasPlayed = PlayerPrefs.GetInt(PlayedKey, 0) == 1 || best > 0;
             muted = PlayerPrefs.GetInt(MutedKey, 0) == 1;
@@ -138,7 +205,7 @@ namespace GardenSnake
 
         private void Update()
         {
-            if (Game.State != RunState.Playing) return;
+            if (State != RunState.Playing) return;
             elapsed += Mathf.Min(Time.deltaTime, MaximumCatchUp);
             if (elapsed >= currentStep) Advance();
         }
@@ -147,39 +214,49 @@ namespace GardenSnake
 
         public void PrimaryAction()
         {
-            if (Game.State == RunState.Paused) { TogglePause(); return; }
-            if (Game.State == RunState.Playing) return;
-            if ((Game.State == RunState.Lost || Game.State == RunState.Won) &&
+            if (State == RunState.Paused) { TogglePause(); return; }
+            if (State == RunState.Playing) return;
+            if ((State == RunState.Lost || State == RunState.Won) &&
                 Time.unscaledTime - endTime < restartDelay) return;
-            record.Begin(best, hasPlayed);
+            PreviousBest = best;
+            RecordEligible = hasPlayed;
+            RecordBroken = false;
+            scoreAtLastApple = 0;
             RecordCelebrations = RecordWhispers = 0;
             hasPlayed = true;
             PlayerPrefs.SetInt(PlayedKey, 1);
             PlayerPrefs.Save();
-            Game.Reset();
-            Game.Start();
+            ResetRun();
+            State = RunState.Playing;
             currentStep = StepSeconds;
             // A short beat before the first step gives the player time to read the board.
             elapsed = -openingBeat;
-            RunStarted?.Invoke(World(Game.Body[0]));
+            RunStarted?.Invoke(World(body[0]));
             Changed?.Invoke();
         }
 
         /// <summary>
         /// One entry point, deliberately not overloaded: an overload set here is ambiguous to
-        /// reflection, which is how Unity's SendMessage and the Play mode drivers reach it.
+        /// reflection, which is how the Play mode drivers reach it.
         /// </summary>
         public void Turn(Direction wish)
         {
-            if (Game.State == RunState.Ready) PrimaryAction();
-            int turnSign = TurnSign(Game.Heading, wish);
-            if (!Game.QueueTurn(wish)) return;
-            TurnAccepted?.Invoke(turnSign);
+            if (State == RunState.Ready) PrimaryAction();
+            if (State != RunState.Playing || turns.Count >= turnBufferSize) return;
+            Direction last = Heading;
+            foreach (Direction queued in turns) last = queued;
+            // Reversing into the neck is not a move, and neither is turning the way you already face.
+            if (wish == last || ((int)wish + 2) % 4 == (int)last) return;
+            turns.Enqueue(wish);
+            // The lean is measured against the heading the snake is on now, not the one it will
+            // be on by the time this turn comes out of the buffer.
+            TurnAccepted?.Invoke(TurnSign(Heading, wish));
         }
 
         public void TogglePause()
         {
-            Game.TogglePause();
+            if (State == RunState.Playing) { State = RunState.Paused; turns.Clear(); }
+            else if (State == RunState.Paused) State = RunState.Playing;
             Changed?.Invoke();
         }
 
@@ -199,18 +276,18 @@ namespace GardenSnake
         private void Advance()
         {
             elapsed -= currentStep;
-            Vector3 eatenAt = World(Game.Food);
+            Vector3 eatenAt = World(Food);
             Stepping?.Invoke();
-            StepResult result = Game.Step();
+            StepResult result = Step();
             currentStep = StepSeconds;
             Stepped?.Invoke(result);
             if (result == StepResult.Ate)
             {
-                RecordBeat beat = record.Apple(Game.Score);
+                RecordBeat beat = ScoreRecord();
                 if (beat == RecordBeat.Broken) RecordCelebrations++;
                 else if (beat == RecordBeat.Extended) RecordWhispers++;
                 UpdateBest();
-                AppleEaten?.Invoke(new AppleBeat(eatenAt, Game.Score, beat));
+                AppleEaten?.Invoke(new AppleBeat(eatenAt, Score, beat));
             }
             if (result == StepResult.Lost || result == StepResult.Won)
             {
@@ -221,13 +298,95 @@ namespace GardenSnake
             Changed?.Invoke();
         }
 
+        /// <summary>Moves the snake one cell and resolves what that did. The whole of the rules.</summary>
+        private StepResult Step()
+        {
+            if (State != RunState.Playing) return StepResult.None;
+            if (turns.Count > 0) Heading = turns.Dequeue();
+            Cell next = body[0] + Offset(Heading);
+            bool eat = next == Food;
+            if (next.X < 0 || next.Y < 0 || next.X >= boardWidth || next.Y >= boardHeight)
+                return Lose("You reached the garden edge.");
+            // Growth happens only when the oldest swallowed apple reaches the tail.
+            bool grow = digestion.Count > 0 && digestion[0] + DigestionPerStep >= body.Count;
+            int occupied = body.Count - (grow ? 0 : 1);
+            for (int i = 0; i < occupied; i++)
+                if (body[i] == next) return Lose("You crossed your own tail.");
+            body.Insert(0, next);
+            if (!grow) body.RemoveAt(body.Count - 1);
+            for (int i = 0; i < digestion.Count; i++) digestion[i] += DigestionPerStep;
+            if (grow) digestion.RemoveAt(0);
+            if (eat) { Score++; digestion.Add(0); }
+            if (body.Count == boardWidth * boardHeight)
+            {
+                State = RunState.Won;
+                EndReason = "Every patch of the garden is yours!";
+                return StepResult.Won;
+            }
+            if (eat)
+            {
+                // Pending growth reserves the remaining cells, including the final apple.
+                if (body.Count + digestion.Count == boardWidth * boardHeight) Food = NoFood;
+                else SpawnFood();
+            }
+            return eat ? StepResult.Ate : StepResult.Moved;
+        }
+
+        private StepResult Lose(string reason)
+        {
+            State = RunState.Lost;
+            EndReason = reason;
+            turns.Clear();
+            return StepResult.Lost;
+        }
+
+        private void ResetRun()
+        {
+            body.Clear();
+            turns.Clear();
+            digestion.Clear();
+            int x = boardWidth / 2;
+            int y = boardHeight / 2;
+            for (int i = 0; i < initialLength; i++) body.Add(new Cell(x - i, y));
+            Heading = Direction.Right;
+            Score = 0;
+            EndReason = string.Empty;
+            State = RunState.Ready;
+            // The first apple teaches movement immediately; later apples use free-cell sampling.
+            Food = new Cell(x + firstAppleDistance, y);
+        }
+
+        private void SpawnFood()
+        {
+            int index = random.Next(boardWidth * boardHeight - body.Count);
+            for (int y = 0; y < boardHeight; y++)
+            for (int x = 0; x < boardWidth; x++)
+            {
+                var cell = new Cell(x, y);
+                if (body.Contains(cell)) continue;
+                if (index-- == 0) { Food = cell; return; }
+            }
+            throw new InvalidOperationException("No free food cell.");
+        }
+
         // ---------------------------------------------------------------- the record
+
+        /// <summary>Compares this apple against the record the run started with.</summary>
+        private RecordBeat ScoreRecord()
+        {
+            if (Score <= scoreAtLastApple) return RecordBeat.None;
+            scoreAtLastApple = Score;
+            if (!RecordEligible || Score <= PreviousBest) return RecordBeat.None;
+            if (RecordBroken) return RecordBeat.Extended;
+            RecordBroken = true;
+            return RecordBeat.Broken;
+        }
 
         /// <summary>Tracks the record in memory; the disk write waits for the run to end.</summary>
         private void UpdateBest()
         {
-            if (Game.Score <= best) return;
-            best = Game.Score;
+            if (Score <= best) return;
+            best = Score;
             bestUnsaved = true;
         }
 
@@ -243,7 +402,7 @@ namespace GardenSnake
         {
             if (focused) return;
             SaveBest();
-            if (Game != null && Game.State == RunState.Playing) TogglePause();
+            if (State == RunState.Playing) TogglePause();
         }
 
         private void OnApplicationQuit() => SaveBest();
@@ -253,6 +412,17 @@ namespace GardenSnake
         /// <summary>Where a cell sits in the world. The one place board coordinates become metres.</summary>
         public Vector3 World(Cell cell) =>
             new Vector3(cell.X - (boardWidth - 1) * .5f, 0, cell.Y - (boardHeight - 1) * .5f);
+
+        public static Cell Offset(Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.Up: return new Cell(0, 1);
+                case Direction.Right: return new Cell(1, 0);
+                case Direction.Down: return new Cell(0, -1);
+                default: return new Cell(-1, 0);
+            }
+        }
 
         /// <summary>-1 for a left turn, 1 for a right turn, 0 when the heading does not change.</summary>
         private static int TurnSign(Direction from, Direction to)
