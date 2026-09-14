@@ -57,21 +57,12 @@ Local evidence (generated, ignored by Git):
 - `Artifacts/model-sweep/final-mouth-check-*.png` — full game control captures
 - `Artifacts/model-sweep/final-preview.png` — compact art preview
 
-## Reproduce the art and review
+## Current authoring workflow
 
-`Tools/Blender/create_assets.py` rebuilds the FBX set and `GardenSnake.blend`.
-`Tools/Blender/finish_wildlife.py` rebuilds the final ladybug and turtle detail
-buffers and saves their editable source in `Tools/Blender/WildlifeDetails.blend`.
-The previous wildlife pass remains editable in `Tools/Blender/Wildlife.blend`.
+Wildlife moved to five complete FBX models on September 15. See
+[Wildlife authoring](WildlifeAuthoring.md) for the Blender export and Unity import
+workflow. The native mesh buffer workflow described by this historical pass has
+been retired; its scripts and intermediate sources remain available in Git history.
 
-Import the final buffers outside Play Mode by setting the Unity session key
-`ModelSweep.MeshSource` to `Artifacts/model-sweep/details-meshes`, then execute
-`Tools/Harness/import_wildlife_models.cs` through `unity command eval_file`.
-`GardenWildlifeBuilder.PolishLadybugs()` applies the art to existing scene rigs;
-run it on the saved GardenSnake scene and save through Unity afterwards.
-
-Use `Tools/Harness/model_import_audit.cs` for import references. In Play Mode,
-`Tools/Harness/model_gallery.cs` captures every FBX prefab and
-`Tools/Harness/model_detail_capture.cs` captures wildlife and the animated head.
-Start from Ready before running `Tools/Harness/model_mouth_verify.cs`.
-Supply `--project-path` to Unity commands when multiple projects are open.
+`Tools/Blender/create_assets.py` still rebuilds the garden prop FBX set and
+`GardenSnake.blend`. The model gallery and mouth verification tools remain usable.
