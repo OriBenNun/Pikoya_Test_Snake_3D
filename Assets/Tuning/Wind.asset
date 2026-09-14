@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b39851a1e18db9d498f617134679fac4, type: 3}
+  m_Name: Wind
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.Garden.WindSettings
+  frequency: 0.9
+  spatialScale: 0.2
+  primarySway: 0.65
+  secondarySway: 0.2
+  secondaryFrequency: 1.73
+  secondarySpatialScale: 1.3
+  phaseDirection: {x: 1, y: 0.6}
+  leanDirection: {x: 1, y: 0.55}
+  gustDepth: 0.45
+  gustFrequency: 0.23
+  frequencyVariation: 0.16
+  variationSpatialScale: 3.71
+  turbulenceFrequency: 0.3
+  turbulenceStrength: 1.2
+  noiseOffset: 40
+  treeWeight: 0.22
+  bushWeight: 0.45
+  plantWeight: 1
+  propagationSpeed: 30
+  distanceFalloff: 0.025
+  deathStrength: -1.5
+  pulseDuration: 2
+  pulseFrequency: 11
+  pulseDecay: 3

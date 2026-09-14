@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 
-namespace GardenSnake.Editor.Editor
+namespace GardenSnake.Editor
 {
     /// <summary>Runs the real controls and UI in Play mode; never changes simulation state directly.</summary>
     public static class GardenPlaythrough

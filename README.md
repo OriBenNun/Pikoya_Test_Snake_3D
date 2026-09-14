@@ -88,29 +88,27 @@ exists, so the scenery can be deleted without touching the game.
 Third-party packages are quarantined in `Assets/Externals` — Feel, the All In 1 Sprite Shader and
 TextMesh Pro. Everything else under `Assets` is this game.
 
-Authoring lives in `Assets/Editor`: `GardenBuilder` rebuilds the materials, prefabs, scene and web
-build; `GardenPalette` holds every colour in one place; `GardenHud` and `GardenSprites` generate the
-interface straight into PNG assets so no UI art is imported; `GardenFeel` authors the MMFeedbacks
-players; `GardenPlaythrough` drives real input in Play mode and `GardenPlaytest` plays unattended.
+`Assets/Editor` holds only the tools this project is driven with: `GardenBuild` writes the shipping
+Project Settings and makes the web player, `GardenPlaythrough` drives real input in Play mode, and
+`GardenPlaytest` plays the game unattended. The scene, the materials, the prefabs and the interface
+are authored assets under source control rather than something a builder regenerates.
+
+Tuning is in `Assets/Tuning`: one ScriptableObject per set of related settings, described in
+`TUNING.md`.
 
 Outside the project: `Tools/Blender` holds the editable model source and its export scripts, and
 `Tools/Harness/gs.py` drives the Editor from a terminal.
 
-## Rebuild assets and scene
+## Rebuild the models and audio
 
 ```powershell
 & 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' --background --python Tools/Blender/create_assets.py
 python Tools/generate_audio.py
 ```
 
-In Unity, choose **Garden Snake > Rebuild game scene**. Save or discard any unsaved scene edits
-first. Rebuilding replaces the generated Garden Snake scene; adjust the builder for changes you want
-to preserve across rebuilds. Ordinary tuning can be done on the four components of the `Snake Game`
-object in the Inspector.
-
 The `.blend` source stays outside `Assets` so another developer can import the game without
 installing Blender. Unity uses the exported FBX files. Materials are remapped explicitly to URP
-assets, and serialized references are wired by the builder.
+assets.
 
 ## Verification
 

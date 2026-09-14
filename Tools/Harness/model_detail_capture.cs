@@ -45,13 +45,13 @@ void Capture(GameObject source, string label, bool back = false) {
     }
 }
 var seen = new System.Collections.Generic.HashSet<string>();
-foreach (var animal in UnityEngine.Object.FindObjectsByType<GardenSnake.GardenAnimal>(FindObjectsSortMode.None)) {
+foreach (var animal in UnityEngine.Object.FindObjectsByType<GardenSnake.Garden.GardenAnimal>(FindObjectsSortMode.None)) {
     if (!seen.Add(animal.name)) continue;
     Capture(animal.gameObject, animal.name + "-front");
     Capture(animal.gameObject, animal.name + "-back", true);
 }
-var mouth = UnityEngine.Object.FindFirstObjectByType<GardenSnake.SnakeMouth>();
-var controller = UnityEngine.Object.FindFirstObjectByType<GardenSnake.GameLoopManager>();
+var mouth = UnityEngine.Object.FindFirstObjectByType<GardenSnake.Presentation.SnakeMouth>();
+var controller = UnityEngine.Object.FindFirstObjectByType<GardenSnake.Gameplay.GameLoopManager>();
 if (mouth == null || controller == null) throw new System.InvalidOperationException("No live snake.");
 seen.Clear();
 var rows = new System.Collections.Generic.List<string>();

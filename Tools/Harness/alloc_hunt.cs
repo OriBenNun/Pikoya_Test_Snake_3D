@@ -4,12 +4,12 @@ if (!Application.isPlaying) throw new System.InvalidOperationException("Play Mod
 var alloc = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Memory, "GC Allocated In Frame", 1);
 var main = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Internal, "Main Thread", 1);
 var times = new System.Collections.Generic.List<double>();
-var gauge = UnityEngine.Object.FindAnyObjectByType<GardenSnake.SpeedGauge>();
-var snake = UnityEngine.Object.FindAnyObjectByType<GardenSnake.SnakeManager>();
-var hud = UnityEngine.Object.FindAnyObjectByType<GardenSnake.SnakeHud>();
-var wind = UnityEngine.Object.FindAnyObjectByType<GardenSnake.GardenWind>();
-var animals = UnityEngine.Object.FindObjectsByType<GardenSnake.GardenAnimal>(FindObjectsSortMode.None);
-var waves = UnityEngine.Object.FindAnyObjectByType<GardenSnake.GridCellWaves>();
+var gauge = UnityEngine.Object.FindAnyObjectByType<GardenSnake.Presentation.Hud.SpeedGauge>();
+var snake = UnityEngine.Object.FindAnyObjectByType<GardenSnake.Presentation.SnakeManager>();
+var hud = UnityEngine.Object.FindAnyObjectByType<GardenSnake.Presentation.Hud.SnakeHud>();
+var wind = UnityEngine.Object.FindAnyObjectByType<GardenSnake.Garden.GardenWind>();
+var animals = UnityEngine.Object.FindObjectsByType<GardenSnake.Garden.GardenAnimal>(FindObjectsSortMode.None);
+var waves = UnityEngine.Object.FindAnyObjectByType<GardenSnake.Presentation.GridCellWaves>();
 var feedback = UnityEngine.Object.FindAnyObjectByType<GardenSnake.FeedbackManager>();
 var stages = new (string name, System.Action off, System.Action on)[] {
     ("everything on", () => {}, () => {}),

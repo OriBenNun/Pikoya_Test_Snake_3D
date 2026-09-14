@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b34053f2b045f01469839055890d201c, type: 3}
+  m_Name: Snake Motion
+  m_EditorClassIdentifier: GardenSnake.Presentation::GardenSnake.Presentation.SnakeMotionSettings
+  bankRecoverySpeed: 3.4
+  bankAngle: -16
+  headTurnSpeed: 22
+  amplitude: 0.055
+  frequency: 2.1
+  segmentPhase: 0.42
+  duration: 0.2
+  swell: 0.2
+  breathFrequency: 2.4
+  breathSegmentPhase: 0.5
+  breathAmplitude: 0.035
+  breathStretch: 2.2
+  breathLift: 0.5
+  firstBlinkDelay: 2.5
+  minimumBlinkGap: 2.2
+  maximumBlinkGap: 5.5
+  blinkDuration: 0.16
+  blinkClosure: 0.92
+  beat: 0.26
+  recoilDuration: 0.1
+  recoilDistance: 0.18
+  segmentDelay: 0.05
+  totalStagger: 0.34
+  deathSwell: 0.35
+  shrinkStart: 0.55
+  lift: 0.22

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Garden
 {
     /// <summary>
     /// Crosses its patch in discrete hops, gathering and landing at each end of one, and grazes
@@ -8,42 +8,8 @@ namespace GardenSnake
     /// </summary>
     public sealed class GardenBunny : GardenAnimal
     {
-        [SerializeField] private Transform[] ears = System.Array.Empty<Transform>();
-
-        [Header("Hopping")]
-        [SerializeField, Range(.1f, .6f)] private float hopHeight = .30f;
-        [SerializeField, Range(.3f, 1f)] private float hopLength = .65f;
-        [SerializeField, Tooltip("Minimum and maximum seconds per hop.")] private Vector2 hopDurationRange = new Vector2(.62f, .82f);
-        [SerializeField, Min(0f)] private float hopExcitementSpeed = .2f;
-        [SerializeField, Min(0f)] private float hopExcitementHeight = .10f;
-        [SerializeField, Range(.001f, .499f), Tooltip("Fraction of each hop spent crouching at each end.")] private float hopCrouchFraction = .18f;
-
-        [Header("Body Motion")]
-        [SerializeField] private float hopBodyStretch = .055f;
-        [SerializeField] private float crouchBodySquash = .15f;
-        [SerializeField] private float hopPitch = -9f;
-
-        [Header("Grazing")]
-        [SerializeField, Min(0f)] private float nibbleFrequency = .7f;
-        [SerializeField] private float grazeNod = 18f;
-        [SerializeField, Min(0f)] private float grazeNodFrequency = 4f;
-        [SerializeField] private float grazeNodAmplitude = 12f;
-
-        [Header("Limbs")]
-        [SerializeField] private float rearHopLimbAngle = -38f;
-        [SerializeField] private float frontHopLimbAngle = -52f;
-        [SerializeField] private float frontHopLimbRecovery = 30f;
-
-        [Header("Ears")]
-        [SerializeField] private float earDragPhase = .65f;
-        [SerializeField] private float earDragPhaseSpacing = .18f;
-        [SerializeField] private float earDragAngle = 22f;
-        [SerializeField, Min(0f)] private float earTwitchFrequency = .83f;
-        [SerializeField] private float earTwitchPhaseSpacing = 2.6f;
-        [SerializeField, Min(.001f)] private float earTwitchPower = 18f;
-        [SerializeField] private float earTwitchAngle = 13f;
-        [SerializeField] private float earNodCompensation = -.35f;
-        [SerializeField, Min(0f)] private float earRotationResponse = 13f;
+        [SerializeField, Tooltip("The two ears, in order; the first leads the twitch.")]
+        private Transform[] ears = System.Array.Empty<Transform>();
 
         private Quaternion[] earRest;
         private int hops = 1;
@@ -53,6 +19,10 @@ namespace GardenSnake
         private float hopArc;
         /// <summary>Compression at each end of a hop, as the bunny gathers and lands.</summary>
         private float crouch;
+
+        private BunnySettings Tuning => (BunnySettings)Species;
+
+        protected override AnimalSpeciesSettings DefaultSpecies() => ScriptableObject.CreateInstance<BunnySettings>();
 
         protected override Activity TravelActivity => Activity.Hop;
 
@@ -67,15 +37,16 @@ namespace GardenSnake
         /// <summary>A trip is however many hops it takes to cover the ground, not a fixed spell.</summary>
         protected override float TravelDuration(float seconds)
         {
-            hops = Mathf.Max(1, Mathf.CeilToInt(Vector3.Distance(From, Destination) / Mathf.Max(.001f, hopLength)));
-            return hops * Range(hopDurationRange.x, hopDurationRange.y)
-                / Mathf.Max(.001f, 1 + Excitement * hopExcitementSpeed);
+            hops = Mathf.Max(1, Mathf.CeilToInt(
+                Vector3.Distance(From, Destination) / Mathf.Max(.001f, Tuning.hopLength)));
+            return hops * Range(Tuning.hopDurationRange.x, Tuning.hopDurationRange.y)
+                / Mathf.Max(.001f, 1 + Excitement * Tuning.hopExcitementSpeed);
         }
 
         protected override void PrepareFrame(in FramePhase frame)
         {
             float hopCycle = Mathf.Repeat(frame.T * hops, 1f);
-            float crouchFraction = Mathf.Clamp(hopCrouchFraction, .001f, .499f);
+            float crouchFraction = Mathf.Clamp(Tuning.hopCrouchFraction, .001f, .499f);
             flight = Mathf.Clamp01((hopCycle - crouchFraction) / Mathf.Max(.001f, 1 - 2 * crouchFraction));
             hopArc = 4 * flight * (1 - flight);
             crouch = hopCycle < crouchFraction
@@ -90,21 +61,22 @@ namespace GardenSnake
             (Mathf.Min(hops - 1, Mathf.FloorToInt(frame.T * hops)) + Mathf.SmoothStep(0, 1, flight)) / hops;
 
         protected override Vector3 RouteOffset(in FramePhase frame, float arc) =>
-            Vector3.up * (hopArc * (hopHeight + Excitement * hopExcitementHeight));
+            Vector3.up * (hopArc * (Tuning.hopHeight + Excitement * Tuning.hopExcitementHeight));
 
         protected override float Bounce(in FramePhase frame, float breath) => State == Activity.Hop
-            ? hopArc * hopBodyStretch - crouch * crouchBodySquash
+            ? hopArc * Tuning.hopBodyStretch - crouch * Tuning.crouchBodySquash
             : breath;
 
         protected override float BodyPitch(in FramePhase frame) => State == Activity.Hop
-            ? Mathf.Sin(flight * Mathf.PI * 2) * hopPitch
+            ? Mathf.Sin(flight * Mathf.PI * 2) * Tuning.hopPitch
             : 0;
 
         protected override float HeadNod(in FramePhase frame)
         {
             if (State != Activity.Graze) return base.HeadNod(frame);
-            float nibble = Mathf.Max(0, Mathf.Sin(frame.Clock * nibbleFrequency));
-            return nibble * (grazeNod + Mathf.Sin(frame.Clock * grazeNodFrequency) * grazeNodAmplitude);
+            float nibble = Mathf.Max(0, Mathf.Sin(frame.Clock * Tuning.nibbleFrequency));
+            return nibble * (Tuning.grazeNod
+                + Mathf.Sin(frame.Clock * Tuning.grazeNodFrequency) * Tuning.grazeNodAmplitude);
         }
 
         /// <summary>Hind legs drive the hop; forelegs reach out and gather back under the body.</summary>
@@ -116,9 +88,9 @@ namespace GardenSnake
             if (State != Activity.Hop) return;
             bool rear = index % 2 == 0;
             angle = rear
-                ? Mathf.Sin(flight * Mathf.PI * 2) * rearHopLimbAngle
-                : hopArc * frontHopLimbAngle
-                  + Mathf.Sin(flight * Mathf.PI) * flight * frontHopLimbRecovery;
+                ? Mathf.Sin(flight * Mathf.PI * 2) * Tuning.rearHopLimbAngle
+                : hopArc * Tuning.frontHopLimbAngle
+                  + Mathf.Sin(flight * Mathf.PI) * flight * Tuning.frontHopLimbRecovery;
         }
 
         /// <summary>Ears drag behind a hop and twitch on their own between times.</summary>
@@ -127,16 +99,17 @@ namespace GardenSnake
             for (int i = 0; i < ears.Length; i++)
             {
                 float drag = State == Activity.Hop
-                    ? Mathf.Sin(flight * Mathf.PI * 2 - earDragPhase - i * earDragPhaseSpacing)
-                      * hopArc * earDragAngle
+                    ? Mathf.Sin(flight * Mathf.PI * 2 - Tuning.earDragPhase - i * Tuning.earDragPhaseSpacing)
+                      * hopArc * Tuning.earDragAngle
                     : 0;
                 float twitch = Mathf.Pow(
-                    Mathf.Max(0, Mathf.Sin(frame.Clock * earTwitchFrequency + i * earTwitchPhaseSpacing)),
-                    Mathf.Max(.001f, earTwitchPower)) * earTwitchAngle;
+                    Mathf.Max(0, Mathf.Sin(frame.Clock * Tuning.earTwitchFrequency
+                        + i * Tuning.earTwitchPhaseSpacing)),
+                    Mathf.Max(.001f, Tuning.earTwitchPower)) * Tuning.earTwitchAngle;
                 var target = earRest[i] * Quaternion.Euler(
-                    drag + nod * earNodCompensation, 0, twitch * (i == 0 ? -1 : 1));
+                    drag + nod * Tuning.earNodCompensation, 0, twitch * (i == 0 ? -1 : 1));
                 ears[i].localRotation = Quaternion.Slerp(ears[i].localRotation, target,
-                    1 - Mathf.Exp(-delta * earRotationResponse));
+                    1 - Mathf.Exp(-delta * Tuning.earRotationResponse));
             }
         }
     }

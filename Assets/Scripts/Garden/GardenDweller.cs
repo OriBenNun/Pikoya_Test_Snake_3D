@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Garden
 {
     /// <summary>
     /// Anything decorative that leans when the game does. It owns the one thing the meadow and the

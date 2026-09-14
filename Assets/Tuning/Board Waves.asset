@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b47ccd474eba8b45b144d1533ef8d0a, type: 3}
+  m_Name: Board Waves
+  m_EditorClassIdentifier: GardenSnake.Presentation::GardenSnake.Presentation.BoardWaveSettings
+  ripple:
+    amplitude: 0.25
+    speed: 13
+    duration: 0.6
+    width: 1.5
+  bloom:
+    amplitude: 0.44
+    speed: 15
+    duration: 0.85
+    width: 2
+  sweep:
+    amplitude: 0.25
+    speed: 15
+    duration: 0.6
+    width: 2
+  checkerHop:
+    amplitude: 0.22
+    speed: 12
+    duration: 0.65
+    width: 2
+  rippleModulation: 0.35
+  rippleCycles: 2
+  checkerAlternateHeight: 0.3
+  bloomFalloff: 0.035
+  envelopePower: 2
+  sweepDirection: {x: 1, y: 1}
+  maximumConcurrentWaves: 8
+  maximumLift: 0.48
+  maximumDip: 0.08
+  maximumStrength: 2
+  maximumFrameStep: 0.05

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Garden
 {
     /// <summary>
     /// Flies between the lawn and a perch in the tree, flapping out of each end of the trip and
@@ -8,26 +8,21 @@ namespace GardenSnake
     /// </summary>
     public sealed class GardenBird : GardenFlier
     {
-        [SerializeField] private Transform perch;
-        [SerializeField, Tooltip("Birds use their perch on alternate trips when enabled.")] private bool usePerch = true;
-        [SerializeField] private float flightPitch = -12f;
-        [SerializeField] private float flightLimbAngle = -65f;
-
-        [Header("Wings")]
-        [SerializeField, Tooltip("Normalized flight progress at which the bird starts and stops gliding.")] private Vector2 glideProgressRange = new Vector2(.25f, .7f);
-        [SerializeField] private float glideWingAngle = 10f;
-        [SerializeField] private float restWingAngle = -12f;
-        [SerializeField] private float foldedWingAngle = 65f;
-        [SerializeField, Min(0f)] private float foldedWingScale = .68f;
+        [SerializeField, Tooltip("Where in the tree this bird sits between trips.")]
+        private Transform perch;
 
         private bool atPerch;
 
         private bool Perched => atPerch && perch != null;
 
+        private BirdSettings Tuning => (BirdSettings)Species;
+
+        protected override AnimalSpeciesSettings DefaultSpecies() => ScriptableObject.CreateInstance<BirdSettings>();
+
         /// <summary>Every other trip goes up to the perch rather than to another spot on the lawn.</summary>
         protected override Vector3 ChooseDestination(bool towardsB)
         {
-            atPerch = usePerch && towardsB && perch != null;
+            atPerch = Tuning.usePerch && towardsB && perch != null;
             return atPerch ? perch.position : base.ChooseDestination(towardsB);
         }
 
@@ -45,25 +40,25 @@ namespace GardenSnake
         }
 
         protected override float BodyPitch(in FramePhase frame) => frame.Moving
-            ? Mathf.Sin(frame.T * Mathf.PI * 2) * flightPitch
+            ? Mathf.Sin(frame.T * Mathf.PI * 2) * Tuning.flightPitch
             : 0;
 
         protected override void PoseLimb(int index, in FramePhase frame, out float angle, out float sweep, out float lift)
         {
-            angle = frame.Moving ? Mathf.Sin(frame.T * Mathf.PI) * flightLimbAngle : 0;
+            angle = frame.Moving ? Mathf.Sin(frame.T * Mathf.PI) * Tuning.flightLimbAngle : 0;
             sweep = 0;
             lift = 0;
         }
 
-        protected override float FoldAngle => State == Activity.Fly ? 0 : foldedWingAngle;
+        protected override float FoldAngle => State == Activity.Fly ? 0 : Tuning.foldedWingAngle;
 
-        protected override float FoldScale => State == Activity.Fly ? 1f : foldedWingScale;
+        protected override float FoldScale => State == Activity.Fly ? 1f : Tuning.foldedWingScale;
 
         protected override float WingAngle(in FramePhase frame)
         {
-            if (State != Activity.Fly) return restWingAngle;
-            bool gliding = frame.T > glideProgressRange.x && frame.T < glideProgressRange.y;
-            return gliding ? glideWingAngle : Flap;
+            if (State != Activity.Fly) return Tuning.restWingAngle;
+            bool gliding = frame.T > Tuning.glideProgressRange.x && frame.T < Tuning.glideProgressRange.y;
+            return gliding ? Tuning.glideWingAngle : Flap;
         }
     }
 }

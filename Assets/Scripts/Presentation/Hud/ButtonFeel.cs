@@ -1,3 +1,4 @@
+using GardenSnake.Gameplay;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -9,14 +10,8 @@ namespace GardenSnake.Presentation.Hud
     public sealed class ButtonFeel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         IPointerDownHandler, IPointerUpHandler
     {
-        [SerializeField, Range(1, 1.15f), Tooltip("How far the button swells while the pointer is over it.")]
-        private float hoverScale = 1.035f;
-        [SerializeField, Range(.8f, 1), Tooltip("How far it presses in under the pointer.")]
-        private float pressScale = .94f;
-
-        /// <summary>How quickly the spring settles, and how hard releasing it kicks back.</summary>
-        private const float SettleTime = .065f;
-        private const float ReleaseKick = 1.2f;
+        [Header("Tuning")]
+        [SerializeField] private ButtonFeelSettings feel;
 
         private Button button;
         private Vector3 restScale;
@@ -27,6 +22,7 @@ namespace GardenSnake.Presentation.Hud
 
         private void Awake()
         {
+            feel = Tuning.Or(feel);
             button = GetComponent<Button>();
             restScale = transform.localScale;
         }
@@ -43,8 +39,8 @@ namespace GardenSnake.Presentation.Hud
         {
             // Losing interactivity clears both flags, so rest is already the fallthrough.
             if (!button.IsInteractable()) hovered = pressed = false;
-            float target = pressed ? pressScale : hovered ? hoverScale : 1;
-            scale = Mathf.SmoothDamp(scale, target, ref velocity, SettleTime,
+            float target = pressed ? feel.pressScale : hovered ? feel.hoverScale : 1;
+            scale = Mathf.SmoothDamp(scale, target, ref velocity, feel.settleTime,
                 Mathf.Infinity, Mathf.Min(Time.unscaledDeltaTime, .05f));
             transform.localScale = restScale * scale;
         }
@@ -62,7 +58,7 @@ namespace GardenSnake.Presentation.Hud
         public void OnPointerUp(PointerEventData eventData)
         {
             if (eventData.button != PointerEventData.InputButton.Left) return;
-            if (pressed && hovered && button.IsInteractable()) velocity = ReleaseKick;
+            if (pressed && hovered && button.IsInteractable()) velocity = feel.releaseKick;
             pressed = false;
         }
     }

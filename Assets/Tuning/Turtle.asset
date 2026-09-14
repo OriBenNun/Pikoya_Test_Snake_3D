@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c81cf94bfd5104c42bd398b9a5c53743, type: 3}
+  m_Name: Turtle
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.Garden.TurtleSettings
+  travelSeconds: 8
+  restSeconds: 9
+  strideCycles: 5
+  strideAngle: 20
+  strideLift: 0.035
+  rollFrequency: 5
+  roll: 2
+  hideSeconds: 2.5
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
+  hiddenLimbSpread: 0.6

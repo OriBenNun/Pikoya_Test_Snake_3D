@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05543607bcc87ba468bd1ce74f416603, type: 3}
+  m_Name: Animal Motion
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.Garden.AnimalMotionSettings
+  randomSeed: 7919
+  phaseSeedMultiplier: 104729
+  tempoRange: {x: 0.72, y: 1.3}
+  initialRestMinimum: 1
+  initialRestMaximumMultiplier: 2
+  destinationARange: {x: 0, y: 0.35}
+  destinationBRange: {x: 0.65, y: 1}
+  travelDurationRange: {x: 0.75, y: 1.5}
+  restDurationRange: {x: 0.65, y: 2.1}
+  travelExcitementSpeed: 0.3
+  turnSpeed: 7
+  propagationSpeed: 30
+  delayRange: {x: 0.03, y: 0.65}
+  distanceAttenuation: 0.06
+  excitementDecay: 0.35
+  curiosityDecay: 0.8
+  curiosity: 1
+  travelChance: 0.35
+  breathFrequency: 2.4
+  breathAmplitude: 0.008
+  curiosityBreath: 0.02
+  widthCompensation: 0.4
+  rotationResponse: 14
+  headScaleResponse: 10
+  headPositionResponse: 10
+  idleNodFrequency: 1.3
+  idleNodAmplitude: 3
+  lookFrequency: 0.55
+  lookEnvelopeFrequency: 0.37
+  lookEnvelopePower: 4
+  lookAngle: 24
+  curiosityHeadTilt: 16
+  headPitchCompensation: 0.45
+  limbRotationResponse: 22
+  limbPositionResponse: 12

@@ -1,7 +1,7 @@
 if (!Application.isPlaying) throw new System.InvalidOperationException("Play Mode required.");
-var controller = UnityEngine.Object.FindFirstObjectByType<GardenSnake.GameLoopManager>();
-var mouth = UnityEngine.Object.FindFirstObjectByType<GardenSnake.SnakeMouth>();
-if (controller.State != GardenSnake.RunState.Ready) throw new System.InvalidOperationException("Start from Ready.");
+var controller = UnityEngine.Object.FindFirstObjectByType<GardenSnake.Gameplay.GameLoopManager>();
+var mouth = UnityEngine.Object.FindFirstObjectByType<GardenSnake.Presentation.SnakeMouth>();
+if (controller.State != GardenSnake.Gameplay.RunState.Ready) throw new System.InvalidOperationException("Start from Ready.");
 var behavior = UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior;
 UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior = UnityEngine.InputSystem.InputSettings.BackgroundBehavior.IgnoreFocus;
 var keyboard = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>("MouthVerificationKeyboard");
@@ -59,7 +59,7 @@ tick = () => {
                 Next("Huge mouth and excited eyes appear before the first apple.");
                 break;
             case 2:
-                if (game.State != GardenSnake.RunState.Paused) return;
+                if (game.State != GardenSnake.Gameplay.RunState.Paused) return;
                 pausedOpen = mouth.Openness;
                 face = mouth.GetComponentsInChildren<Transform>();
                 foreach (var part in face) { pausedPositions.Add(part.localPosition); pausedScales.Add(part.localScale); }
@@ -89,7 +89,7 @@ tick = () => {
                 Next("Mouth and eyes settle; swallowed apple disappears.");
                 break;
             case 6:
-                if (game.State != GardenSnake.RunState.Lost) return;
+                if (game.State != GardenSnake.Gameplay.RunState.Lost) return;
                 Next("Normal wall collision remains intact.");
                 break;
             case 7:
@@ -98,13 +98,13 @@ tick = () => {
                 Next("Results allow a fresh run.");
                 break;
             case 8:
-                if (game.State != GardenSnake.RunState.Playing) return;
+                if (game.State != GardenSnake.Gameplay.RunState.Playing) return;
                 if (game.Score != 0 || game.Body.Count != 3) throw new System.Exception("Restart did not reset the snake.");
                 Press(UnityEngine.InputSystem.Key.P);
                 Next("Restart resets score and length.");
                 break;
             case 9:
-                if (game.State == GardenSnake.RunState.Paused) Finish(null);
+                if (game.State == GardenSnake.Gameplay.RunState.Paused) Finish(null);
                 break;
         }
     } catch (System.Exception error) { Finish(error.Message); }

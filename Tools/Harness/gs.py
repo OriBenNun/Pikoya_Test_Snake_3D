@@ -70,7 +70,7 @@ if (board == null) {
 
 def state():
     return evaluate("""
-var controller = UnityEngine.Object.FindAnyObjectByType<GardenSnake.GameLoopManager>();
+var controller = UnityEngine.Object.FindAnyObjectByType<GardenSnake.Gameplay.GameLoopManager>();
 if (controller == null) return "no-controller";
 return string.Format("state={0} score={1} len={2} head={3},{4} food={5},{6} best={7} step={8:0.000}",
   controller.State, controller.Score, controller.Body.Count, controller.Body[0].X, controller.Body[0].Y,
@@ -227,10 +227,6 @@ def main():
         print(logs(*args))
     elif verb == "status":
         print(json.dumps(unwrap(cli("editor_status")), indent=1))
-    elif verb == "rebuild":
-        playmode(False)
-        compile_project()
-        print(detached("eval_file", "--file", "Tools/Harness/rebuild.cs"))
     elif verb == "compile":
         print(compile_project())
     elif verb == "playtest":

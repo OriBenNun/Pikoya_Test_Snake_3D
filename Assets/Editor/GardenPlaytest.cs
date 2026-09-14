@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 
-namespace GardenSnake.Editor.Editor
+namespace GardenSnake.Editor
 {
     /// <summary>
     /// Unattended playtest driver. Steers the real game with real Input System events, restarts

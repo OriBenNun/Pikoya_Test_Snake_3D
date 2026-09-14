@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 134ec74c48d61654aba122dbf14a72cf, type: 3}
+  m_Name: Reactions
+  m_EditorClassIdentifier: GardenSnake.Feedback::GardenSnake.ReactionSettings
+  burstDuration: 0.42
+  burstEasePower: 2.6
+  burstStartScale: 0.6
+  burstEndScale: 2.5
+  burstOpacity: 0.55
+  burstHeight: 0.05
+  trailEmissionSlow: 10
+  trailEmissionFast: 30
+  trailHeight: 0.12
+  paceVolumeBlendSpeed: 1.2
+  deathParticleCount: 18
+  deathParticleHeight: 0.3

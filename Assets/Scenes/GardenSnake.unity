@@ -1701,76 +1701,11 @@ MonoBehaviour:
   muteGlyph: {fileID: 558635807}
   soundOnSprite: {fileID: 21300000, guid: e45c862038c33464ebc441d7a5043bef, type: 3}
   soundOffSprite: {fileID: 21300000, guid: 83474fddcd79c8849adf0babe721cb58, type: 3}
-  controlColor: {r: 0.118, g: 0.227, b: 0.165, a: 1}
-  mutedOpacity: 0.35
-  soundOnOpacity: 0.85
-  playingBrandOpacity: 0.85
-  chromeFadeSpeed: 1.6
-  bestColor: {r: 0.118, g: 0.227, b: 0.165, a: 0.72}
-  bestFlashColor: {r: 0.89, g: 0.38, b: 0.15, a: 1}
-  bestFlashDuration: 0.6
-  bestFlashScale: 0.1
-  pickupFontSize: 40
-  quietPickupFontSize: 28
-  pickupDuration: 0.95
-  quietPickupDuration: 0.7
-  toastFadeSpeed: 3.2
-  toastHaloOpacity: 0.75
-  quietToastHaloOpacity: 0.22
-  toastStartHeight: 64
-  toastRise: 54
-  toastTopPadding: 70
-  toastScale: {x: 1.3, y: 0.95}
-  toastScaleSpeed: 3
-  bannerDuration: 2
-  bannerFadeSpeed: 2.4
-  bannerRiseSpeed: 6
-  bannerFillOpacity: 0.96
-  bannerStartScale: 0.82
-  bannerEasePower: 3
+  chrome: {fileID: 11400000, guid: 64f8bc73adf9eba4596b0958a3cc1437, type: 2}
+  toastStyle: {fileID: 11400000, guid: f6f7109831baea54994560fa747abc10, type: 2}
+  cardStyle: {fileID: 11400000, guid: 7693aa509a4a7f048b6902910add2f5f, type: 2}
+  copy: {fileID: 11400000, guid: 25d212bfd5b9c1041839cdb4d63629fd, type: 2}
   resultsDelay: 0.72
-  cardFadeDuration: 0.22
-  cardEasePower: 3
-  scrimOpacity: 0.85
-  scrimFadeInSpeed: 4
-  scrimFadeOutSpeed: 6
-  cardStartScale: 0.94
-  cardStartY: -22
-  cardWidth: 660
-  cardHeights: {x: 520, y: 448}
-  eyebrowY: {x: 202, y: 168}
-  titleY: {x: 150, y: 116}
-  tallyY: 40
-  bodyY: {x: 80, y: -34}
-  primaryButtonY: {x: -158, y: -130}
-  keyHintY: {x: -213, y: -186}
-  instructionsY: -32
-  bestPrefix: 'BEST '
-  bestResultPrefix: 'Best so far: '
-  readyEyebrow: A SMALL GARDEN, A BIG APPETITE
-  readyTitle: Room to grow
-  readyBody: 'Eat apples to grow longer.
-
-    Stay off the edges and your own tail.'
-  playLabel: PLAY
-  pausedEyebrow: TAKE A BREATHER
-  pausedTitle: On a leaf break
-  pausedBody: 'The garden will be right here
-
-    whenever you are ready.'
-  resumeLabel: RESUME
-  wonEyebrow: WHAT A HARVEST
-  recordEyebrow: A NEW PERSONAL BEST
-  lostEyebrow: ONE MORE LITTLE GO?
-  wonTitle: Garden complete
-  replayLabel: PLAY AGAIN
-  startingVerdict: Off to a start
-  decentVerdict: A decent little run
-  goodVerdict: That was a good one
-  magnificentVerdict: A magnificent run
-  decentScore: 5
-  goodScore: 12
-  magnificentScore: 25
   loop: {fileID: 2019928695}
   input: {fileID: 2019928694}
   view: {fileID: 242722901}
@@ -3779,72 +3714,12 @@ MonoBehaviour:
   - {fileID: 1724962440}
   groundA: {x: -4.1, y: -0.74, z: -7.7}
   groundB: {x: -2.7, y: -0.74, z: -7.8}
-  travelSeconds: 3
-  restSeconds: 6
   phase: 2
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: 4acd212fd18c2494b8bcc095c5872d7b, type: 2}
   ears:
   - {fileID: 606030218}
   - {fileID: 619348001}
-  hopHeight: 0.3
-  hopLength: 0.65
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
-  hopPitch: -9
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
 --- !u!1 &68483228
 GameObject:
   m_ObjectHideFlags: 0
@@ -6652,43 +6527,8 @@ MonoBehaviour:
   - {fileID: 565774054}
   - {fileID: 892088046}
   - {fileID: 1065085439}
-  columns: 21
-  maximumConcurrentWaves: 8
-  maximumHeight: 0.48
-  maximumDepth: 0.08
-  maximumStrength: 2
-  maximumFrameStep: 0.05
-  ripple:
-    pattern: 0
-    amplitude: 0.25
-    speed: 13
-    duration: 0.6
-    width: 1.5
-  celebration:
-    pattern: 1
-    amplitude: 0.44
-    speed: 15
-    duration: 0.85
-    width: 2
-  sweep:
-    pattern: 2
-    amplitude: 0.25
-    speed: 15
-    duration: 0.6
-    width: 2
-  checker:
-    pattern: 3
-    amplitude: 0.22
-    speed: 12
-    duration: 0.65
-    width: 2
-  shape:
-    rippleModulation: 0.35
-    rippleCycles: 2
-    checkerAlternateHeight: 0.3
-    bloomFalloff: 0.035
-    envelopePower: 2
-    sweepDirection: {x: 1, y: 1}
+  waves: {fileID: 11400000, guid: 10dcbe932307ffa4c9e8de7ff3aca376, type: 2}
+  waveHeight: 1
 --- !u!4 &117806719
 Transform:
   m_ObjectHideFlags: 0
@@ -12253,58 +12093,11 @@ MonoBehaviour:
   limbs: []
   groundA: {x: 12.8, y: -0.15, z: 0.20000005}
   groundB: {x: 12.88, y: -0.050000004, z: 0.90000004}
-  travelSeconds: 3
-  restSeconds: 2.5
   phase: 1.37
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: 1d1d10bdfd664a847af8c216b58e698b, type: 2}
   leftWing: {fileID: 635221102}
   rightWing: {fileID: 2033198203}
-  flightHeight: 0.5
-  wingBeatsPerSecond: 5.5
-  flapWingAngle: 52
-  flapWingOffset: 8
-  wingRotationResponse: 35
-  wingScaleResponse: 12
-  swayCycles: 2
-  swayDistance: 0.15
-  wingSpeedMultiplier: 1.25
-  restWingAngle: 28
-  restWingFrequency: 3
-  restWingAmplitude: 18
 --- !u!1 &238613037
 GameObject:
   m_ObjectHideFlags: 0
@@ -18321,72 +18114,12 @@ MonoBehaviour:
   - {fileID: 1955987981}
   groundA: {x: -3.3, y: -0.74, z: 7.75}
   groundB: {x: -2.3, y: -0.74, z: 7.75}
-  travelSeconds: 3
-  restSeconds: 6
   phase: 0.37
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: 4acd212fd18c2494b8bcc095c5872d7b, type: 2}
   ears:
   - {fileID: 1144403165}
   - {fileID: 120967535}
-  hopHeight: 0.3
-  hopLength: 0.65
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
-  hopPitch: -9
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
 --- !u!1 &337027055
 GameObject:
   m_ObjectHideFlags: 0
@@ -26890,47 +26623,9 @@ MonoBehaviour:
   - {fileID: 1046660710}
   groundA: {x: -5.5, y: -0.74, z: -8.7}
   groundB: {x: -5.1, y: -0.74, z: -8.55}
-  travelSeconds: 6
-  restSeconds: 6
   phase: 3.42
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
-  strideLift: 0.035
-  strideCycles: 9
-  strideAngle: 24
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: fb59092421c6a4543b3e5d6306096c1c, type: 2}
 --- !u!1001 &503912325
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31404,47 +31099,9 @@ MonoBehaviour:
   - {fileID: 857056146}
   groundA: {x: -6, y: -0.74, z: 8.2}
   groundB: {x: -5.6, y: -0.74, z: 8.349999}
-  travelSeconds: 6
-  restSeconds: 6
   phase: 6.84
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
-  strideLift: 0.035
-  strideCycles: 9
-  strideAngle: 24
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: fb59092421c6a4543b3e5d6306096c1c, type: 2}
 --- !u!1 &557154158
 GameObject:
   m_ObjectHideFlags: 0
@@ -32470,9 +32127,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: GardenSnake.Presentation::GardenSnake.AppleView
   applePrefab: {fileID: 513396331182643325, guid: fea12e7059e07704281974b099bdf525, type: 3}
   marker: {fileID: 1541975806}
+  motion: {fileID: 11400000, guid: 8afb0ca2484207a408b5a9cc1098b453, type: 2}
   loop: {fileID: 2019928695}
   board: {fileID: 117806718}
-  appleScale: 1.16
 --- !u!4 &576424388
 Transform:
   m_ObjectHideFlags: 0
@@ -33823,58 +33480,11 @@ MonoBehaviour:
   limbs: []
   groundA: {x: -12.8, y: -0.15, z: -3.2}
   groundB: {x: -12.88, y: -0.050000004, z: -2.5}
-  travelSeconds: 3
-  restSeconds: 2.5
   phase: 0
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: 1d1d10bdfd664a847af8c216b58e698b, type: 2}
   leftWing: {fileID: 2080473401}
   rightWing: {fileID: 1890180710}
-  flightHeight: 0.5
-  wingBeatsPerSecond: 5.5
-  flapWingAngle: 52
-  flapWingOffset: 8
-  wingRotationResponse: 35
-  wingScaleResponse: 12
-  swayCycles: 2
-  swayDistance: 0.15
-  wingSpeedMultiplier: 1.25
-  restWingAngle: 28
-  restWingFrequency: 3
-  restWingAmplitude: 18
 --- !u!1001 &617049776
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -38176,10 +37786,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d04ab24a0905d85459ad4d0ca8c76a11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GardenSnake.Presentation::GardenSnake.ButtonFeel
-  hoverScale: 1.035
-  pressScale: 0.94
-  settleTime: 0.065
-  releaseKick: 1.2
+  feel: {fileID: 11400000, guid: 1c93b60590915524b92a2b236e7d8331, type: 2}
 --- !u!114 &652643086
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52084,47 +51691,9 @@ MonoBehaviour:
   - {fileID: 126989584}
   groundA: {x: -7.8, y: -0.74, z: 7.55}
   groundB: {x: -7.4, y: -0.74, z: 7.7000003}
-  travelSeconds: 6
-  restSeconds: 6
   phase: 0
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
-  strideLift: 0.035
-  strideCycles: 9
-  strideAngle: 24
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: fb59092421c6a4543b3e5d6306096c1c, type: 2}
 --- !u!1001 &905515284
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -53115,10 +52684,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d04ab24a0905d85459ad4d0ca8c76a11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GardenSnake.Presentation::GardenSnake.ButtonFeel
-  hoverScale: 1.035
-  pressScale: 0.94
-  settleTime: 0.065
-  releaseKick: 1.2
+  feel: {fileID: 11400000, guid: 1c93b60590915524b92a2b236e7d8331, type: 2}
 --- !u!114 &929100979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55901,58 +55467,11 @@ MonoBehaviour:
   limbs: []
   groundA: {x: -12.8, y: -0.15, z: 3.6000001}
   groundB: {x: -12.88, y: -0.050000004, z: 4.3}
-  travelSeconds: 3
-  restSeconds: 2.5
   phase: 2.74
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: 1d1d10bdfd664a847af8c216b58e698b, type: 2}
   leftWing: {fileID: 2047219977}
   rightWing: {fileID: 833668168}
-  flightHeight: 0.5
-  wingBeatsPerSecond: 5.5
-  flapWingAngle: 52
-  flapWingOffset: 8
-  wingRotationResponse: 35
-  wingScaleResponse: 12
-  swayCycles: 2
-  swayDistance: 0.15
-  wingSpeedMultiplier: 1.25
-  restWingAngle: 28
-  restWingFrequency: 3
-  restWingAmplitude: 18
 --- !u!1001 &990165310
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -66042,53 +65561,9 @@ MonoBehaviour:
   - {fileID: 590569598}
   groundA: {x: 3.6, y: -0.74, z: -7.7}
   groundB: {x: 2.2, y: -0.74, z: -7.8}
-  travelSeconds: 8
-  restSeconds: 9
   phase: 3
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
-  strideLift: 0.035
-  strideCycles: 5
-  strideAngle: 20
-  rollFrequency: 5
-  roll: 2
-  hideSeconds: 2.5
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
-  hiddenLimbSpread: 0.6
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: f3b35f9d266b45148b2a990236400d29, type: 2}
 --- !u!1001 &1196633650
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -67168,10 +66643,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d04ab24a0905d85459ad4d0ca8c76a11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GardenSnake.Presentation::GardenSnake.ButtonFeel
-  hoverScale: 1.035
-  pressScale: 0.94
-  settleTime: 0.065
-  releaseKick: 1.2
+  feel: {fileID: 11400000, guid: 1c93b60590915524b92a2b236e7d8331, type: 2}
 --- !u!114 &1211938758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67400,47 +66872,9 @@ MonoBehaviour:
   - {fileID: 233360650}
   groundA: {x: 8, y: -0.74, z: -8.6}
   groundB: {x: 8.4, y: -0.74, z: -8.450001}
-  travelSeconds: 6
-  restSeconds: 6
   phase: 5.13
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
-  strideLift: 0.035
-  strideCycles: 9
-  strideAngle: 24
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: fb59092421c6a4543b3e5d6306096c1c, type: 2}
 --- !u!1001 &1217620807
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -70161,43 +69595,9 @@ MonoBehaviour:
   - {fileID: 1152943448}
   - {fileID: 274504054}
   - {fileID: 1304323251}
-  discoverPlants: 1
-  plantNames:
-  - Tree
-  - Bush
-  - Tulip
-  - Daisy
-  - Lavender
-  - Flower
-  - Grass tuft
-  sproutPrefix: Sprout
-  treeWeight: 0.22
-  bushWeight: 0.45
-  plantWeight: 1
   amplitude: 7
-  frequency: 0.9
-  spatialScale: 0.2
-  gustDepth: 0.45
-  phaseDirection: {x: 1, y: 0.6}
-  leanDirection: {x: 1, y: 0.55}
-  gustFrequency: 0.23
-  frequencyVariation: 0.16
-  variationSpatialScale: 3.71
-  turbulenceFrequency: 0.3
-  turbulenceStrength: 1.2
-  noiseOffset: 40
-  primarySway: 0.65
-  secondarySway: 0.2
-  secondaryFrequency: 1.73
-  secondarySpatialScale: 1.3
-  reactToFeedback: 1
-  propagationSpeed: 30
-  distanceFalloff: 0.025
-  deathStrength: -1.5
-  pulseDuration: 2
-  pulseFrequency: 11
-  pulseDecay: 3
   pulseAmplitude: 12
+  wind: {fileID: 11400000, guid: 14b61b696cdb06949a6858610a35fe3e, type: 2}
 --- !u!4 &1279898979
 Transform:
   m_ObjectHideFlags: 0
@@ -76029,61 +75429,12 @@ MonoBehaviour:
   - {fileID: 425124010}
   groundA: {x: -12.1, y: -0.74, z: 4.5}
   groundB: {x: -12.650001, y: -0.74, z: 4.15}
-  travelSeconds: 3
-  restSeconds: 6
   phase: 0.5
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: 22280fd48c2b2234da905ef453b31d3c, type: 2}
   leftWing: {fileID: 933391310}
   rightWing: {fileID: 806526649}
-  flightHeight: 1.5
-  wingBeatsPerSecond: 5.5
-  flapWingAngle: 52
-  flapWingOffset: 8
-  wingRotationResponse: 35
-  wingScaleResponse: 12
   perch: {fileID: 1275081504}
-  usePerch: 1
-  flightPitch: -12
-  flightLimbAngle: -65
-  glideProgressRange: {x: 0.25, y: 0.7}
-  glideWingAngle: 10
-  restWingAngle: -12
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
 --- !u!1 &1374285421
 GameObject:
   m_ObjectHideFlags: 0
@@ -79006,57 +78357,7 @@ MonoBehaviour:
   caption: {fileID: 1739845667}
   spring: 14
   damping: 1.35
-  kickThreshold: 0.005
-  kickVelocity: 0.45
-  needleOvershoot: 0.025
-  kickDecay: 3
-  kickStretch: {x: 0.045, y: 0.085}
-  cruisingThreshold: 0.22
-  zippyThreshold: 0.62
-  zoomiesThreshold: 0.97
-  idleCaption: WIGGLE PACE
-  cruisingCaption: CRUISING
-  zippyCaption: ZIPPY
-  zoomiesCaption: ZOOMIES!
-  pausedCaption: PAUSED
-  ink: {r: 0.1, g: 0.23, b: 0.16, a: 1}
-  paper: {r: 1, g: 0.97, b: 0.85, a: 1}
-  mint: {r: 0.39, g: 0.72, b: 0.35, a: 1}
-  gold: {r: 1, g: 0.72, b: 0.22, a: 1}
-  coral: {r: 0.95, g: 0.31, b: 0.17, a: 1}
-  shadowColor: {r: 0.07, g: 0.2, b: 0.12, a: 0.2}
-  rimColor: {r: 0.78, g: 0.88, b: 0.59, a: 1}
-  highlightColor: {r: 1, g: 1, b: 1, a: 1}
-  unfilledFade: 0.7
-  faceOffset: {x: 0, y: 1}
-  shadowOffset: {x: 0, y: -5}
-  insetOffset: {x: 0, y: 2}
-  outerRadius: 58
-  rimRadius: 54
-  faceRadius: 50
-  sweepAngles: {x: 210, y: -30}
-  paceArcCount: 30
-  paceArcRadii: {x: 39, y: 46}
-  paceArcSweep: -6.6
-  litArcLead: 0.025
-  tickIntervals: 8
-  majorTickInnerRadius: 29
-  minorTickInnerRadius: 32
-  tickOuterRadius: 35
-  tickSweep: -2.3
-  needleRearLength: 9
-  needleHalfWidth: 3.5
-  needleLength: 37
-  hubRadius: 7
-  hubHighlightOffset: {x: -1, y: 1}
-  hubHighlightRadius: 3
-  screwDistance: 48
-  screwRadius: 2
-  highlightRadii: {x: 51, y: 53}
-  highlightAngle: 60
-  highlightSweep: 80
-  discSegments: 40
-  arcSegmentDegrees: 5
+  dial: {fileID: 11400000, guid: af51740c7cde7ba4e9d0e7bdc8442a15, type: 2}
 --- !u!224 &1430100423
 RectTransform:
   m_ObjectHideFlags: 0
@@ -82155,53 +81456,9 @@ MonoBehaviour:
   - {fileID: 1790208564}
   groundA: {x: 12.1, y: -0.74, z: -0.6}
   groundB: {x: 12.1, y: -0.74, z: -1.6}
-  travelSeconds: 8
-  restSeconds: 9
   phase: 1.73
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
-  strideLift: 0.035
-  strideCycles: 5
-  strideAngle: 20
-  rollFrequency: 5
-  roll: 2
-  hideSeconds: 2.5
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
-  hiddenLimbSpread: 0.6
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: f3b35f9d266b45148b2a990236400d29, type: 2}
 --- !u!1001 &1490210277
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -100484,47 +99741,9 @@ MonoBehaviour:
   - {fileID: 910806882}
   groundA: {x: 6.2, y: -0.74, z: 7.7}
   groundB: {x: 6.6, y: -0.74, z: 7.85}
-  travelSeconds: 6
-  restSeconds: 6
   phase: 1.71
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
-  strideLift: 0.035
-  strideCycles: 9
-  strideAngle: 24
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: fb59092421c6a4543b3e5d6306096c1c, type: 2}
 --- !u!1001 &1865719352
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -109517,61 +108736,12 @@ MonoBehaviour:
   - {fileID: 458526414}
   groundA: {x: 12.1, y: -0.74, z: -6.6}
   groundB: {x: 12.650001, y: -0.74, z: -6.95}
-  travelSeconds: 3
-  restSeconds: 6
   phase: 1.5
-  randomSeed: 7919
-  phaseSeedMultiplier: 104729
-  tempoRange: {x: 0.72, y: 1.3}
-  initialRestMinimum: 1
-  initialRestMaximumMultiplier: 2
-  destinationARange: {x: 0, y: 0.35}
-  destinationBRange: {x: 0.65, y: 1}
-  travelDurationRange: {x: 0.75, y: 1.5}
-  restDurationRange: {x: 0.65, y: 2.1}
-  travelExcitementSpeed: 0.3
-  turnSpeed: 7
-  reactionPropagationSpeed: 30
-  reactionDelayRange: {x: 0.03, y: 0.65}
-  reactionDistanceAttenuation: 0.06
-  excitementDecay: 0.35
-  curiosityDecay: 0.8
-  reactionCuriosity: 1
-  reactionTravelChance: 0.35
-  breathFrequency: 2.4
-  breathAmplitude: 0.008
-  curiosityBreath: 0.02
-  bodyWidthCompensation: 0.4
-  bodyRotationResponse: 14
-  headScaleResponse: 10
-  headPositionResponse: 10
-  idleNodFrequency: 1.3
-  idleNodAmplitude: 3
-  lookFrequency: 0.55
-  lookEnvelopeFrequency: 0.37
-  lookEnvelopePower: 4
-  lookAngle: 24
-  curiosityHeadTilt: 16
-  headPitchCompensation: 0.45
-  limbRotationResponse: 22
-  limbPositionResponse: 12
+  motion: {fileID: 11400000, guid: 37a0c40d03c934d4e82e0a28c2f283fa, type: 2}
+  species: {fileID: 11400000, guid: 22280fd48c2b2234da905ef453b31d3c, type: 2}
   leftWing: {fileID: 1102833778}
   rightWing: {fileID: 1040636485}
-  flightHeight: 1.5
-  wingBeatsPerSecond: 5.5
-  flapWingAngle: 52
-  flapWingOffset: 8
-  wingRotationResponse: 35
-  wingScaleResponse: 12
   perch: {fileID: 0}
-  usePerch: 1
-  flightPitch: -12
-  flightLimbAngle: -65
-  glideProgressRange: {x: 0.25, y: 0.7}
-  glideWingAngle: 10
-  restWingAngle: -12
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
 --- !u!1 &2014454395
 GameObject:
   m_ObjectHideFlags: 0
@@ -109906,8 +109076,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b09244aee5a50c144afa920f6ee20d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GardenSnake.Gameplay::GardenSnake.PlayerController
-  swipeMinimumPixels: 24
-  swipeScreenHeightFraction: 0.035
+  swipe: {fileID: 11400000, guid: c6b9719f6cdb8f84b9a5f01f16533ed8, type: 2}
 --- !u!114 &2019928695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109920,19 +109089,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c0ee9ebe0854af4cba299342a18d05b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GardenSnake.Gameplay::GardenSnake.GameLoopManager
-  boardWidth: 21
-  boardHeight: 12
   initialStepSeconds: 0.25
   fastestStepSeconds: 0.115
   speedGainPerApple: 0.0055
   openingBeat: 0.45
-  initialLength: 3
-  turnBufferSize: 2
-  firstAppleDistance: 2
+  rules: {fileID: 11400000, guid: c970a80d94f73be44a11672a90508224, type: 2}
   input: {fileID: 2019928694}
-  targetFrameRate: 60
-  runInBackground: 1
-  restartDelay: 0.35
 --- !u!82 &2019928696
 AudioSource:
   m_ObjectHideFlags: 0
@@ -110065,7 +109227,10 @@ MonoBehaviour:
     runStart: {fileID: 204938101}
     newBest: {fileID: 313974954}
     recordApple: {fileID: 628128116}
-  pickupIntensity: {x: 0.75, y: 1.5}
+  sound: {fileID: 11400000, guid: ba3e85485268dab428def9a7a35cab90, type: 2}
+  beats: {fileID: 11400000, guid: 3b33902da2bfbbe4ea5cf0b5bf208e89, type: 2}
+  waves: {fileID: 11400000, guid: 1b48385bad08a0e4bb9c406c0dfdf034, type: 2}
+  reactions: {fileID: 11400000, guid: 1d902f073324d974886c55433a1c28ab, type: 2}
   restingZoom: 1.13
   zoomSeconds: 0.45
 --- !u!114 &2019928698
@@ -110084,9 +109249,7 @@ MonoBehaviour:
   bodyPrefab: {fileID: 4136166090696936961, guid: 8a23ad8245b1ee944969e9c6b7da9d2a, type: 3}
   skinSettings: {fileID: 11400000, guid: 698813545ea48494b95793970ee32b9b, type: 2}
   mouthSettings: {fileID: 11400000, guid: a5511b0db4b3a654092d356c603a582e, type: 2}
-  headScale: 1.22
-  bodyScale: 1.3
-  tailScale: 1.24
+  motion: {fileID: 11400000, guid: 191bf230b1894194bb4427998d8b6283, type: 2}
   loop: {fileID: 2019928695}
   appleView: {fileID: 576424387}
   board: {fileID: 117806718}

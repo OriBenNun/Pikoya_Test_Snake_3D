@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a823be477462e7489b3ca50d054454e, type: 3}
+  m_Name: Bunny
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.Garden.BunnySettings
+  travelSeconds: 3
+  restSeconds: 6
+  hopHeight: 0.3
+  hopLength: 0.65
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  hopPitch: -9
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
+  rearHopLimbAngle: -38
+  frontHopLimbAngle: -52
+  frontHopLimbRecovery: 30
+  earDragPhase: 0.65
+  earDragPhaseSpacing: 0.18
+  earDragAngle: 22
+  earTwitchFrequency: 0.83
+  earTwitchPhaseSpacing: 2.6
+  earTwitchPower: 18
+  earTwitchAngle: 13
+  earNodCompensation: -0.35
+  earRotationResponse: 13

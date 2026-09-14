@@ -1,6 +1,7 @@
+using GardenSnake.Gameplay;
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Garden
 {
     /// <summary>
     /// Decorative animation only. Routes stay in authored garden patches, outside the snake board.
@@ -14,57 +15,19 @@ namespace GardenSnake
     public abstract class GardenAnimal : GardenDweller
     {
         public enum Activity { Rest, Fly, Hop, Graze, Crawl, Hide }
+        [Header("Rig")]
         [SerializeField] private Transform body, head;
         [SerializeField] private Transform[] limbs = System.Array.Empty<Transform>();
-        [SerializeField] private Vector3 groundA, groundB;
-        [SerializeField, Min(.1f)] private float travelSeconds = 3f;
-        [SerializeField, Min(.1f)] private float restSeconds = 4f;
-        [SerializeField] private float phase;
+        [Header("Route")]
+        [SerializeField, Tooltip("One end of the patch this animal keeps to.")] private Vector3 groundA;
+        [SerializeField, Tooltip("And the other end.")] private Vector3 groundB;
+        [SerializeField, Tooltip("This animal's own offset, so no two of a species move alike.")]
+        private float phase;
+        [Header("Tuning")]
+        [SerializeField] private AnimalMotionSettings motion;
+        [SerializeField, Tooltip("The asset for this animal's own kind.")]
+        private AnimalSpeciesSettings species;
 
-        [Header("Variation and Travel")]
-        [SerializeField] private int randomSeed = 7919;
-        [SerializeField] private int phaseSeedMultiplier = 104729;
-        [SerializeField, Tooltip("Minimum and maximum animation speed multipliers.")] private Vector2 tempoRange = new Vector2(.72f, 1.3f);
-        [SerializeField, Min(0f)] private float initialRestMinimum = 1f;
-        [SerializeField, Min(0f)] private float initialRestMaximumMultiplier = 2f;
-        [SerializeField, Tooltip("Travel destination ranges along the ground A-to-B segment.")] private Vector2 destinationARange = new Vector2(0f, .35f);
-        [SerializeField] private Vector2 destinationBRange = new Vector2(.65f, 1f);
-        [SerializeField] private Vector2 travelDurationRange = new Vector2(.75f, 1.5f);
-        [SerializeField] private Vector2 restDurationRange = new Vector2(.65f, 2.1f);
-        [SerializeField, Min(0f)] private float travelExcitementSpeed = .3f;
-        [SerializeField, Min(0f)] private float turnSpeed = 7f;
-
-        [Header("Reactions")]
-        [SerializeField, Min(.001f), Tooltip("Reaction propagation speed in world units per second.")] private float reactionPropagationSpeed = 30f;
-        [SerializeField, Tooltip("Additional random reaction delay in seconds.")] private Vector2 reactionDelayRange = new Vector2(.03f, .65f);
-        [SerializeField, Min(0f)] private float reactionDistanceAttenuation = .06f;
-        [SerializeField, Min(0f)] private float excitementDecay = .35f;
-        [SerializeField, Min(0f)] private float curiosityDecay = .8f;
-        [SerializeField, Min(0f)] private float reactionCuriosity = 1f;
-        [SerializeField, Min(0f)] private float reactionTravelChance = .35f;
-
-        [Header("Body Motion")]
-        [SerializeField, Min(0f), Tooltip("Breathing angular frequency in radians per animation second.")] private float breathFrequency = 2.4f;
-        [SerializeField, Min(0f)] private float breathAmplitude = .008f;
-        [SerializeField, Min(0f)] private float curiosityBreath = .02f;
-        [SerializeField] private float bodyWidthCompensation = .4f;
-        [SerializeField, Min(0f)] private float bodyRotationResponse = 14f;
-
-        [Header("Head Motion")]
-        [SerializeField, Min(0f)] private float headScaleResponse = 10f;
-        [SerializeField, Min(0f)] private float headPositionResponse = 10f;
-        [SerializeField, Min(0f)] private float idleNodFrequency = 1.3f;
-        [SerializeField] private float idleNodAmplitude = 3f;
-        [SerializeField, Min(0f)] private float lookFrequency = .55f;
-        [SerializeField, Min(0f)] private float lookEnvelopeFrequency = .37f;
-        [SerializeField, Min(.001f)] private float lookEnvelopePower = 4f;
-        [SerializeField] private float lookAngle = 24f;
-        [SerializeField] private float curiosityHeadTilt = 16f;
-        [SerializeField] private float headPitchCompensation = .45f;
-
-        [Header("Limbs")]
-        [SerializeField, Min(0f)] private float limbRotationResponse = 22f;
-        [SerializeField, Min(0f)] private float limbPositionResponse = 12f;
         public Activity State { get; private set; }
         public int FlightCount { get; private set; }
         public int RestCount { get; private set; }
@@ -119,6 +82,15 @@ namespace GardenSnake
         /// <summary>This animal's authored offset, so no two of a species move alike.</summary>
         protected float Phase => phase;
 
+        /// <summary>What every animal shares.</summary>
+        protected AnimalMotionSettings Motion => motion;
+
+        /// <summary>This animal's own kind. A species reads its own asset through this.</summary>
+        protected AnimalSpeciesSettings Species => species;
+
+        /// <summary>The asset this species falls back to when its slot is empty.</summary>
+        protected abstract AnimalSpeciesSettings DefaultSpecies();
+
         // Species hooks. Everything a single kind of animal does is reached through one of these.
 
         /// <summary>What this species is doing while it travels.</summary>
@@ -136,8 +108,8 @@ namespace GardenSnake
         /// <summary>Picks a point along the patch; a species with somewhere better to be overrides it.</summary>
         protected virtual Vector3 ChooseDestination(bool towardsB) =>
             Vector3.Lerp(groundA, groundB, towardsB
-                ? Range(destinationBRange.x, destinationBRange.y)
-                : Range(destinationARange.x, destinationARange.y));
+                ? Range(motion.destinationBRange.x, motion.destinationBRange.y)
+                : Range(motion.destinationARange.x, motion.destinationARange.y));
 
         /// <summary>Reshapes the trip length once the destination is known; a hopper counts hops.</summary>
         protected virtual float TravelDuration(float seconds) => seconds;
@@ -181,7 +153,7 @@ namespace GardenSnake
 
         /// <summary>Head pitch from feeding or idling.</summary>
         protected virtual float HeadNod(in FramePhase frame) =>
-            Mathf.Sin(frame.Clock * idleNodFrequency) * idleNodAmplitude;
+            Mathf.Sin(frame.Clock * motion.idleNodFrequency) * motion.idleNodAmplitude;
 
         /// <summary>The gait's pose for one limb: rotation about its rest, and how far it lifts.</summary>
         protected virtual void PoseLimb(int index, in FramePhase frame, out float angle, out float sweep, out float lift)
@@ -201,8 +173,10 @@ namespace GardenSnake
 
         private void Awake()
         {
-            random = new System.Random(randomSeed + Mathf.RoundToInt(phase * phaseSeedMultiplier));
-            tempo = Range(tempoRange.x, tempoRange.y);
+            motion = Tuning.Or(motion);
+            species = species != null ? species : DefaultSpecies();
+            random = new System.Random(motion.randomSeed + Mathf.RoundToInt(phase * motion.phaseSeedMultiplier));
+            tempo = Range(motion.tempoRange.x, motion.tempoRange.y);
             bodyScale = body.localScale;
             bodyPosition = body.localPosition;
             bodyRotation = body.localRotation;
@@ -218,7 +192,7 @@ namespace GardenSnake
             }
             OnAwake();
             State = Activity.Rest;
-            duration = Mathf.Max(.001f, Range(initialRestMinimum, restSeconds * initialRestMaximumMultiplier));
+            duration = Mathf.Max(.001f, Range(motion.initialRestMinimum, species.restSeconds * motion.initialRestMaximumMultiplier));
             From = Destination = transform.position;
             if (StartsTravelling) BeginTravel();
             else RestCount++;
@@ -228,9 +202,9 @@ namespace GardenSnake
         {
             pendingBeat = beat;
             float distance = Vector3.Distance(transform.position, at);
-            pendingAt = Time.time + TravelTime(distance, reactionPropagationSpeed) +
-                Range(reactionDelayRange.x, reactionDelayRange.y);
-            pendingStrength = Carried(strength, distance, reactionDistanceAttenuation);
+            pendingAt = Time.time + TravelTime(distance, motion.propagationSpeed) +
+                Range(motion.delayRange.x, motion.delayRange.y);
+            pendingStrength = Carried(strength, distance, motion.distanceAttenuation);
         }
 
         protected float Range(float min, float max) => Mathf.Lerp(min, max, (float)random.NextDouble());
@@ -250,8 +224,8 @@ namespace GardenSnake
             Destination = ChooseDestination(destinationB);
             elapsed = 0;
             // An excited animal covers the same ground in less time.
-            duration = travelSeconds * Range(travelDurationRange.x, travelDurationRange.y)
-                / Mathf.Max(.001f, 1 + excitement * travelExcitementSpeed);
+            duration = species.travelSeconds * Range(motion.travelDurationRange.x, motion.travelDurationRange.y)
+                / Mathf.Max(.001f, 1 + excitement * motion.travelExcitementSpeed);
             duration = Mathf.Max(.001f, TravelDuration(duration));
             State = TravelActivity;
             if (State == Activity.Fly) FlightCount++;
@@ -262,8 +236,8 @@ namespace GardenSnake
             float delta = Time.deltaTime;
             if (delta <= 0) return;
             elapsed += delta;
-            excitement = Mathf.MoveTowards(excitement, 0, delta * excitementDecay);
-            curiosity = Mathf.MoveTowards(curiosity, 0, delta * curiosityDecay);
+            excitement = Mathf.MoveTowards(excitement, 0, delta * motion.excitementDecay);
+            curiosity = Mathf.MoveTowards(curiosity, 0, delta * motion.curiosityDecay);
             ReactWhenTheBeatArrives();
             AdvanceActivity();
 
@@ -282,12 +256,12 @@ namespace GardenSnake
             if (pendingAt < 0 || Time.time < pendingAt) return;
             pendingAt = -1;
             excitement = Mathf.Max(excitement, pendingStrength);
-            curiosity = reactionCuriosity;
+            curiosity = motion.curiosity;
             if (Startle(pendingBeat, pendingStrength)) return;
             // Something already under way is left to finish; only a settled animal bolts.
             if (State is Activity.Fly or Activity.Hop) return;
             if (pendingBeat is Beat.Death or Beat.NewBest ||
-                Range(0, 1) < pendingStrength * reactionTravelChance) BeginTravel();
+                Range(0, 1) < pendingStrength * motion.travelChance) BeginTravel();
         }
 
         /// <summary>Travel becomes rest, and rest becomes the next trip.</summary>
@@ -299,7 +273,7 @@ namespace GardenSnake
             State = RestActivity;
             RestCount++;
             elapsed = 0;
-            duration = Mathf.Max(.001f, restSeconds * Range(restDurationRange.x, restDurationRange.y));
+            duration = Mathf.Max(.001f, species.restSeconds * Range(motion.restDurationRange.x, motion.restDurationRange.y));
         }
 
         private FramePhase MeasurePhase() => new FramePhase(
@@ -319,20 +293,20 @@ namespace GardenSnake
             heading.y = 0;
             if (heading.sqrMagnitude > .001f)
                 transform.rotation = Quaternion.Slerp(transform.rotation,
-                    Quaternion.LookRotation(heading), delta * turnSpeed);
+                    Quaternion.LookRotation(heading), delta * motion.turnSpeed);
         }
 
         /// <summary>Breathing, the gait's squash and stretch, and the lean of a body in motion.</summary>
         private float AnimateBody(in FramePhase frame, float delta)
         {
-            float breath = Mathf.Sin(frame.Clock * breathFrequency) * breathAmplitude + curiosity * curiosityBreath;
+            float breath = Mathf.Sin(frame.Clock * motion.breathFrequency) * motion.breathAmplitude + curiosity * motion.curiosityBreath;
             float bounce = Bounce(frame, breath);
             body.localScale = Vector3.Scale(bodyScale,
-                new Vector3(1 - bounce * bodyWidthCompensation, 1 + bounce, 1 - bounce * bodyWidthCompensation));
+                new Vector3(1 - bounce * motion.widthCompensation, 1 + bounce, 1 - bounce * motion.widthCompensation));
             float pitch = BodyPitch(frame);
             body.localRotation = Quaternion.Slerp(body.localRotation,
                 bodyRotation * Quaternion.Euler(pitch, 0, BodyRoll(frame)),
-                1 - Mathf.Exp(-delta * bodyRotationResponse));
+                1 - Mathf.Exp(-delta * motion.rotationResponse));
             body.localPosition = bodyPosition;
             return pitch;
         }
@@ -340,16 +314,16 @@ namespace GardenSnake
         /// <summary>Feeding nods, idle glances, and a head drawn in out of harm's way.</summary>
         private void AnimateHead(in FramePhase frame, float pitch, float delta, out float nod)
         {
-            head.localScale = Vector3.Lerp(head.localScale, headScale * HeadTuck, delta * headScaleResponse);
+            head.localScale = Vector3.Lerp(head.localScale, headScale * HeadTuck, delta * motion.headScaleResponse);
             head.localPosition = Vector3.Lerp(head.localPosition, headPosition + HeadTuckOffset,
-                1 - Mathf.Exp(-delta * headPositionResponse));
+                1 - Mathf.Exp(-delta * motion.headPositionResponse));
             nod = HeadNod(frame);
             // Glances come in bursts: a slow envelope gates a faster side-to-side look.
-            float look = Mathf.Sin(frame.Clock * lookFrequency)
-                * Mathf.Pow(Mathf.Max(0, Mathf.Sin(frame.Clock * lookEnvelopeFrequency)),
-                    Mathf.Max(.001f, lookEnvelopePower)) * lookAngle;
+            float look = Mathf.Sin(frame.Clock * motion.lookFrequency)
+                * Mathf.Pow(Mathf.Max(0, Mathf.Sin(frame.Clock * motion.lookEnvelopeFrequency)),
+                    Mathf.Max(.001f, motion.lookEnvelopePower)) * motion.lookAngle;
             head.localRotation = headRotation * Quaternion.Euler(
-                nod - curiosity * curiosityHeadTilt - pitch * headPitchCompensation, look, 0);
+                nod - curiosity * motion.curiosityHeadTilt - pitch * motion.headPitchCompensation, look, 0);
         }
 
         private void AnimateLimbs(in FramePhase frame, float delta)
@@ -358,11 +332,11 @@ namespace GardenSnake
             {
                 PoseLimb(i, frame, out float angle, out float sweep, out float lift);
                 limbs[i].localRotation = Quaternion.Slerp(limbs[i].localRotation,
-                    limbRest[i] * Quaternion.Euler(angle, sweep, 0), 1 - Mathf.Exp(-delta * limbRotationResponse));
+                    limbRest[i] * Quaternion.Euler(angle, sweep, 0), 1 - Mathf.Exp(-delta * motion.limbRotationResponse));
                 Vector3 local = limbPositions[i] + Vector3.up * lift;
                 AdjustLimbPosition(ref local);
                 limbs[i].localPosition = Vector3.Lerp(limbs[i].localPosition, local,
-                    1 - Mathf.Exp(-delta * limbPositionResponse));
+                    1 - Mathf.Exp(-delta * motion.limbPositionResponse));
             }
         }
     }

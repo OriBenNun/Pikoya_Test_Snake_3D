@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155881d4d5c67c24ca8833e4e1297a4f, type: 3}
+  m_Name: HUD Toast
+  m_EditorClassIdentifier: GardenSnake.Presentation::GardenSnake.Presentation.Hud.HudToastSettings
+  fontSize: 40
+  quietFontSize: 28
+  duration: 0.95
+  quietDuration: 0.7
+  fadeSpeed: 3.2
+  haloOpacity: 0.75
+  quietHaloOpacity: 0.22
+  startHeight: 64
+  rise: 54
+  topPadding: 70
+  scale: {x: 1.3, y: 0.95}
+  scaleSpeed: 3
+  bannerDuration: 2
+  bannerFadeSpeed: 2.4
+  bannerRiseSpeed: 6
+  bannerFillOpacity: 0.96
+  bannerStartScale: 0.82
+  bannerEasePower: 3

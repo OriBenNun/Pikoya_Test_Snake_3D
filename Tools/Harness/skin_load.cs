@@ -3,10 +3,10 @@
 // a frame where the body grows - the moment a player feels as a stutter when an apple lands.
 // Writes Artifacts/skin-load.txt. Run it after any change to SnakeSkin.
 if (!Application.isPlaying) throw new System.InvalidOperationException("Play Mode required");
-var loop = UnityEngine.Object.FindFirstObjectByType<GardenSnake.GameLoopManager>();
-var visuals = UnityEngine.Object.FindFirstObjectByType<GardenSnake.SnakeManager>();
+var loop = UnityEngine.Object.FindFirstObjectByType<GardenSnake.Gameplay.GameLoopManager>();
+var visuals = UnityEngine.Object.FindFirstObjectByType<GardenSnake.Presentation.SnakeManager>();
 var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-var body = (System.Collections.Generic.List<GardenSnake.Cell>)loop.GetType().GetField("body", flags).GetValue(loop);
+var body = (System.Collections.Generic.List<GardenSnake.Gameplay.Cell>)loop.GetType().GetField("body", flags).GetValue(loop);
 var digestion = (System.Collections.Generic.List<float>)loop.GetType().GetField("digestion", flags).GetValue(loop);
 var reset = visuals.GetType().GetMethod("ResetVisuals", flags);
 var skinR = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Scripts, "GardenSnake.Skin", 1);
@@ -15,12 +15,12 @@ int[] lengths = { 10, 30, 60, 100, 160 };
 int stage = 0, lastFrame = -1, frames = 0, cycle = 0;
 var steady = new System.Collections.Generic.List<double>();
 var grow = new System.Collections.Generic.List<double>();
-GardenSnake.Cell At(int i) { int row = i / 19; return new GardenSnake.Cell(row % 2 == 0 ? 19 - i % 19 : 1 + i % 19, Mathf.Min(11, row)); }
+GardenSnake.Gameplay.Cell At(int i) { int row = i / 19; return new GardenSnake.Gameplay.Cell(row % 2 == 0 ? 19 - i % 19 : 1 + i % 19, Mathf.Min(11, row)); }
 // The rules live on the loop now, so staging means putting it into a paused run and
 // replacing the snake underneath it.
-var setState = typeof(GardenSnake.GameLoopManager).GetProperty("State").GetSetMethod(true);
+var setState = typeof(GardenSnake.Gameplay.GameLoopManager).GetProperty("State").GetSetMethod(true);
 void Stage() {
-    setState.Invoke(loop, new object[] { GardenSnake.RunState.Paused });
+    setState.Invoke(loop, new object[] { GardenSnake.Gameplay.RunState.Paused });
     body.Clear(); digestion.Clear();
     for (int i = 0; i < lengths[stage]; i++) body.Add(At(i));
     reset.Invoke(visuals, null);

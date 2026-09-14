@@ -1,6 +1,7 @@
+using GardenSnake.Gameplay;
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Garden
 {
     /// <summary>
     /// An animal that leaves the ground: it arcs up over the middle of every trip and beats a pair
@@ -9,22 +10,17 @@ namespace GardenSnake
     public abstract class GardenFlier : GardenAnimal
     {
         [SerializeField] private Transform leftWing, rightWing;
-        [SerializeField, Range(0f, 6f)] private float flightHeight = 2f;
-
-        [Header("Wings")]
-        [SerializeField, Range(2f, 12f)] private float wingBeatsPerSecond = 5.5f;
-        [SerializeField] private float flapWingAngle = 52f;
-        [SerializeField] private float flapWingOffset = 8f;
-        [SerializeField, Min(0f)] private float wingRotationResponse = 35f;
-        [SerializeField, Min(0f)] private float wingScaleResponse = 12f;
 
         private float flapPhase;
         private float wingAngle;
 
+        /// <summary>This flier's own asset.</summary>
+        protected FlierSettings Flight => (FlierSettings)Species;
+
         protected override Activity TravelActivity => Activity.Fly;
 
         /// <summary>The wing angle mid-beat, for whenever this species is actually beating them.</summary>
-        protected float Flap => Mathf.Sin(flapPhase) * flapWingAngle + flapWingOffset;
+        protected float Flap => Mathf.Sin(flapPhase) * Flight.flapWingAngle + Flight.flapWingOffset;
 
         /// <summary>How fast this species beats, relative to the shared rate.</summary>
         protected virtual float WingSpeedMultiplier => 1f;
@@ -38,16 +34,18 @@ namespace GardenSnake
         /// <summary>The angle the wings are heading towards this frame.</summary>
         protected abstract float WingAngle(in FramePhase frame);
 
-        protected override Vector3 RouteOffset(in FramePhase frame, float arc) => Vector3.up * (arc * flightHeight);
+        protected override Vector3 RouteOffset(in FramePhase frame, float arc) =>
+            Vector3.up * (arc * Flight.flightHeight);
 
         protected override void AnimateAppendages(in FramePhase frame, float nod, float delta)
         {
             if (leftWing == null || rightWing == null) return;
-            flapPhase += delta * wingBeatsPerSecond * WingSpeedMultiplier * Mathf.PI * 2;
-            wingAngle = Mathf.Lerp(wingAngle, WingAngle(frame), 1 - Mathf.Exp(-delta * wingRotationResponse));
+            flapPhase += delta * Flight.wingBeatsPerSecond * WingSpeedMultiplier * Mathf.PI * 2;
+            wingAngle = Mathf.Lerp(wingAngle, WingAngle(frame),
+                1 - Mathf.Exp(-delta * Flight.wingRotationResponse));
             float fold = FoldAngle;
             leftWing.localScale = Vector3.Lerp(leftWing.localScale, Vector3.one * FoldScale,
-                1 - Mathf.Exp(-delta * wingScaleResponse));
+                1 - Mathf.Exp(-delta * Flight.wingScaleResponse));
             rightWing.localScale = leftWing.localScale;
             leftWing.localRotation = Quaternion.Euler(0, -fold, -wingAngle);
             rightWing.localRotation = Quaternion.Euler(0, fold, wingAngle);

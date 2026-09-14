@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef23ffe70dc478043886bfd24662066d, type: 3}
+  m_Name: HUD Chrome
+  m_EditorClassIdentifier: GardenSnake.Presentation::GardenSnake.Presentation.Hud.HudChromeSettings
+  controlColor: {r: 0.118, g: 0.227, b: 0.165, a: 1}
+  mutedOpacity: 0.35
+  soundOnOpacity: 0.85
+  playingBrandOpacity: 0.85
+  chromeFadeSpeed: 1.6
+  bestColor: {r: 0.118, g: 0.227, b: 0.165, a: 0.72}
+  bestFlashColor: {r: 0.89, g: 0.38, b: 0.15, a: 1}
+  bestFlashDuration: 0.6
+  bestFlashScale: 0.1

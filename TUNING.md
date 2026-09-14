@@ -1,61 +1,79 @@
 # Garden Snake tuning
 
-Open `Assets/Scenes/GardenSnake.unity`. The `Snake Game` object carries the four layers, and each
-one exposes only what belongs to it.
+Almost nothing is tuned on a component any more. Each set of related settings is a ScriptableObject
+in `Assets/Tuning`, so the values live in one asset with tooltips instead of being spread across the
+Hierarchy, and a component's Inspector shows only its wiring plus the handful of levers that are
+worth reaching for mid-look.
 
-| Select | Controls |
+Edit tuning assets **outside Play Mode**. The game reads them when it starts; nothing is designed to
+be dragged while playing, and Play Mode edits to scene components are discarded on stop as usual.
+
+## The assets
+
+| `Assets/Tuning/…` | What it holds |
 | --- | --- |
-| `Snake Game` / `PlayerController` | Swipe threshold in pixels and as a fraction of screen height |
-| `Snake Game` / `GameLoopManager` | Board size, pace and speed gain, opening beat, starting length, turn buffer, first apple distance, target frame rate, restart delay |
-| `Snake Game` / `SnakeManager` | The two models, the two shared tuning assets, and the head/body/tail proportions |
-| `Snake Game` / `FeedbackManager` | Clips and sources, plus three grouped blocks: **Sound** (pitch and level per one-shot), **Feel** (the five MMF players and their beat intensities) and **Waves** (which board wave each moment runs, how far it carries, and the milestone interval) |
-| `Apple` / `AppleView` | Apple scale; the marker and prefab references |
-| `Camera Rig` / `GameCameraRig` | Edge padding, the two HUD bands, resting zoom and zoom speed |
-| `Assets/Tuning/Snake Skin.asset` | Body shape, segment bumps, curve tension, belly, markings, digestion bulge size and length, mesh quality and optional material overrides |
-| `Assets/Tuning/Snake Mouth.asset` | Anticipation range, jaw speed, swallow duration/spin/shrink, face lift and mouth/jaw/tongue geometry |
-| Board / `GridCellWaves` | Four presets, height/depth/strength limits, concurrent waves, ripple modulation, checker contrast, bloom falloff and sweep direction |
-| `Meadow` / `GardenWind` | Sway amplitude, frequency and direction, turbulence, spatial variation, tree and bush weights, gusts, and how a beat travels and decays |
-| Each wildlife object / `GardenAnimal` | Species, routes and perch, travel and rest variation, reactions, hops, wings, body/head/limb/ear animation |
-| Canvas / `SnakeHud` | Card copy and layout, toast and banner behaviour, colours, fading, result timing and score thresholds |
-| `SpeedGauge` | Needle spring and damping, pace bands and captions, colours, face geometry and mesh quality |
-| Existing cameras, lights, volumes, materials, prefabs, AudioSources and ParticleSystems | Their normal Unity Inspector settings |
+| `Run Rules` | Starting length, turn buffer, first apple distance, frame rate, restart delay |
+| `Swipe` | What counts as a swipe, in pixels and as a fraction of screen height |
+| `Snake Skin` | Head/body/tail proportions, body shape, markings, digestion bulge, mesh quality, optional material overrides |
+| `Snake Mouth` | Anticipation, jaw speed, the swallow, the excited eyes, and the geometry of every soft piece of the face |
+| `Snake Motion` | Banking, slither, growth, idle breathing, blinking, the death |
+| `Apple Motion` | Apple size, drop-in, hover, spin, and the pool of light under it |
+| `Board Waves` | One preset per wave pattern, how each is shaped, and the board's limits |
+| `HUD Chrome` | Corner controls, wordmark fade, record flash |
+| `HUD Toast` | The `+1` that pops where an apple was eaten, and the milestone banner |
+| `HUD Card` | How the card arrives, and where everything on it sits |
+| `HUD Copy` | Every word the game says, and the scores behind each verdict |
+| `Button Feel` | Hover, press, settle and release for every button |
+| `Speed Gauge` | Needle kick, pace bands and captions, and the whole procedural face |
+| `Sound Mix` | Pitch and level of every one-shot |
+| `Feel Beats` | How hard each beat is allowed to land |
+| `Wave Cues` | Which wave the board runs for each moment, and the milestone interval |
+| `Reactions` | Pickup ring, head trail, pace vignette, death puff |
+| `Wind` | Sway, gusts, turbulence, plant weights, and how a beat crosses the meadow |
+| `Animal Motion` | What every animal shares: variation, travel, startling, body, head and limb response |
+| `Bird`, `Bunny`, `Turtle`, `Butterfly`, `Ladybug` | One asset per species: its pace and its own gait |
 
-Use the Hierarchy search `t:GardenWind`, `t:GridCellWaves`, etc. to locate components.
+## What is still on a component
 
-## What is no longer a setting
+Only wiring, the authored route of one animal, and these levers:
 
-`SnakeManager` used to expose around fifty fields for slither, banking, blinking, idle breathing,
-growth and the death animation, and `AppleView`'s motion and `FeedbackManager`'s ring and trail were
-the same. Those are the animal's character rather than settings a designer trades off, so they are
-now named constants at the top of each class, where they read as one description of how the creature
-behaves instead of fifty sliders to keep consistent. Change them in code; the values are unchanged
-from what the scene was serialising.
+| Select | Levers |
+| --- | --- |
+| `Snake Game` / `GameLoopManager` | Opening step, fastest step, speed gained per apple, opening beat |
+| `Snake Game` / `FeedbackManager` | Resting zoom and zoom seconds for the camera |
+| `Snake Hud` / `SnakeHud` | Results delay: the beat after a death before the card |
+| `SpeedGauge` | Needle spring and damping |
+| Board / `GridCellWaves` | Wave height: one multiplier over every wave, 0 for a flat board |
+| `Meadow` / `GardenWind` | Wind amplitude and beat pulse amplitude |
+| Each wildlife object | Its rig, its patch (`Ground A`/`Ground B`) and its phase |
 
-What stayed in the Inspector is what an art director or designer actually reaches for: proportions,
-pace, rules, the audio mix, beat intensities, wave choices, and the two shared tuning assets.
+`Tools/Harness/bind_tuning.cs` creates any missing asset and assigns it everywhere it is read:
 
-## Live versus startup
+```powershell
+python Tools/Harness/gs.py script Tools/Harness/bind_tuning.cs
+```
 
-Most animation values update while playing. Wave presets affect newly triggered waves; wildlife
-duration ranges apply when the next activity starts. Rules, plant discovery, wave buffer capacity,
-mesh quality, material overrides and wildlife random seed and tempo are read when Play Mode starts —
-restart Play Mode after changing these. Board dimensions and cell references must match the authored
-board; changing the numbers alone does not rebuild its geometry.
+An empty slot is never fatal: the component falls back to a throwaway carrying the class defaults,
+so the game still runs correctly with nothing assigned.
 
-Scene component edits made during Play Mode are temporary. To keep them, copy the component values
-before stopping and paste them back in Edit Mode, then save the scene. ScriptableObject edits change
-the asset itself; save or revert them deliberately. Setting wind **Amplitude** and **Pulse
-Amplitude** to zero removes all wind motion; disabling `GardenWind` restores plant rotations. Setting
-a wave preset's amplitude or an event's wave intensity to zero suppresses that lift.
+## What is deliberately not a setting
 
-`GardenTuning.Bind` reuses existing assets and preserves assigned overrides when the explicit scene
-rebuild tool is used. Routine tuning requires no rebuild.
+The board is **21 x 12**, as a constant in `GameLoopManager`. The scene carries one authored grid of
+patches and nothing rebuilds it, so a different number there would leave the rules playing on a
+board the garden does not have. `GridCellWaves` reads the same constant, and its `cells` array *is*
+that grid, row by row from the bottom left.
 
-Swallowed apples remain at their pickup cells while successive body segments pass over them.
-Digestion therefore advances exactly one body index per movement step; its speed is not
-independently adjustable. Growth happens after the tail reaches the pickup cell, with a short visual
-settle. `Segment Bump` controls the smaller rounded shape on every body part; `Belly Bulge` and
-`Bulge Half Length` control the larger temporary apple bump.
+The same reasoning keeps these in code: the names the wind looks for (`Tree`, `Bush`, `Sprout…`) and
+the face-part names the snake's head is built from, which come from the Blender source; the one body
+index per step that digestion advances by; and the frame-catch-up guard that stops a stalled browser
+frame moving the snake through several cells unseen.
+
+## Framing
+
+There is no camera rig. The garden is framed by the resolution in Player Settings (1600 x 900), and
+the camera in the scene is authored to fill it - its orthographic size *is* the framing while a run
+is going. `FeedbackManager` only eases that size between two values with a coroutine: pushed in
+while playing, sitting back by `Resting Zoom` on the menus, on a pause and after a death.
 
 ## Verification
 
@@ -73,9 +91,9 @@ allocation to one system at a time when the number looks wrong.
 
 The snake skin is the only thing whose cost grows with the run, so `Tools/Harness/skin_load.cs`
 stages fixed body lengths and measures it, including the frame the body grows on. Mesh quality
-(`Sides`, `Samples Per Cell` on the skin asset) is what that cost is bought with: raising either
+(`Sides`, `Samples Per Cell` on `Snake Skin`) is what that cost is bought with: raising either
 sharpens the silhouette and costs frame time in direct proportion. Re-run the probe after changing
 them.
 
-Judge the result by looking at the captures, and finish with a human playtest — synthetic input
+Judge the result by looking at the captures, and finish with a human playtest - synthetic input
 proves behaviour, not feel.

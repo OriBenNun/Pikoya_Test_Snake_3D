@@ -3,7 +3,7 @@ var models = new System.Collections.Generic.List<object>();
 var meshes = new System.Collections.Generic.Dictionary<string,object>();
 var seen = new System.Collections.Generic.HashSet<string>();
 float[] V(Vector3 v) => new [] { v.x,v.y,v.z };
-foreach(var animal in UnityEngine.Object.FindObjectsByType<GardenSnake.GardenAnimal>()) {
+foreach(var animal in UnityEngine.Object.FindObjectsByType<GardenSnake.Garden.GardenAnimal>()) {
  string species = animal.GetType().Name.Replace("Garden", "");
  if(!seen.Add(species)) continue;
  var transforms = animal.GetComponentsInChildren<Transform>(true);
