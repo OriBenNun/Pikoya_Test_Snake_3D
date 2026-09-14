@@ -9,6 +9,9 @@ namespace GardenSnake.Editor
     /// <summary>Small, reproducible clay wildlife rigs. No colliders or gameplay components.</summary>
     public static class GardenWildlifeBuilder
     {
+        /// <summary>Which rig to build and which <see cref="GardenAnimal"/> to drive it with.</summary>
+        private enum Species { Bird, Bunny, Turtle, Butterfly, Ladybug }
+
         private static Material SharedMaterial(string name) => AssetDatabase.LoadAssetAtPath<Material>(GardenBuilder.Root + "/Materials/" + name + ".mat");
 
         [MenuItem("Garden Snake/Add ambient wildlife")]
@@ -37,10 +40,10 @@ namespace GardenSnake.Editor
             Tint("WildlifeFeather", "367F8A");
             Tint("WildlifeWing", "ECAF60");
             var root = new GameObject("Garden wildlife").transform;
-            Animal(root, GardenAnimal.Species.Bunny, new Vector3(-3.3f, -.74f, 7.75f), new Vector3(-2.3f, -.74f, 7.75f), .37f);
-            Animal(root, GardenAnimal.Species.Bunny, new Vector3(-4.1f, -.74f, -7.7f), new Vector3(-2.7f, -.74f, -7.8f), 2);
-            Animal(root, GardenAnimal.Species.Turtle, new Vector3(12.1f, -.74f, -.6f), new Vector3(12.1f, -.74f, -1.6f), 1.73f);
-            Animal(root, GardenAnimal.Species.Turtle, new Vector3(3.6f, -.74f, -7.7f), new Vector3(2.2f, -.74f, -7.8f), 3);
+            Animal(root, Species.Bunny, new Vector3(-3.3f, -.74f, 7.75f), new Vector3(-2.3f, -.74f, 7.75f), .37f);
+            Animal(root, Species.Bunny, new Vector3(-4.1f, -.74f, -7.7f), new Vector3(-2.7f, -.74f, -7.8f), 2);
+            Animal(root, Species.Turtle, new Vector3(12.1f, -.74f, -.6f), new Vector3(12.1f, -.74f, -1.6f), 1.73f);
+            Animal(root, Species.Turtle, new Vector3(3.6f, -.74f, -7.7f), new Vector3(2.2f, -.74f, -7.8f), 3);
             for (int i = 0; i < 2; i++)
             {
                 float side = i % 2 == 0 ? -1 : 1;
@@ -81,20 +84,20 @@ namespace GardenSnake.Editor
                         leaf.localRotation = Quaternion.Euler(60, 20, -45);
                     }
                 }
-                Animal(root, GardenAnimal.Species.Bird, a, b, i + .5f, perch);
+                Animal(root, Species.Bird, a, b, i + .5f, perch);
             }
             for (int i = 0; i < 3; i++)
             {
                 float side = i % 2 == 0 ? -1 : 1;
                 var a = new Vector3(side * 12.8f, -.15f, -3.2f + i * 3.4f);
-                Animal(root, GardenAnimal.Species.Butterfly, a, a + new Vector3(side * .08f, .1f, .7f), i * 1.37f);
+                Animal(root, Species.Butterfly, a, a + new Vector3(side * .08f, .1f, .7f), i * 1.37f);
             }
             var bugPatches = new[] { new Vector3(-7.8f, -.74f, 7.55f), new Vector3(6.2f, -.74f, 7.7f),
                 new Vector3(-5.5f, -.74f, -8.7f), new Vector3(8f, -.74f, -8.6f), new Vector3(-6f, -.74f, 8.2f) };
             for (int i = 0; i < bugPatches.Length; i++)
             {
                 var a = bugPatches[i];
-                Animal(root, GardenAnimal.Species.Ladybug, a, a + new Vector3(.4f, 0, .15f), i * 1.71f);
+                Animal(root, Species.Ladybug, a, a + new Vector3(.4f, 0, .15f), i * 1.71f);
             }
             // Actual grass blades catch the same wind as the flowers; the board stays unobscured.
             for (int i = 0; i < 24; i++)
@@ -109,16 +112,16 @@ namespace GardenSnake.Editor
             }
         }
 
-        private static void Animal(Transform parent, GardenAnimal.Species species, Vector3 a, Vector3 b, float phase, Transform perch = null)
+        private static void Animal(Transform parent, Species species, Vector3 a, Vector3 b, float phase, Transform perch = null)
         {
             var root = Group(species.ToString(), parent, a);
-            root.localScale = Vector3.one * (species == GardenAnimal.Species.Butterfly ? .58f : species == GardenAnimal.Species.Ladybug ? .7f : .88f);
-            ReservePatch(a, b, species is GardenAnimal.Species.Bunny or GardenAnimal.Species.Turtle ? .8f : .42f);
+            root.localScale = Vector3.one * (species == Species.Butterfly ? .58f : species == Species.Ladybug ? .7f : .88f);
+            ReservePatch(a, b, species is Species.Bunny or Species.Turtle ? .8f : .42f);
             root.localRotation = Quaternion.Euler(0, 150 + phase * 35, 0);
             Transform body = Group("Body", root, Vector3.zero), head, left = null, right = null;
             var limbs = new List<Transform>();
             var ears = new List<Transform>();
-            if (species == GardenAnimal.Species.Bunny)
+            if (species == Species.Bunny)
             {
                 Sculpt("Pear body", "Pear", body, new Vector3(0, .36f, -.06f), new Vector3(.56f, .67f, .7f), "Cream");
                 Part("Cotton tail", body, new Vector3(0, .37f, -.42f), Vector3.one * .24f, "Cream");
@@ -146,7 +149,7 @@ namespace GardenSnake.Editor
                 Sculpt("Nose", "Beak", head, new Vector3(0, -.035f, .238f), new Vector3(.07f, .045f, .045f), "PetalBlush");
                 Part("Mouth", head, new Vector3(0, -.10f, .227f), new Vector3(.025f, .035f, .014f), "Ink");
             }
-            else if (species == GardenAnimal.Species.Turtle)
+            else if (species == Species.Turtle)
             {
                 Part("Shell rim", body, new Vector3(0, .23f, 0), new Vector3(.81f, .26f, .94f), "WildlifeSkin");
                 var shellPosition = new Vector3(0, .30f, -.03f);
@@ -164,9 +167,9 @@ namespace GardenSnake.Editor
                     Part("Flipper", foot, Vector3.zero, new Vector3(.25f, .16f, .29f), "WildlifeSkin"); limbs.Add(foot);
                 }
             }
-            else if (species is GardenAnimal.Species.Bird or GardenAnimal.Species.Butterfly)
+            else if (species is Species.Bird or Species.Butterfly)
             {
-                bool bird = species == GardenAnimal.Species.Bird;
+                bool bird = species == Species.Bird;
                 Sculpt("Body shape", "Bird", body, new Vector3(0, .29f, 0), bird ? new Vector3(.43f, .46f, .65f) : new Vector3(.10f, .1f, .43f), bird ? "Aqua" : "Ink");
                 head = Group("Head", body, new Vector3(0, bird ? .48f : .3f, .2f));
                 Part("Head shape", head, Vector3.zero, Vector3.one * (bird ? .34f : .13f), bird ? "Aqua" : "Ink");
@@ -233,25 +236,39 @@ namespace GardenSnake.Editor
                     Part("Leg shape", leg, Vector3.zero, new Vector3(.13f, .035f, .04f), "Ink"); limbs.Add(leg);
                 }
             }
-            var animal = root.gameObject.AddComponent<GardenAnimal>();
+            GardenAnimal animal = species switch
+            {
+                Species.Bird => root.gameObject.AddComponent<GardenBird>(),
+                Species.Bunny => root.gameObject.AddComponent<GardenBunny>(),
+                Species.Turtle => root.gameObject.AddComponent<GardenTurtle>(),
+                Species.Butterfly => root.gameObject.AddComponent<GardenButterfly>(),
+                _ => root.gameObject.AddComponent<GardenLadybug>(),
+            };
             var so = new SerializedObject(animal);
-            so.FindProperty("species").enumValueIndex = (int)species;
             so.FindProperty("body").objectReferenceValue = body;
             so.FindProperty("head").objectReferenceValue = head;
-            so.FindProperty("leftWing").objectReferenceValue = left;
-            so.FindProperty("rightWing").objectReferenceValue = right;
-            var earArray = so.FindProperty("ears"); earArray.arraySize = ears.Count;
-            for (int i = 0; i < ears.Count; i++) earArray.GetArrayElementAtIndex(i).objectReferenceValue = ears[i];
-            so.FindProperty("perch").objectReferenceValue = perch;
             so.FindProperty("groundA").vector3Value = a;
             so.FindProperty("groundB").vector3Value = b;
             so.FindProperty("phase").floatValue = phase;
-            so.FindProperty("travelSeconds").floatValue = species == GardenAnimal.Species.Turtle ? 8 : species == GardenAnimal.Species.Ladybug ? 6 : 3;
-            so.FindProperty("restSeconds").floatValue = species == GardenAnimal.Species.Butterfly ? 2.5f : species == GardenAnimal.Species.Turtle ? 9 : 6;
-            so.FindProperty("flightHeight").floatValue = species == GardenAnimal.Species.Butterfly ? .5f : 1.5f;
-            var array = so.FindProperty("limbs"); array.arraySize = limbs.Count;
-            for (int i = 0; i < limbs.Count; i++) array.GetArrayElementAtIndex(i).objectReferenceValue = limbs[i];
+            so.FindProperty("travelSeconds").floatValue = species == Species.Turtle ? 8 : species == Species.Ladybug ? 6 : 3;
+            so.FindProperty("restSeconds").floatValue = species == Species.Butterfly ? 2.5f : species == Species.Turtle ? 9 : 6;
+            Fill(so, "limbs", limbs);
+            if (animal is GardenFlier)
+            {
+                so.FindProperty("leftWing").objectReferenceValue = left;
+                so.FindProperty("rightWing").objectReferenceValue = right;
+                so.FindProperty("flightHeight").floatValue = species == Species.Butterfly ? .5f : 1.5f;
+            }
+            if (animal is GardenBunny) Fill(so, "ears", ears);
+            if (animal is GardenBird) so.FindProperty("perch").objectReferenceValue = perch;
             so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void Fill(SerializedObject so, string name, List<Transform> items)
+        {
+            var array = so.FindProperty(name);
+            array.arraySize = items.Count;
+            for (int i = 0; i < items.Count; i++) array.GetArrayElementAtIndex(i).objectReferenceValue = items[i];
         }
 
         private static void Eyes(Transform head, float x, float y, float z, float size)
@@ -283,7 +300,7 @@ namespace GardenSnake.Editor
         {
             if (Application.isPlaying) throw new InvalidOperationException("Stop Play Mode before editing wildlife art.");
             int count = 0;
-            foreach (var animal in UnityEngine.Object.FindObjectsByType<GardenAnimal>(FindObjectsSortMode.None))
+            foreach (var animal in UnityEngine.Object.FindObjectsByType<GardenLadybug>(FindObjectsSortMode.None))
             {
                 Transform body = animal.transform.Find("Body");
                 Transform shell = body != null ? body.Find("Red shell") : null;

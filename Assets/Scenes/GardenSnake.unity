@@ -3767,32 +3767,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 64659127}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: 00b6b592ca65431a91540402f959fd37, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 1
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenBunny
   body: {fileID: 845034663}
   head: {fileID: 1296011604}
-  leftWing: {fileID: 0}
-  rightWing: {fileID: 0}
   limbs:
   - {fileID: 270663646}
   - {fileID: 1416196554}
   - {fileID: 1248577884}
   - {fileID: 1724962440}
-  ears:
-  - {fileID: 606030218}
-  - {fileID: 619348001}
-  perch: {fileID: 0}
   groundA: {x: -4.1, y: -0.74, z: -7.7}
   groundB: {x: -2.7, y: -0.74, z: -7.8}
   travelSeconds: 3
   restSeconds: 6
-  flightHeight: 1.5
   phase: 2
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -3804,7 +3793,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -3812,32 +3800,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -3846,18 +3815,27 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  ears:
+  - {fileID: 606030218}
+  - {fileID: 619348001}
+  hopHeight: 0.3
+  hopLength: 0.65
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  hopPitch: -9
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
   rearHopLimbAngle: -38
   frontHopLimbAngle: -52
   frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
-  limbRotationResponse: 22
-  limbPositionResponse: 12
-  hiddenLimbSpread: 0.6
   earDragPhase: 0.65
   earDragPhaseSpacing: 0.18
   earDragAngle: 22
@@ -3867,19 +3845,6 @@ MonoBehaviour:
   earTwitchAngle: 13
   earNodCompensation: -0.35
   earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
-  flapWingAngle: 52
-  flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
-  wingRotationResponse: 35
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
-  wingScaleResponse: 12
 --- !u!1 &68483228
 GameObject:
   m_ObjectHideFlags: 0
@@ -12280,26 +12245,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 237269264}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: d3c9b9d3fb9649bdb07b57d80a4a27a1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 3
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenButterfly
   body: {fileID: 1374330537}
   head: {fileID: 1815837672}
-  leftWing: {fileID: 635221102}
-  rightWing: {fileID: 2033198203}
   limbs: []
-  ears: []
-  perch: {fileID: 0}
   groundA: {x: 12.8, y: -0.15, z: 0.20000005}
   groundB: {x: 12.88, y: -0.050000004, z: 0.90000004}
   travelSeconds: 3
   restSeconds: 2.5
-  flightHeight: 0.5
   phase: 1.37
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -12311,7 +12267,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -12319,32 +12274,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -12353,40 +12289,22 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
   limbRotationResponse: 22
   limbPositionResponse: 12
-  hiddenLimbSpread: 0.6
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
+  leftWing: {fileID: 635221102}
+  rightWing: {fileID: 2033198203}
+  flightHeight: 0.5
+  wingBeatsPerSecond: 5.5
   flapWingAngle: 52
   flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
   wingRotationResponse: 35
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
   wingScaleResponse: 12
+  swayCycles: 2
+  swayDistance: 0.15
+  wingSpeedMultiplier: 1.25
+  restWingAngle: 28
+  restWingFrequency: 3
+  restWingAmplitude: 18
 --- !u!1 &238613037
 GameObject:
   m_ObjectHideFlags: 0
@@ -18391,32 +18309,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 334073355}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: 00b6b592ca65431a91540402f959fd37, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 1
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenBunny
   body: {fileID: 1805643825}
   head: {fileID: 1109869862}
-  leftWing: {fileID: 0}
-  rightWing: {fileID: 0}
   limbs:
   - {fileID: 2021620022}
   - {fileID: 735426339}
   - {fileID: 1477415493}
   - {fileID: 1955987981}
-  ears:
-  - {fileID: 1144403165}
-  - {fileID: 120967535}
-  perch: {fileID: 0}
   groundA: {x: -3.3, y: -0.74, z: 7.75}
   groundB: {x: -2.3, y: -0.74, z: 7.75}
   travelSeconds: 3
   restSeconds: 6
-  flightHeight: 1.5
   phase: 0.37
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -18428,7 +18335,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -18436,32 +18342,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -18470,18 +18357,27 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
+  limbRotationResponse: 22
+  limbPositionResponse: 12
+  ears:
+  - {fileID: 1144403165}
+  - {fileID: 120967535}
+  hopHeight: 0.3
+  hopLength: 0.65
+  hopDurationRange: {x: 0.62, y: 0.82}
+  hopExcitementSpeed: 0.2
+  hopExcitementHeight: 0.1
+  hopCrouchFraction: 0.18
+  hopBodyStretch: 0.055
+  crouchBodySquash: 0.15
+  hopPitch: -9
+  nibbleFrequency: 0.7
+  grazeNod: 18
+  grazeNodFrequency: 4
+  grazeNodAmplitude: 12
   rearHopLimbAngle: -38
   frontHopLimbAngle: -52
   frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
-  limbRotationResponse: 22
-  limbPositionResponse: 12
-  hiddenLimbSpread: 0.6
   earDragPhase: 0.65
   earDragPhaseSpacing: 0.18
   earDragAngle: 22
@@ -18491,19 +18387,6 @@ MonoBehaviour:
   earTwitchAngle: 13
   earNodCompensation: -0.35
   earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
-  flapWingAngle: 52
-  flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
-  wingRotationResponse: 35
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
-  wingScaleResponse: 12
 --- !u!1 &337027055
 GameObject:
   m_ObjectHideFlags: 0
@@ -26993,14 +26876,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 503789457}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: ba42d639f77e4fa0ae95efa041973ba9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 4
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenLadybug
   body: {fileID: 1333459252}
   head: {fileID: 2071288615}
-  leftWing: {fileID: 0}
-  rightWing: {fileID: 0}
   limbs:
   - {fileID: 793812091}
   - {fileID: 1344157863}
@@ -27008,17 +26888,11 @@ MonoBehaviour:
   - {fileID: 4082037}
   - {fileID: 360302799}
   - {fileID: 1046660710}
-  ears: []
-  perch: {fileID: 0}
   groundA: {x: -5.5, y: -0.74, z: -8.7}
   groundB: {x: -5.1, y: -0.74, z: -8.55}
   travelSeconds: 6
   restSeconds: 6
-  flightHeight: 1.5
   phase: 3.42
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -27030,7 +26904,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -27038,32 +26911,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -27072,40 +26926,11 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
   limbRotationResponse: 22
   limbPositionResponse: 12
-  hiddenLimbSpread: 0.6
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
-  flapWingAngle: 52
-  flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
-  wingRotationResponse: 35
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
-  wingScaleResponse: 12
+  strideLift: 0.035
+  strideCycles: 9
+  strideAngle: 24
 --- !u!1001 &503912325
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31565,14 +31390,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 556895787}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: ba42d639f77e4fa0ae95efa041973ba9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 4
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenLadybug
   body: {fileID: 1925235328}
   head: {fileID: 1604423805}
-  leftWing: {fileID: 0}
-  rightWing: {fileID: 0}
   limbs:
   - {fileID: 1843616459}
   - {fileID: 631046596}
@@ -31580,17 +31402,11 @@ MonoBehaviour:
   - {fileID: 547971602}
   - {fileID: 238613038}
   - {fileID: 857056146}
-  ears: []
-  perch: {fileID: 0}
   groundA: {x: -6, y: -0.74, z: 8.2}
   groundB: {x: -5.6, y: -0.74, z: 8.349999}
   travelSeconds: 6
   restSeconds: 6
-  flightHeight: 1.5
   phase: 6.84
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -31602,7 +31418,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -31610,32 +31425,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -31644,40 +31440,11 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
   limbRotationResponse: 22
   limbPositionResponse: 12
-  hiddenLimbSpread: 0.6
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
-  flapWingAngle: 52
-  flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
-  wingRotationResponse: 35
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
-  wingScaleResponse: 12
+  strideLift: 0.035
+  strideCycles: 9
+  strideAngle: 24
 --- !u!1 &557154158
 GameObject:
   m_ObjectHideFlags: 0
@@ -34048,26 +33815,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 615559179}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: d3c9b9d3fb9649bdb07b57d80a4a27a1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 3
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenButterfly
   body: {fileID: 1146260284}
   head: {fileID: 1988022322}
-  leftWing: {fileID: 2080473401}
-  rightWing: {fileID: 1890180710}
   limbs: []
-  ears: []
-  perch: {fileID: 0}
   groundA: {x: -12.8, y: -0.15, z: -3.2}
   groundB: {x: -12.88, y: -0.050000004, z: -2.5}
   travelSeconds: 3
   restSeconds: 2.5
-  flightHeight: 0.5
   phase: 0
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -34079,7 +33837,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -34087,32 +33844,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -34121,40 +33859,22 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
   limbRotationResponse: 22
   limbPositionResponse: 12
-  hiddenLimbSpread: 0.6
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
+  leftWing: {fileID: 2080473401}
+  rightWing: {fileID: 1890180710}
+  flightHeight: 0.5
+  wingBeatsPerSecond: 5.5
   flapWingAngle: 52
   flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
   wingRotationResponse: 35
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
   wingScaleResponse: 12
+  swayCycles: 2
+  swayDistance: 0.15
+  wingSpeedMultiplier: 1.25
+  restWingAngle: 28
+  restWingFrequency: 3
+  restWingAmplitude: 18
 --- !u!1001 &617049776
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -52350,14 +52070,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 905446021}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: ba42d639f77e4fa0ae95efa041973ba9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 4
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenLadybug
   body: {fileID: 603352390}
   head: {fileID: 575048670}
-  leftWing: {fileID: 0}
-  rightWing: {fileID: 0}
   limbs:
   - {fileID: 1911307874}
   - {fileID: 1907036088}
@@ -52365,17 +52082,11 @@ MonoBehaviour:
   - {fileID: 1061869114}
   - {fileID: 379695934}
   - {fileID: 126989584}
-  ears: []
-  perch: {fileID: 0}
   groundA: {x: -7.8, y: -0.74, z: 7.55}
   groundB: {x: -7.4, y: -0.74, z: 7.7000003}
   travelSeconds: 6
   restSeconds: 6
-  flightHeight: 1.5
   phase: 0
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -52387,7 +52098,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -52395,32 +52105,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -52429,40 +52120,11 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
   limbRotationResponse: 22
   limbPositionResponse: 12
-  hiddenLimbSpread: 0.6
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
-  flapWingAngle: 52
-  flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
-  wingRotationResponse: 35
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
-  wingScaleResponse: 12
+  strideLift: 0.035
+  strideCycles: 9
+  strideAngle: 24
 --- !u!1001 &905515284
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -56231,26 +55893,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 989336913}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: d3c9b9d3fb9649bdb07b57d80a4a27a1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 3
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenButterfly
   body: {fileID: 1033966681}
   head: {fileID: 1403158816}
-  leftWing: {fileID: 2047219977}
-  rightWing: {fileID: 833668168}
   limbs: []
-  ears: []
-  perch: {fileID: 0}
   groundA: {x: -12.8, y: -0.15, z: 3.6000001}
   groundB: {x: -12.88, y: -0.050000004, z: 4.3}
   travelSeconds: 3
   restSeconds: 2.5
-  flightHeight: 0.5
   phase: 2.74
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -56262,7 +55915,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -56270,32 +55922,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -56304,40 +55937,22 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
   limbRotationResponse: 22
   limbPositionResponse: 12
-  hiddenLimbSpread: 0.6
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
+  leftWing: {fileID: 2047219977}
+  rightWing: {fileID: 833668168}
+  flightHeight: 0.5
+  wingBeatsPerSecond: 5.5
   flapWingAngle: 52
   flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
   wingRotationResponse: 35
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
   wingScaleResponse: 12
+  swayCycles: 2
+  swayDistance: 0.15
+  wingSpeedMultiplier: 1.25
+  restWingAngle: 28
+  restWingFrequency: 3
+  restWingAmplitude: 18
 --- !u!1001 &990165310
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -66415,30 +66030,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1195282836}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: a2b52e1fe54e475983697929dda51756, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 2
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenTurtle
   body: {fileID: 311886644}
   head: {fileID: 1170917347}
-  leftWing: {fileID: 0}
-  rightWing: {fileID: 0}
   limbs:
   - {fileID: 1055805956}
   - {fileID: 1504568487}
   - {fileID: 574369258}
   - {fileID: 590569598}
-  ears: []
-  perch: {fileID: 0}
   groundA: {x: 3.6, y: -0.74, z: -7.7}
   groundB: {x: 2.2, y: -0.74, z: -7.8}
   travelSeconds: 8
   restSeconds: 9
-  flightHeight: 1.5
   phase: 3
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -66450,7 +66056,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -66458,32 +66063,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -66492,40 +66078,17 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
   limbRotationResponse: 22
   limbPositionResponse: 12
+  strideLift: 0.035
+  strideCycles: 5
+  strideAngle: 20
+  rollFrequency: 5
+  roll: 2
+  hideSeconds: 2.5
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   hiddenLimbSpread: 0.6
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
-  flapWingAngle: 52
-  flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
-  wingRotationResponse: 35
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
-  wingScaleResponse: 12
 --- !u!1001 &1196633650
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -67823,14 +67386,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1217508690}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: ba42d639f77e4fa0ae95efa041973ba9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 4
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenLadybug
   body: {fileID: 390018711}
   head: {fileID: 1681352916}
-  leftWing: {fileID: 0}
-  rightWing: {fileID: 0}
   limbs:
   - {fileID: 2142662457}
   - {fileID: 748684829}
@@ -67838,17 +67398,11 @@ MonoBehaviour:
   - {fileID: 2122541997}
   - {fileID: 1411558454}
   - {fileID: 233360650}
-  ears: []
-  perch: {fileID: 0}
   groundA: {x: 8, y: -0.74, z: -8.6}
   groundB: {x: 8.4, y: -0.74, z: -8.450001}
   travelSeconds: 6
   restSeconds: 6
-  flightHeight: 1.5
   phase: 5.13
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -67860,7 +67414,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -67868,32 +67421,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -67902,40 +67436,11 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
   limbRotationResponse: 22
   limbPositionResponse: 12
-  hiddenLimbSpread: 0.6
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
-  flapWingAngle: 52
-  flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
-  wingRotationResponse: 35
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
-  wingScaleResponse: 12
+  strideLift: 0.035
+  strideCycles: 9
+  strideAngle: 24
 --- !u!1001 &1217620807
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -76514,28 +76019,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 1368582547}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: 6b4c4043efc345cb821519d4fe3c7c25, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 0
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenBird
   body: {fileID: 1357937822}
   head: {fileID: 1379659505}
-  leftWing: {fileID: 933391310}
-  rightWing: {fileID: 806526649}
   limbs:
   - {fileID: 572303767}
   - {fileID: 425124010}
-  ears: []
-  perch: {fileID: 1275081504}
   groundA: {x: -12.1, y: -0.74, z: 4.5}
   groundB: {x: -12.650001, y: -0.74, z: 4.15}
   travelSeconds: 3
   restSeconds: 6
-  flightHeight: 1.5
   phase: 0.5
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -76547,7 +76043,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -76555,32 +76050,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -76589,40 +76065,25 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
   limbRotationResponse: 22
   limbPositionResponse: 12
-  hiddenLimbSpread: 0.6
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
+  leftWing: {fileID: 933391310}
+  rightWing: {fileID: 806526649}
+  flightHeight: 1.5
+  wingBeatsPerSecond: 5.5
   flapWingAngle: 52
   flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
   wingRotationResponse: 35
+  wingScaleResponse: 12
+  perch: {fileID: 1275081504}
+  usePerch: 1
+  flightPitch: -12
+  flightLimbAngle: -65
+  glideProgressRange: {x: 0.25, y: 0.7}
+  glideWingAngle: 10
+  restWingAngle: -12
   foldedWingAngle: 65
   foldedWingScale: 0.68
-  wingScaleResponse: 12
 --- !u!1 &1374285421
 GameObject:
   m_ObjectHideFlags: 0
@@ -82702,30 +82163,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1489089952}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: a2b52e1fe54e475983697929dda51756, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 2
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenTurtle
   body: {fileID: 114259059}
   head: {fileID: 1557574214}
-  leftWing: {fileID: 0}
-  rightWing: {fileID: 0}
   limbs:
   - {fileID: 953214605}
   - {fileID: 129176033}
   - {fileID: 1938946411}
   - {fileID: 1790208564}
-  ears: []
-  perch: {fileID: 0}
   groundA: {x: 12.1, y: -0.74, z: -0.6}
   groundB: {x: 12.1, y: -0.74, z: -1.6}
   travelSeconds: 8
   restSeconds: 9
-  flightHeight: 1.5
   phase: 1.73
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -82737,7 +82189,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -82745,32 +82196,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -82779,40 +82211,17 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
   limbRotationResponse: 22
   limbPositionResponse: 12
+  strideLift: 0.035
+  strideCycles: 5
+  strideAngle: 20
+  rollFrequency: 5
+  roll: 2
+  hideSeconds: 2.5
+  hiddenHeadScale: 0.75
+  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   hiddenLimbSpread: 0.6
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
-  flapWingAngle: 52
-  flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
-  wingRotationResponse: 35
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
-  wingScaleResponse: 12
 --- !u!1001 &1490210277
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -101081,14 +100490,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1865523350}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: ba42d639f77e4fa0ae95efa041973ba9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 4
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenLadybug
   body: {fileID: 706421218}
   head: {fileID: 1307644896}
-  leftWing: {fileID: 0}
-  rightWing: {fileID: 0}
   limbs:
   - {fileID: 766619095}
   - {fileID: 1807438538}
@@ -101096,17 +100502,11 @@ MonoBehaviour:
   - {fileID: 56363246}
   - {fileID: 159255065}
   - {fileID: 910806882}
-  ears: []
-  perch: {fileID: 0}
   groundA: {x: 6.2, y: -0.74, z: 7.7}
   groundB: {x: 6.6, y: -0.74, z: 7.85}
   travelSeconds: 6
   restSeconds: 6
-  flightHeight: 1.5
   phase: 1.71
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -101118,7 +100518,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -101126,32 +100525,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -101160,40 +100540,11 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
   limbRotationResponse: 22
   limbPositionResponse: 12
-  hiddenLimbSpread: 0.6
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
-  flapWingAngle: 52
-  flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
-  wingRotationResponse: 35
-  foldedWingAngle: 65
-  foldedWingScale: 0.68
-  wingScaleResponse: 12
+  strideLift: 0.035
+  strideCycles: 9
+  strideAngle: 24
 --- !u!1001 &1865719352
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -110176,28 +109527,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 2006583897}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e9742e4627ef4f458a053fa4936bc10, type: 3}
+  m_Script: {fileID: 11500000, guid: 6b4c4043efc345cb821519d4fe3c7c25, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenAnimal
-  species: 0
+  m_EditorClassIdentifier: GardenSnake.Garden::GardenSnake.GardenBird
   body: {fileID: 1053595696}
   head: {fileID: 324850670}
-  leftWing: {fileID: 1102833778}
-  rightWing: {fileID: 1040636485}
   limbs:
   - {fileID: 852210317}
   - {fileID: 458526414}
-  ears: []
-  perch: {fileID: 0}
   groundA: {x: 12.1, y: -0.74, z: -6.6}
   groundB: {x: 12.650001, y: -0.74, z: -6.95}
   travelSeconds: 3
   restSeconds: 6
-  flightHeight: 1.5
   phase: 1.5
-  hopHeight: 0.3
-  hopLength: 0.65
-  wingBeatsPerSecond: 5.5
   randomSeed: 7919
   phaseSeedMultiplier: 104729
   tempoRange: {x: 0.72, y: 1.3}
@@ -110209,7 +109551,6 @@ MonoBehaviour:
   restDurationRange: {x: 0.65, y: 2.1}
   travelExcitementSpeed: 0.3
   turnSpeed: 7
-  usePerch: 1
   reactionPropagationSpeed: 30
   reactionDelayRange: {x: 0.03, y: 0.65}
   reactionDistanceAttenuation: 0.06
@@ -110217,32 +109558,13 @@ MonoBehaviour:
   curiosityDecay: 0.8
   reactionCuriosity: 1
   reactionTravelChance: 0.35
-  hideSeconds: 2.5
-  hopDurationRange: {x: 0.62, y: 0.82}
-  hopExcitementSpeed: 0.2
-  hopExcitementHeight: 0.1
-  hopCrouchFraction: 0.18
-  butterflySwayCycles: 2
-  butterflySwayDistance: 0.15
   breathFrequency: 2.4
   breathAmplitude: 0.008
   curiosityBreath: 0.02
-  hopBodyStretch: 0.055
-  crouchBodySquash: 0.15
   bodyWidthCompensation: 0.4
-  hopPitch: -9
-  birdFlightPitch: -12
-  turtleRollFrequency: 5
-  turtleRoll: 2
   bodyRotationResponse: 14
-  hiddenHeadScale: 0.75
-  hiddenHeadOffset: {x: 0, y: -0.06, z: -0.36}
   headScaleResponse: 10
   headPositionResponse: 10
-  nibbleFrequency: 0.7
-  grazeNod: 18
-  grazeNodFrequency: 4
-  grazeNodAmplitude: 12
   idleNodFrequency: 1.3
   idleNodAmplitude: 3
   lookFrequency: 0.55
@@ -110251,40 +109573,25 @@ MonoBehaviour:
   lookAngle: 24
   curiosityHeadTilt: 16
   headPitchCompensation: 0.45
-  rearHopLimbAngle: -38
-  frontHopLimbAngle: -52
-  frontHopLimbRecovery: 30
-  birdFlightLimbAngle: -65
-  turtleStrideCycles: 5
-  insectStrideCycles: 9
-  turtleStrideAngle: 20
-  insectStrideAngle: 24
-  strideLift: 0.035
   limbRotationResponse: 22
   limbPositionResponse: 12
-  hiddenLimbSpread: 0.6
-  earDragPhase: 0.65
-  earDragPhaseSpacing: 0.18
-  earDragAngle: 22
-  earTwitchFrequency: 0.83
-  earTwitchPhaseSpacing: 2.6
-  earTwitchPower: 18
-  earTwitchAngle: 13
-  earNodCompensation: -0.35
-  earRotationResponse: 13
-  glideProgressRange: {x: 0.25, y: 0.7}
-  butterflyWingSpeedMultiplier: 1.25
-  glideWingAngle: 10
+  leftWing: {fileID: 1102833778}
+  rightWing: {fileID: 1040636485}
+  flightHeight: 1.5
+  wingBeatsPerSecond: 5.5
   flapWingAngle: 52
   flapWingOffset: 8
-  butterflyRestWingAngle: 28
-  butterflyRestWingFrequency: 3
-  butterflyRestWingAmplitude: 18
-  birdRestWingAngle: -12
   wingRotationResponse: 35
+  wingScaleResponse: 12
+  perch: {fileID: 0}
+  usePerch: 1
+  flightPitch: -12
+  flightLimbAngle: -65
+  glideProgressRange: {x: 0.25, y: 0.7}
+  glideWingAngle: 10
+  restWingAngle: -12
   foldedWingAngle: 65
   foldedWingScale: 0.68
-  wingScaleResponse: 12
 --- !u!1 &2014454395
 GameObject:
   m_ObjectHideFlags: 0
