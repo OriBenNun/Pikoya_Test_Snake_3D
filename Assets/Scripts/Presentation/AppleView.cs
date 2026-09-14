@@ -1,6 +1,7 @@
+using GardenSnake.Gameplay;
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Presentation
 {
     /// <summary>
     /// The apple and the pool of light under it. It drops in with a little overshoot, breathes,

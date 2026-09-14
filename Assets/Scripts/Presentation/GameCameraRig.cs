@@ -1,6 +1,7 @@
+using GardenSnake.Gameplay;
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Presentation
 {
     /// <summary>
     /// Frames the whole garden between the two HUD bands at whatever aspect the window happens to

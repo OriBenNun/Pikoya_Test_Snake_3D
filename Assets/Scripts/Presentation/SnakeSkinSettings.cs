@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Presentation
 {
     /// <summary>Persistent Inspector tuning shared by runtime-created snake presentation components.</summary>
     [CreateAssetMenu(menuName = "Garden Snake/Snake Skin Settings")]

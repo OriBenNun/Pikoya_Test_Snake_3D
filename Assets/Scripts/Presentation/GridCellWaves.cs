@@ -1,7 +1,8 @@
 using System;
+using GardenSnake.Gameplay;
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Presentation
 {
     /// <summary>
     /// Bounded, additive visual waves. Cell coordinates and collision never move.

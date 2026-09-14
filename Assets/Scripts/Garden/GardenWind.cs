@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Garden
 {
     /// <summary>Position-phased wind and travelling feedback gusts, with rooted vegetation pivots.</summary>
     public sealed class GardenWind : GardenDweller

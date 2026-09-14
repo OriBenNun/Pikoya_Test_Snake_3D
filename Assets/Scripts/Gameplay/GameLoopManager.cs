@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Gameplay
 {
     /// <summary>A patch of the board. Two ints and the handful of operators a grid needs.</summary>
     public readonly struct Cell : IEquatable<Cell>
@@ -55,23 +55,34 @@ namespace GardenSnake
     [DefaultExecutionOrder(-200)]
     public sealed class GameLoopManager : MonoBehaviour
     {
-        [Header("Board")]
-        [SerializeField, Min(6)] private int boardWidth = 21;
-        [SerializeField, Min(6)] private int boardHeight = 12;
         [Header("Pace")]
-        [SerializeField, Range(.1f, .5f)] private float initialStepSeconds = .25f;
-        [SerializeField, Range(.06f, .3f)] private float fastestStepSeconds = .115f;
-        [SerializeField, Range(0f, .02f)] private float speedGainPerApple = .0055f;
-        [SerializeField, Range(0f, 1f)] private float openingBeat = .45f;
-        [Header("Rules (applied on entering Play Mode)")]
-        [SerializeField, Min(2)] private int initialLength = 3;
-        [SerializeField, Range(1, 8)] private int turnBufferSize = 2;
-        [SerializeField, Min(1)] private int firstAppleDistance = 2;
-        [Header("Runtime")]
+        [SerializeField, Range(.1f, .5f), Tooltip("Seconds per cell at the start of a run. Lower is faster.")]
+        private float initialStepSeconds = .25f;
+        [SerializeField, Range(.06f, .3f), Tooltip("Fastest the snake ever gets, however many apples it eats.")]
+        private float fastestStepSeconds = .115f;
+        [SerializeField, Range(0f, .02f), Tooltip("Seconds every apple shaves off the step.")]
+        private float speedGainPerApple = .0055f;
+        [SerializeField, Range(0f, 1f), Tooltip("Still beat after PLAY before the first step, so the board can be read.")]
+        private float openingBeat = .45f;
+        [Header("Scene")]
         [SerializeField] private PlayerController input;
-        [SerializeField, Min(1)] private int targetFrameRate = 60;
-        [SerializeField] private bool runInBackground = true;
-        [SerializeField, Min(0)] private float restartDelay = .35f;
+
+        /// <summary>
+        /// The authored board. The scene carries exactly this grid of patches and nothing rebuilds
+        /// it, so the size is the game's shape rather than a setting.
+        /// </summary>
+        public const int Columns = 21;
+        public const int Rows = 12;
+        private const int Cells = Columns * Rows;
+
+        // The rules, and the frame the player is given them in.
+        private const int InitialLength = 3;
+        private const int TurnBufferSize = 2;
+        /// <summary>The first apple sits this far straight ahead, so the first swipe is obvious.</summary>
+        private const int FirstAppleDistance = 2;
+        private const int TargetFrameRate = 60;
+        /// <summary>A death is not a cue to press again; the card has to land first.</summary>
+        private const float RestartDelay = .35f;
 
         private const string BestKey = "GardenSnake.Best";
         private const string PlayedKey = "GardenSnake.HasPlayed";
@@ -166,15 +177,10 @@ namespace GardenSnake
 
         private void Awake()
         {
-            Application.targetFrameRate = targetFrameRate;
-            Application.runInBackground = runInBackground;
-            boardWidth = Mathf.Max(6, boardWidth);
-            boardHeight = Mathf.Max(6, boardHeight);
-            initialLength = Mathf.Clamp(initialLength, 2, boardWidth / 2 + 1);
-            turnBufferSize = Mathf.Clamp(turnBufferSize, 1, 8);
-            firstAppleDistance = Mathf.Clamp(firstAppleDistance, 1, boardWidth - boardWidth / 2 - 1);
+            Application.targetFrameRate = TargetFrameRate;
+            Application.runInBackground = true;
             random = new System.Random(Environment.TickCount);
-            body.Capacity = boardWidth * boardHeight;
+            body.Capacity = Cells;
             ResetRun();
             best = PlayerPrefs.GetInt(BestKey, 0);
             hasPlayed = PlayerPrefs.GetInt(PlayedKey, 0) == 1 || best > 0;
@@ -220,7 +226,7 @@ namespace GardenSnake
         {
             if (State == RunState.Paused) { TogglePause(); return; }
             if (State == RunState.Playing) return;
-            if (RunOver && Time.unscaledTime - endTime < restartDelay) return;
+            if (RunOver && Time.unscaledTime - endTime < RestartDelay) return;
             PreviousBest = best;
             RecordEligible = hasPlayed;
             RecordBroken = false;
@@ -245,7 +251,7 @@ namespace GardenSnake
         public void Turn(Direction wish)
         {
             if (State == RunState.Ready) PrimaryAction();
-            if (State != RunState.Playing || turns.Count >= turnBufferSize) return;
+            if (State != RunState.Playing || turns.Count >= TurnBufferSize) return;
             Direction last = Heading;
             foreach (Direction queued in turns) last = queued;
             // Reversing into the neck is not a move, and neither is turning the way you already face.
@@ -320,7 +326,7 @@ namespace GardenSnake
             for (int i = 0; i < digestion.Count; i++) digestion[i] += DigestionPerStep;
             if (grow) digestion.RemoveAt(0);
             if (eat) { Score++; digestion.Add(0); }
-            if (body.Count == boardWidth * boardHeight)
+            if (body.Count == Cells)
             {
                 State = RunState.Won;
                 EndReason = "Every patch of the garden is yours!";
@@ -329,7 +335,7 @@ namespace GardenSnake
             if (eat)
             {
                 // Pending growth reserves the remaining cells, including the final apple.
-                if (body.Count + digestion.Count == boardWidth * boardHeight) Food = NoFood;
+                if (body.Count + digestion.Count == Cells) Food = NoFood;
                 else SpawnFood();
             }
             return eat ? StepResult.Ate : StepResult.Moved;
@@ -348,23 +354,23 @@ namespace GardenSnake
             body.Clear();
             turns.Clear();
             digestion.Clear();
-            int startX = boardWidth / 2;
-            int startY = boardHeight / 2;
-            for (int i = 0; i < initialLength; i++) body.Add(new Cell(startX - i, startY));
+            int startX = Columns / 2;
+            int startY = Rows / 2;
+            for (int i = 0; i < InitialLength; i++) body.Add(new Cell(startX - i, startY));
             Heading = Direction.Right;
             Score = 0;
             EndReason = string.Empty;
             State = RunState.Ready;
             // The first apple teaches movement immediately; later apples use free-cell sampling.
-            Food = new Cell(startX + firstAppleDistance, startY);
+            Food = new Cell(startX + FirstAppleDistance, startY);
         }
 
         /// <summary>Picks the nth free cell, so spawning never retries and never hangs on a full board.</summary>
         private void SpawnFood()
         {
-            int index = random.Next(boardWidth * boardHeight - body.Count);
-            for (int y = 0; y < boardHeight; y++)
-            for (int x = 0; x < boardWidth; x++)
+            int index = random.Next(Cells - body.Count);
+            for (int y = 0; y < Rows; y++)
+            for (int x = 0; x < Columns; x++)
             {
                 var cell = new Cell(x, y);
                 if (body.Contains(cell)) continue;
@@ -415,7 +421,7 @@ namespace GardenSnake
 
         /// <summary>Where a cell sits in the world. The one place board coordinates become metres.</summary>
         public Vector3 World(Cell cell) =>
-            new Vector3(cell.X - (boardWidth - 1) * .5f, 0, cell.Y - (boardHeight - 1) * .5f);
+            new Vector3(cell.X - (Columns - 1) * .5f, 0, cell.Y - (Rows - 1) * .5f);
 
         public static Cell Offset(Direction direction) => direction switch
         {

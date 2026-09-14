@@ -1,7 +1,8 @@
+using GardenSnake.Presentation;
 using UnityEditor;
 using UnityEngine;
 
-namespace GardenSnake.Editor
+namespace GardenSnake.Editor.Editor
 {
     /// <summary>Creates reusable tuning assets without replacing existing artist settings.</summary>
     public static class GardenTuning

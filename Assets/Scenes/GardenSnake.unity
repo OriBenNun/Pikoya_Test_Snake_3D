@@ -70191,7 +70191,7 @@ MonoBehaviour:
   secondaryFrequency: 1.73
   secondarySpatialScale: 1.3
   reactToFeedback: 1
-  propagationSpeed: 24
+  propagationSpeed: 30
   distanceFalloff: 0.025
   deathStrength: -1.5
   pulseDuration: 2

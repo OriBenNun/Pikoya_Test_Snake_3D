@@ -1,8 +1,9 @@
+using GardenSnake.Gameplay;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GardenSnake
+namespace GardenSnake.Presentation.Hud
 {
     /// <summary>A layered toy speedometer drawn as a small UI mesh, with a damped spring needle.</summary>
     [RequireComponent(typeof(CanvasRenderer))]

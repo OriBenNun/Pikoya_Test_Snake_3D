@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using GardenSnake.Gameplay;
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Presentation
 {
     /// <summary>
     /// The snake's visual layer. It owns every moving piece of the animal - the body poses, the

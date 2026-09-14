@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-namespace GardenSnake.Editor
+namespace GardenSnake.Editor.Editor
 {
     /// <summary>
     /// Writes the project's shipping configuration into Project Settings, so every build path

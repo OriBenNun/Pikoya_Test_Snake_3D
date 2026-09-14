@@ -1,9 +1,8 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using static GardenSnake.Editor.GardenPalette;
 
-namespace GardenSnake.Editor
+namespace GardenSnake.Editor.Editor
 {
     /// <summary>Reproducible garden vignettes and small, seamless hand-patterned material maps.</summary>
     public static class GardenDecor

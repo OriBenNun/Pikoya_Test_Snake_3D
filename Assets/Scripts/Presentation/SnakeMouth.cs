@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using GardenSnake.Gameplay;
 using UnityEngine;
 
-namespace GardenSnake
+namespace GardenSnake.Presentation
 {
     /// <summary>Articulates the existing face and carries the picked apple into its mouth.</summary>
     public sealed class SnakeMouth : MonoBehaviour

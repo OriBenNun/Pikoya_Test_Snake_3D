@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GardenSnake.Editor
+namespace GardenSnake.Editor.Editor
 {
     /// <summary>
     /// One place for every colour in the game. The garden is a bright afternoon lawn: a sunny

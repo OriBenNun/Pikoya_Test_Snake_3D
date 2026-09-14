@@ -3,7 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace GardenSnake.Editor
+namespace GardenSnake.Editor.Editor
 {
     /// <summary>
     /// Draws the handful of UI shapes the game needs straight into PNG assets, so the project

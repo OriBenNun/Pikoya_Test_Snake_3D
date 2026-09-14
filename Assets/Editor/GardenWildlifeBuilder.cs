@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using GardenSnake.Garden;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace GardenSnake.Editor
+namespace GardenSnake.Editor.Editor
 {
     /// <summary>Small, reproducible clay wildlife rigs. No colliders or gameplay components.</summary>
     public static class GardenWildlifeBuilder

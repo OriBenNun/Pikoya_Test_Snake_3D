@@ -1,13 +1,13 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using GardenSnake.Gameplay;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 
-namespace GardenSnake.Editor
+namespace GardenSnake.Editor.Editor
 {
     /// <summary>
     /// Unattended playtest driver. Steers the real game with real Input System events, restarts

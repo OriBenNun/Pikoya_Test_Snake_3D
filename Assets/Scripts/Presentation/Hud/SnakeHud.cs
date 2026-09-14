@@ -1,8 +1,9 @@
+using GardenSnake.Gameplay;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GardenSnake
+namespace GardenSnake.Presentation.Hud
 {
     /// <summary>
     /// Presentation only. The HUD never touches the simulation; it reads the game loop and decides

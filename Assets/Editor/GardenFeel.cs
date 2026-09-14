@@ -1,9 +1,10 @@
+using GardenSnake.Presentation.Hud;
 using MoreMountains.Feedbacks;
 using UnityEditor;
 using UnityEngine;
-using static GardenSnake.Editor.GardenPalette;
+using static GardenSnake.Editor.Editor.GardenPalette;
 
-namespace GardenSnake.Editor
+namespace GardenSnake.Editor.Editor
 {
     /// <summary>
     /// Authors the Feel players. Each one is tuned to be felt rather than noticed: shakes are short,

@@ -1,3 +1,6 @@
+using GardenSnake.Gameplay;
+using GardenSnake.Presentation;
+using GardenSnake.Presentation.Hud;
 using MoreMountains.Feedbacks;
 using UnityEngine;
 using UnityEngine.Rendering;

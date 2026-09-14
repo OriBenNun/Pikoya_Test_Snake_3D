@@ -3,7 +3,7 @@ using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace GardenSnake
+namespace GardenSnake.Presentation
 {
     /// <summary>A continuous surface over the controller's visual poses; game cells remain authoritative.</summary>
     public sealed class SnakeSkin : MonoBehaviour

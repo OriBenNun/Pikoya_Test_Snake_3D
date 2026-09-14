@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace GardenSnake.Editor
+namespace GardenSnake.Editor.Editor
 {
     /// <summary>Authored silhouettes, baked once into shared meshes by the wildlife builder.</summary>
     public static class GardenWildlifeMeshes

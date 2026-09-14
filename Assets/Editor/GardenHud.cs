@@ -1,15 +1,17 @@
 using System;
 using System.IO;
 using System.Linq;
+using GardenSnake.Gameplay;
+using GardenSnake.Presentation.Hud;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
-using static GardenSnake.Editor.GardenPalette;
+using static GardenSnake.Editor.Editor.GardenPalette;
 
-namespace GardenSnake.Editor
+namespace GardenSnake.Editor.Editor
 {
     /// <summary>
     /// Builds the interface: a quiet wordmark, a score cluster, two icon buttons and one card.

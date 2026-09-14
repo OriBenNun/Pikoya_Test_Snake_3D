@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using GardenSnake.Gameplay;
+using GardenSnake.Garden;
+using GardenSnake.Presentation;
+using GardenSnake.Presentation.Hud;
+using MoreMountains.Feedbacks;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
@@ -9,11 +13,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
-using MoreMountains.Feedbacks;
-using MoreMountains.Tools;
-using static GardenSnake.Editor.GardenPalette;
+using static GardenSnake.Editor.Editor.GardenPalette;
 
-namespace GardenSnake.Editor
+namespace GardenSnake.Editor.Editor
 {
     /// <summary>Reproducible authoring and build entry points. All generated assets stay in GardenSnake.</summary>
     public static class GardenBuilder

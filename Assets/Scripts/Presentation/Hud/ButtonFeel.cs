@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace GardenSnake
+namespace GardenSnake.Presentation.Hud
 {
     /// <summary>Small, unscaled hover and press reactions that leave Button click handling intact.</summary>
     [RequireComponent(typeof(Button))]
