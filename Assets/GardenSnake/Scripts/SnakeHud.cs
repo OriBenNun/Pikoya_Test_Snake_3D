@@ -117,6 +117,9 @@ namespace GardenSnake
         [SerializeField, Min(0)] private int goodScore = 12;
         [SerializeField, Min(0)] private int magnificentScore = 25;
 
+        /// <summary>Pre-rendered numerals: the score changes every apple and never allocates.</summary>
+        private static readonly string[] Numerals = BuildNumerals();
+
         private SnakeController controller;
         private Camera view;
         private RectTransform canvasRect;
@@ -127,21 +130,9 @@ namespace GardenSnake
         private float bannerTime;
         private float cardTime;
         private float whisperTime;
-        private RunState lastState = (RunState)(-1);
+        private RunState? shownState;
         private int shownScore = -1;
         private int shownBest = -1;
-        private static readonly string[] Counts = BuildCounts();
-
-        /// <summary>Pre-rendered numerals: the score changes every apple and never allocates.</summary>
-        private static string[] BuildCounts()
-        {
-            var counts = new string[400];
-            for (int i = 0; i < counts.Length; i++) counts[i] = i.ToString();
-            return counts;
-        }
-
-        private static string Count(int value) =>
-            value >= 0 && value < Counts.Length ? Counts[value] : value.ToString();
 
         public Transform ScoreTransform => scoreText != null ? scoreText.transform : null;
 
@@ -158,9 +149,9 @@ namespace GardenSnake
             foreach (Button button in new[] { primaryButton, pauseButton, muteButton })
                 button.onClick.AddListener(controller.Click);
             toast.alpha = 0;
-            toastHalo.color = FadeTo(toastHalo.color, 0);
+            toastHalo.color = WithAlpha(toastHalo.color, 0);
             banner.alpha = 0;
-            bannerFill.color = FadeTo(bannerFill.color, 0);
+            bannerFill.color = WithAlpha(bannerFill.color, 0);
             Refresh();
         }
 
@@ -170,58 +161,47 @@ namespace GardenSnake
             if (shownScore != game.Score)
             {
                 shownScore = game.Score;
-                scoreText.text = Count(game.Score);
+                scoreText.text = Numeral(game.Score);
             }
             if (shownBest != controller.Best)
             {
                 shownBest = controller.Best;
-                bestText.text = bestPrefix + Count(controller.Best);
+                bestText.text = bestPrefix + Numeral(controller.Best);
             }
             muteGlyph.sprite = controller.Muted ? soundOffSprite : soundOnSprite;
-            muteGlyph.color = FadeTo(controlColor, controller.Muted ? mutedOpacity : soundOnOpacity);
+            muteGlyph.color = WithAlpha(controlColor, controller.Muted ? mutedOpacity : soundOnOpacity);
             pauseGlyph.sprite = game.State == RunState.Paused ? resumeSprite : pauseSprite;
-            pauseButton.interactable = game.State == RunState.Playing || game.State == RunState.Paused;
+            pauseButton.interactable = game.State is RunState.Playing or RunState.Paused;
 
-            if (lastState != game.State)
+            if (shownState != game.State)
             {
-                if (game.State == RunState.Playing && lastState != RunState.Paused)
+                if (game.State == RunState.Playing && shownState != RunState.Paused)
                     toastTime = bannerTime = whisperTime = 0;
                 cardTime = 0;
-                lastState = game.State;
+                shownState = game.State;
             }
             bool showCard = game.State != RunState.Playing;
             card.SetActive(showCard);
-            bool ended = game.State == RunState.Lost || game.State == RunState.Won;
+            bool ended = game.State is RunState.Lost or RunState.Won;
             cardTally.SetActive(ended);
-            if (ended) cardTallyValue.text = Count(game.Score);
+            if (ended) cardTallyValue.text = Numeral(game.Score);
             LayoutCard(ended);
-            if (!showCard) return;
-            switch (game.State)
-            {
-                case RunState.Ready:
-                    cardEyebrow.text = readyEyebrow;
-                    cardTitle.text = readyTitle;
-                    cardBody.text = readyBody;
-                    primaryLabel.text = playLabel;
-                    break;
-                case RunState.Paused:
-                    cardEyebrow.text = pausedEyebrow;
-                    cardTitle.text = pausedTitle;
-                    cardBody.text = pausedBody;
-                    primaryLabel.text = resumeLabel;
-                    break;
-                case RunState.Lost:
-                case RunState.Won:
-                    bool won = game.State == RunState.Won;
-                    cardEyebrow.text = won ? wonEyebrow
-                        : controller.Record.Broken ? recordEyebrow
-                        : lostEyebrow;
-                    cardTitle.text = won ? wonTitle : Verdict(game.Score);
-                    cardBody.text = game.EndReason + "\n" + bestResultPrefix + controller.Best;
-                    primaryLabel.text = replayLabel;
-                    break;
-            }
+            if (showCard) WriteCard(game);
         }
+
+        private void WriteCard(SnakeGame game)
+        {
+            (cardEyebrow.text, cardTitle.text, cardBody.text, primaryLabel.text) = game.State switch
+            {
+                RunState.Ready => (readyEyebrow, readyTitle, readyBody, playLabel),
+                RunState.Paused => (pausedEyebrow, pausedTitle, pausedBody, resumeLabel),
+                RunState.Won => (wonEyebrow, wonTitle, EndSummary(game), replayLabel),
+                _ => (controller.Record.Broken ? recordEyebrow : lostEyebrow,
+                      Verdict(game.Score), EndSummary(game), replayLabel)
+            };
+        }
+
+        private string EndSummary(SnakeGame game) => game.EndReason + "\n" + bestResultPrefix + controller.Best;
 
         /// <summary>The card is only as tall as the state needs, so it never shows an empty gap.</summary>
         private void LayoutCard(bool ended)
@@ -234,11 +214,9 @@ namespace GardenSnake
             cardBody.rectTransform.anchoredPosition = new Vector2(0, ended ? bodyY.y : bodyY.x);
             ((RectTransform)primaryButton.transform).anchoredPosition = new Vector2(0, ended ? primaryButtonY.y : primaryButtonY.x);
             cardKeyHint.anchoredPosition = new Vector2(0, ended ? keyHintY.y : keyHintY.x);
-            if (cardInstructions != null)
-            {
-                cardInstructions.gameObject.SetActive(!ended);
-                cardInstructions.anchoredPosition = new Vector2(0, instructionsY);
-            }
+            if (cardInstructions == null) return;
+            cardInstructions.gameObject.SetActive(!ended);
+            cardInstructions.anchoredPosition = new Vector2(0, instructionsY);
         }
 
         private string Verdict(int score)
@@ -269,68 +247,58 @@ namespace GardenSnake
             bannerTime = bannerDuration;
         }
 
-        private static Color FadeTo(Color color, float alpha) =>
-            new Color(color.r, color.g, color.b, alpha);
-
-        private Vector2 ScreenAnchor(Vector3 worldPosition)
-        {
-            Vector2 screen = view.WorldToScreenPoint(worldPosition);
-            Vector2 local;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screen, null, out local);
-            return local;
-        }
-
         private void Update()
         {
             // The controller wires the HUD up in its Awake; until then there is nothing to draw.
             if (controller == null) return;
             float delta = Time.unscaledDeltaTime;
+            AnimateBestFlash(delta);
+            AnimateToast(delta);
+            AnimateBanner(delta);
+            brandGroup.alpha = Mathf.MoveTowards(brandGroup.alpha,
+                controller.Game.State == RunState.Playing ? playingBrandOpacity : 1f, delta * chromeFadeSpeed);
+            AnimateCard(delta);
+        }
+
+        private void AnimateBestFlash(float delta)
+        {
             whisperTime = Mathf.Max(0, whisperTime - delta);
             float whisper = Mathf.Sin(whisperTime / Mathf.Max(.01f, bestFlashDuration) * Mathf.PI);
             bestText.transform.localScale = Vector3.one * (1 + whisper * bestFlashScale);
             bestText.color = Color.Lerp(bestColor, bestFlashColor, whisper);
-            AnimateToast(delta);
-            AnimateBanner(delta);
-            AnimateChrome(delta);
-            AnimateCard(delta);
         }
 
         private void AnimateToast(float delta)
         {
             toastTime = Mathf.Max(0, toastTime - delta);
-            float toastProgress = 1 - toastTime / Mathf.Max(.01f, toastDuration);
-            float toastFade = Mathf.Min(1, toastTime * toastFadeSpeed);
-            toast.alpha = toastFade;
-            toastHalo.color = FadeTo(toastHalo.color, toastFade * (toastQuiet ? quietToastHaloOpacity : toastHaloOpacity));
-            Vector2 lift = toastAnchor + new Vector2(0, toastStartHeight + toastProgress * toastRise);
+            float progress = 1 - toastTime / Mathf.Max(.01f, toastDuration);
+            float fade = Mathf.Min(1, toastTime * toastFadeSpeed);
+            toast.alpha = fade;
+            toastHalo.color = WithAlpha(toastHalo.color, fade * (toastQuiet ? quietToastHaloOpacity : toastHaloOpacity));
+            Vector2 lift = toastAnchor + new Vector2(0, toastStartHeight + progress * toastRise);
             toastRoot.anchoredPosition = new Vector2(lift.x, Mathf.Min(lift.y, canvasRect.rect.height * .5f - toastTopPadding));
-            toastRoot.localScale = Vector3.one * Mathf.Lerp(toastScale.x, toastScale.y, Mathf.Clamp01(toastProgress * toastScaleSpeed));
-
+            toastRoot.localScale = Vector3.one * Mathf.Lerp(toastScale.x, toastScale.y, Mathf.Clamp01(progress * toastScaleSpeed));
         }
 
         private void AnimateBanner(float delta)
         {
             bannerTime = Mathf.Max(0, bannerTime - delta);
-            float bannerFade = Mathf.Min(1, bannerTime * bannerFadeSpeed);
-            float bannerRise = Mathf.Clamp01((bannerDuration - bannerTime) * bannerRiseSpeed);
-            banner.alpha = bannerFade;
-            bannerFill.color = FadeTo(bannerFill.color, bannerFade * bannerFillOpacity);
-            bannerRoot.localScale = Vector3.one * Mathf.Lerp(bannerStartScale, 1f, 1 - Mathf.Pow(1 - bannerRise, bannerEasePower));
-
-        }
-
-        private void AnimateChrome(float delta)
-        {
-            brandGroup.alpha = Mathf.MoveTowards(brandGroup.alpha,
-                controller.Game.State == RunState.Playing ? playingBrandOpacity : 1f, delta * chromeFadeSpeed);
-
+            float fade = Mathf.Min(1, bannerTime * bannerFadeSpeed);
+            float rise = Mathf.Clamp01((bannerDuration - bannerTime) * bannerRiseSpeed);
+            banner.alpha = fade;
+            bannerFill.color = WithAlpha(bannerFill.color, fade * bannerFillOpacity);
+            bannerRoot.localScale = Vector3.one * Mathf.Lerp(bannerStartScale, 1f, 1 - Mathf.Pow(1 - rise, bannerEasePower));
         }
 
         private void AnimateCard(float delta)
         {
-            if (!card.activeSelf) { scrimGroup.alpha = Mathf.MoveTowards(scrimGroup.alpha, 0, delta * scrimFadeOutSpeed); return; }
+            if (!card.activeSelf)
+            {
+                scrimGroup.alpha = Mathf.MoveTowards(scrimGroup.alpha, 0, delta * scrimFadeOutSpeed);
+                return;
+            }
             cardTime += delta;
-            bool ended = lastState == RunState.Lost || lastState == RunState.Won;
+            bool ended = shownState is RunState.Lost or RunState.Won;
             // A short beat after a death lets the collision land before the card interrupts.
             float t = Mathf.Clamp01((cardTime - (ended ? resultsDelay : 0)) / Mathf.Max(.01f, cardFadeDuration));
             float eased = 1 - Mathf.Pow(1 - t, cardEasePower);
@@ -341,5 +309,24 @@ namespace GardenSnake
             card.transform.localScale = Vector3.one * Mathf.Lerp(cardStartScale, 1, eased);
             ((RectTransform)card.transform).anchoredPosition = new Vector2(0, Mathf.Lerp(cardStartY, 0, eased));
         }
+
+        private Vector2 ScreenAnchor(Vector3 worldPosition)
+        {
+            Vector2 screen = view.WorldToScreenPoint(worldPosition);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screen, null, out Vector2 local);
+            return local;
+        }
+
+        private static Color WithAlpha(Color color, float alpha) => new(color.r, color.g, color.b, alpha);
+
+        private static string[] BuildNumerals()
+        {
+            var numerals = new string[400];
+            for (int i = 0; i < numerals.Length; i++) numerals[i] = i.ToString();
+            return numerals;
+        }
+
+        private static string Numeral(int value) =>
+            value >= 0 && value < Numerals.Length ? Numerals[value] : value.ToString();
     }
 }
