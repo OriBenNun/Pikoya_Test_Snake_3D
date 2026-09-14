@@ -42,6 +42,7 @@ namespace GardenSnake
         [SerializeField, Min(0)] private float pulseAmplitude = 12f;
         private Quaternion[] rest;
         private float[] pulseAt, pulseStrength;
+        private float[] weight;
         public int MovingCount => stems == null ? 0 : stems.Length;
 
         private void Awake()
@@ -59,9 +60,14 @@ namespace GardenSnake
             plants.CopyTo(stems);
             rest = new Quaternion[stems.Length];
             pulseAt = new float[stems.Length]; pulseStrength = new float[stems.Length];
+            weight = new float[stems.Length];
             for (int i = 0; i < stems.Length; i++)
             {
                 rest[i] = stems[i].localRotation;
+                // Reading Transform.name marshals a fresh string out of the engine every time.
+                // A trunk never becomes a flower, so weigh the whole meadow once and keep it.
+                string plant = stems[i].name;
+                weight[i] = plant == "Tree" ? treeWeight : plant == "Bush" ? bushWeight : plantWeight;
             }
         }
 
@@ -95,13 +101,12 @@ namespace GardenSnake
                 if (stems[i] == null) continue;
                 Vector3 p = stems[i].position;
                 float phase = (p.x * phaseDirection.x + p.z * phaseDirection.y) * spatialScale;
-                float weight = stems[i].name == "Tree" ? treeWeight : stems[i].name == "Bush" ? bushWeight : plantWeight;
                 float localClock = clock * (1f + frequencyVariation * Mathf.Sin(phase * variationSpatialScale));
                 float turbulence = (Mathf.PerlinNoise(phase + noiseOffset, Time.time * turbulenceFrequency) - .5f) * turbulenceStrength;
                 float sway = Mathf.Sin(localClock + phase) * primarySway + turbulence + secondarySway * Mathf.Sin(localClock * secondaryFrequency + phase * secondarySpatialScale);
                 float age = Time.time - pulseAt[i];
                 float pulse = reactToFeedback && age >= 0 && age < pulseDuration ? Mathf.Sin(age * pulseFrequency) * Mathf.Exp(-age * pulseDecay) * pulseStrength[i] * pulseAmplitude : 0;
-                float lean = (sway * amplitude * gust + pulse) * weight;
+                float lean = (sway * amplitude * gust + pulse) * weight[i];
                 stems[i].localRotation = rest[i] * Quaternion.Euler(lean * leanDirection.x, 0, lean * leanDirection.y);
             }
         }
