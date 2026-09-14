@@ -17,7 +17,7 @@ polish = runpy.run_path(os.path.join(root,'Tools/Blender/polish_assets.py'))['po
 polish('Bush',objects)
 bpy.ops.object.select_all(action='DESELECT')
 for ob in objects: ob.select_set(True)
-bpy.ops.export_scene.fbx(filepath=os.path.join(root,'Assets/GardenSnake/Art/Models/Bush.fbx'),
+bpy.ops.export_scene.fbx(filepath=os.path.join(root,'Assets/Art/Models/Bush.fbx'),
     use_selection=True,object_types={'MESH'},add_leaf_bones=False,
     axis_forward='-Z',axis_up='Y',bake_anim=False,use_mesh_modifiers=True)
 for ob in objects:

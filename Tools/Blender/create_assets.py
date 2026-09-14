@@ -6,7 +6,7 @@ import runpy
 from mathutils import Vector
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-OUT = os.path.join(ROOT, "Assets/GardenSnake/Art/Models")
+OUT = os.path.join(ROOT, "Assets/Art/Models")
 os.makedirs(OUT, exist_ok=True)
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)

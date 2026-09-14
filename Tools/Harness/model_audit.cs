@@ -12,9 +12,9 @@ var texture = new RenderTexture(480,480,24);
 camera.targetTexture = texture;
 var previous = RenderTexture.active;
 try {
-    foreach (var path in System.IO.Directory.GetFiles("Assets/GardenSnake/Art/Models", "*.fbx")) {
+    foreach (var path in System.IO.Directory.GetFiles("Assets/Art/Models", "*.fbx")) {
         var name = System.IO.Path.GetFileNameWithoutExtension(path);
-        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/GardenSnake/Prefabs/" + name + ".prefab");
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/" + name + ".prefab");
         if (prefab == null) prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
         var model = UnityEngine.Object.Instantiate(prefab, new Vector3(10000,10000,10000), Quaternion.identity);
         try {

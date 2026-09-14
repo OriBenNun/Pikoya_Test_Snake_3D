@@ -17,7 +17,7 @@ namespace GardenSnake.Editor
     /// <summary>Reproducible authoring and build entry points. All generated assets stay in GardenSnake.</summary>
     public static class GardenBuilder
     {
-        public const string Root = "Assets/GardenSnake";
+        public const string Root = "Assets";
         public const string ScenePath = Root + "/Scenes/GardenSnake.unity";
         // The board matches the shape of a widescreen window, so the garden fills it instead
         // of leaving two empty gutters either side.

@@ -7,7 +7,7 @@ import tarfile
 
 root = pathlib.Path(__file__).resolve().parent.parent
 package = next((root / 'Library/PackageCache').glob('com.unity.ugui*/Package Resources/TMP Essential Resources.unitypackage'))
-output = root / 'Assets/GardenSnake/UI'
+output = root / 'Assets/UI'
 with tarfile.open(package) as archive:
     for member in archive.getmembers():
         if not member.name.endswith('/pathname'):

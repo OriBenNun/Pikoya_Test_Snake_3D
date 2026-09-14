@@ -1,5 +1,5 @@
 if (Application.isPlaying) throw new System.InvalidOperationException("Stop Play Mode first.");
-var settings = AssetDatabase.LoadAssetAtPath<GardenSnake.SnakeMouthSettings>("Assets/GardenSnake/Tuning/Snake Mouth.asset");
+var settings = AssetDatabase.LoadAssetAtPath<GardenSnake.SnakeMouthSettings>("Assets/Tuning/Snake Mouth.asset");
 var bound = new SerializedObject(settings);
 bound.FindProperty("anticipationDistance").floatValue = 3.2f;
 bound.FindProperty("anticipationRamp").floatValue = 1.7f;

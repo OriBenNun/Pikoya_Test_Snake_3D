@@ -29,7 +29,7 @@ if (hints.Find("Paper") == null) {
     rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
     rect.sizeDelta = new Vector2(668, 38);
     var fill = paper.GetComponent<UnityEngine.UI.Image>();
-    fill.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GardenSnake/UI/Generated/Pill.png");
+    fill.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/UI/Generated/Pill.png");
     fill.type = UnityEngine.UI.Image.Type.Sliced;
     var color = GardenSnake.Editor.GardenPalette.Paper; color.a = .94f;
     fill.color = color; fill.raycastTarget = false;

@@ -1,6 +1,6 @@
 var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
 if (Application.isPlaying || scene.isDirty) throw new System.InvalidOperationException("Saved scene required");
-AssetDatabase.ImportAsset("Assets/GardenSnake/Art/Models/Bush.fbx", ImportAssetOptions.ForceUpdate);
+AssetDatabase.ImportAsset("Assets/Art/Models/Bush.fbx", ImportAssetOptions.ForceUpdate);
 GardenSnake.Editor.GardenBuilder.Prefab("Bush");
 GardenSnake.Editor.GardenWildlifeBuilder.Install();
 AssetDatabase.SaveAssets();

@@ -12,7 +12,7 @@ import struct
 import wave
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-OUT = os.path.join(ROOT, 'Assets/GardenSnake/Audio')
+OUT = os.path.join(ROOT, 'Assets/Audio')
 os.makedirs(OUT, exist_ok=True)
 RATE = 44100
 
