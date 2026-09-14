@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -396,7 +397,7 @@ namespace GardenSnake.Editor
             Transform meadow = new GameObject("Meadow").transform;
             var wind = meadow.gameObject.AddComponent<GardenWind>();
             var random = new System.Random(20260908);
-            var stems = new System.Collections.Generic.List<Transform>();
+            var stems = new List<Transform>();
 
             Material[] petals =
             {

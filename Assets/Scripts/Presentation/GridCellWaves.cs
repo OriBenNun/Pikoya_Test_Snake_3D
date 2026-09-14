@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace GardenSnake
@@ -14,7 +15,7 @@ namespace GardenSnake
     {
         public enum Pattern { Ripple, Bloom, Sweep, CheckerHop }
 
-        [System.Serializable]
+        [Serializable]
         public struct Preset
         {
             public Pattern pattern;
@@ -23,10 +24,16 @@ namespace GardenSnake
             [Min(.1f)] public float duration;
             [Min(.1f)] public float width;
             public Preset(Pattern pattern, float amplitude, float speed, float duration, float width)
-            { this.pattern = pattern; this.amplitude = amplitude; this.speed = speed; this.duration = duration; this.width = width; }
+            {
+                this.pattern = pattern;
+                this.amplitude = amplitude;
+                this.speed = speed;
+                this.duration = duration;
+                this.width = width;
+            }
         }
 
-        [System.Serializable]
+        [Serializable]
         public sealed class Shape
         {
             [Range(0, 1)] public float rippleModulation = .35f;
@@ -49,17 +56,24 @@ namespace GardenSnake
         [SerializeField, Min(0)] private float maximumStrength = 2f;
         [SerializeField, Range(.016f, .1f)] private float maximumFrameStep = .05f;
         [Header("Presets (live tuning; new waves use current values)")]
-        [SerializeField] private Preset ripple = new Preset(Pattern.Ripple, .25f, 13, .6f, 1.5f);
-        [SerializeField] private Preset celebration = new Preset(Pattern.Bloom, .44f, 15, .85f, 2);
-        [SerializeField] private Preset sweep = new Preset(Pattern.Sweep, .25f, 15, .6f, 2);
-        [SerializeField] private Preset checker = new Preset(Pattern.CheckerHop, .22f, 12, .65f, 2);
-        [SerializeField] private Shape shape = new Shape();
-        private struct Wave { public Preset preset; public Vector2 source; public float age; }
-        private Wave[] active;
-        private static readonly Shape DefaultShape = new Shape();
+        [SerializeField] private Preset ripple = new(Pattern.Ripple, .25f, 13, .6f, 1.5f);
+        [SerializeField] private Preset celebration = new(Pattern.Bloom, .44f, 15, .85f, 2);
+        [SerializeField] private Preset sweep = new(Pattern.Sweep, .25f, 15, .6f, 2);
+        [SerializeField] private Preset checker = new(Pattern.CheckerHop, .22f, 12, .65f, 2);
+        [SerializeField] private Shape shape = new();
+
+        private struct Wave
+        {
+            public Preset preset;
+            public Vector2 source;
+            public float age;
+        }
+
+        private static readonly Shape DefaultShape = new();
+        private Wave[] waves;
         private Vector3[] rest;
-        private int count;
-        public int ActiveCount => count;
+        private int waveCount;
+        public int ActiveCount => waveCount;
         public int CellCount => cells == null ? 0 : cells.Length;
 
         /// <summary>While set, live waves keep their age and the board stops moving.</summary>
@@ -68,32 +82,38 @@ namespace GardenSnake
         private void Awake()
         {
             columns = Mathf.Max(1, columns);
-            active = new Wave[Mathf.Clamp(maximumConcurrentWaves, 1, 64)];
+            waves = new Wave[Mathf.Clamp(maximumConcurrentWaves, 1, 64)];
             rest = new Vector3[CellCount];
             for (int i = 0; i < rest.Length; i++) if (cells[i] != null) rest[i] = cells[i].localPosition;
         }
 
         public void Play(Pattern pattern, Cell source, float strength = 1)
         {
-            var preset = pattern == Pattern.Bloom ? celebration : pattern == Pattern.Sweep ? sweep
-                : pattern == Pattern.CheckerHop ? checker : ripple;
+            Preset preset = pattern switch
+            {
+                Pattern.Bloom => celebration,
+                Pattern.Sweep => sweep,
+                Pattern.CheckerHop => checker,
+                _ => ripple
+            };
             preset.amplitude *= Mathf.Clamp(strength, 0, maximumStrength);
             Play(preset, source);
         }
 
         public void Play(Preset preset, Cell source)
         {
-            if (!isActiveAndEnabled || active == null || CellCount == 0) return;
+            if (!isActiveAndEnabled || waves == null || CellCount == 0) return;
             preset.amplitude = Mathf.Max(0, preset.amplitude);
             preset.speed = Mathf.Max(.1f, preset.speed);
             preset.duration = Mathf.Max(.1f, preset.duration);
             preset.width = Mathf.Max(.1f, preset.width);
-            if (count == active.Length)
+            // The buffer is full: drop the oldest wave so the newest beat is never the one lost.
+            if (waveCount == waves.Length)
             {
-                for (int i = 1; i < count; i++) active[i - 1] = active[i];
-                count--;
+                for (int i = 1; i < waveCount; i++) waves[i - 1] = waves[i];
+                waveCount--;
             }
-            active[count++] = new Wave { preset = preset, source = new Vector2(source.X, source.Y) };
+            waves[waveCount++] = new Wave { preset = preset, source = new Vector2(source.X, source.Y) };
         }
 
         [ContextMenu("Preview ripple from center")]
@@ -107,28 +127,31 @@ namespace GardenSnake
 
         public void Clear()
         {
-            count = 0;
+            waveCount = 0;
             if (rest == null) return;
             for (int i = 0; i < rest.Length; i++) if (cells[i] != null) cells[i].localPosition = rest[i];
         }
 
         private void Update()
         {
-            if (count == 0 || rest == null || Frozen) return;
-            for (int i = count - 1; i >= 0; i--)
+            if (waveCount == 0 || rest == null || Frozen) return;
+            // The furthest a wave can have to travel: one corner of the board to the other.
+            float maxDistance = columns + Mathf.CeilToInt(CellCount / (float)columns);
+            float step = Mathf.Min(Time.unscaledDeltaTime, Mathf.Max(.001f, maximumFrameStep));
+            for (int i = waveCount - 1; i >= 0; i--)
             {
                 // Preserve the source beat after a stalled frame instead of jumping past it.
-                active[i].age += Mathf.Min(Time.unscaledDeltaTime, Mathf.Max(.001f, maximumFrameStep));
-                float maxDistance = columns + Mathf.CeilToInt(CellCount / (float)columns);
-                if (active[i].age > maxDistance / active[i].preset.speed + active[i].preset.duration + active[i].preset.width / active[i].preset.speed)
-                    active[i] = active[--count];
+                waves[i].age += step;
+                Preset preset = waves[i].preset;
+                float lifetime = maxDistance / preset.speed + preset.duration + preset.width / preset.speed;
+                if (waves[i].age > lifetime) waves[i] = waves[--waveCount];
             }
             for (int i = 0; i < rest.Length; i++)
             {
                 if (cells[i] == null) continue;
                 float height = 0;
                 var cell = new Vector2(i % columns, i / columns);
-                for (int w = 0; w < count; w++) height += Sample(active[w].preset, cell - active[w].source, active[w].age, shape);
+                for (int w = 0; w < waveCount; w++) height += Sample(waves[w].preset, cell - waves[w].source, waves[w].age, shape);
                 cells[i].localPosition = rest[i] + Vector3.up * Mathf.Clamp(height, -Mathf.Max(0, maximumDepth), Mathf.Max(0, maximumHeight));
             }
         }
@@ -159,9 +182,14 @@ namespace GardenSnake
             int x0 = Mathf.Clamp(Mathf.FloorToInt(x), 0, columns - 1);
             int y0 = Mathf.Clamp(Mathf.FloorToInt(y), 0, rows - 1);
             int x1 = Mathf.Min(x0 + 1, columns - 1), y1 = Mathf.Min(y0 + 1, rows - 1);
-            float H(int a, int b) { int i = b * columns + a; return cells[i] != null ? cells[i].localPosition.y - rest[i].y : 0; }
-            return Mathf.Lerp(Mathf.Lerp(H(x0, y0), H(x1, y0), Mathf.Clamp01(x - x0)),
-                Mathf.Lerp(H(x0, y1), H(x1, y1), Mathf.Clamp01(x - x0)), Mathf.Clamp01(y - y0));
+            float Lift(int column, int row)
+            {
+                int i = row * columns + column;
+                return cells[i] != null ? cells[i].localPosition.y - rest[i].y : 0;
+            }
+            float acrossX = Mathf.Clamp01(x - x0);
+            return Mathf.Lerp(Mathf.Lerp(Lift(x0, y0), Lift(x1, y0), acrossX),
+                Mathf.Lerp(Lift(x0, y1), Lift(x1, y1), acrossX), Mathf.Clamp01(y - y0));
         }
 
         private void OnDisable() => Clear();

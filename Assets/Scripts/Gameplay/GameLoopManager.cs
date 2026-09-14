@@ -16,7 +16,7 @@ namespace GardenSnake
         public override string ToString() => X + "," + Y;
         public static bool operator ==(Cell a, Cell b) => a.Equals(b);
         public static bool operator !=(Cell a, Cell b) => !a.Equals(b);
-        public static Cell operator +(Cell a, Cell b) => new Cell(a.X + b.X, a.Y + b.Y);
+        public static Cell operator +(Cell a, Cell b) => new(a.X + b.X, a.Y + b.Y);
     }
 
     public enum Direction { Up, Right, Down, Left }
@@ -81,9 +81,9 @@ namespace GardenSnake
         /// <summary>Food keeps its pickup cell as the snake slides over it: one body index per move.</summary>
         public const float DigestionPerStep = 1f;
         /// <summary>The board has no food on it at all.</summary>
-        private static readonly Cell NoFood = new Cell(-1, -1);
+        private static readonly Cell NoFood = new(-1, -1);
 
-        // ---- events ------------------------------------------------------------------------
+        // Events
 
         /// <summary>Anything a readout could be showing has changed.</summary>
         public event Action Changed;
@@ -102,11 +102,11 @@ namespace GardenSnake
         /// <summary>The small confirmation every button press earns.</summary>
         public event Action Clicked;
 
-        // ---- the snake ---------------------------------------------------------------------
+        // The snake
 
-        private readonly List<Cell> body = new List<Cell>();
-        private readonly List<float> digestion = new List<float>();
-        private readonly Queue<Direction> turns = new Queue<Direction>(2);
+        private readonly List<Cell> body = new();
+        private readonly List<float> digestion = new();
+        private readonly Queue<Direction> turns = new(2);
         private System.Random random;
 
         /// <summary>Head first, tail last.</summary>
@@ -121,8 +121,12 @@ namespace GardenSnake
         public string EndReason { get; private set; } = string.Empty;
         public int BoardWidth => boardWidth;
         public int BoardHeight => boardHeight;
+        /// <summary>The run has finished, won or lost, and is waiting on the results card.</summary>
+        public bool RunOver => State is RunState.Lost or RunState.Won;
+        public bool InBounds(Cell cell) =>
+            cell.X >= 0 && cell.Y >= 0 && cell.X < boardWidth && cell.Y < boardHeight;
 
-        // ---- the record --------------------------------------------------------------------
+        // The record
 
         private float elapsed;
         private float currentStep;
@@ -144,21 +148,21 @@ namespace GardenSnake
         public int RecordCelebrations { get; private set; }
         public int RecordWhispers { get; private set; }
 
-        // ---- timing ------------------------------------------------------------------------
+        // Timing
 
         /// <summary>Seconds per cell at the current score; the step in force may still be the last one.</summary>
         public float StepSeconds => Mathf.Max(fastestStepSeconds, initialStepSeconds - Score * speedGainPerApple);
         /// <summary>The step the snake is actually moving on right now.</summary>
         public float CurrentStep => currentStep;
         /// <summary>How far through the current step the snake is, 0 to 1.</summary>
-        public float StepProgress => State == RunState.Playing || State == RunState.Paused
+        public float StepProgress => State is RunState.Playing or RunState.Paused
             ? Mathf.Clamp01(elapsed / currentStep) : 1;
         /// <summary>Pace at the current score, for readouts.</summary>
         public float Pace => Mathf.InverseLerp(initialStepSeconds, fastestStepSeconds, StepSeconds);
         /// <summary>Pace of the step in force, for anything that has to move with the snake.</summary>
         public float CurrentPace => Mathf.InverseLerp(initialStepSeconds, fastestStepSeconds, currentStep);
 
-        // ---------------------------------------------------------------- lifecycle
+        // Lifecycle
 
         private void Awake()
         {
@@ -210,14 +214,13 @@ namespace GardenSnake
             if (elapsed >= currentStep) Advance();
         }
 
-        // ---------------------------------------------------------------- player actions
+        // Player actions
 
         public void PrimaryAction()
         {
             if (State == RunState.Paused) { TogglePause(); return; }
             if (State == RunState.Playing) return;
-            if ((State == RunState.Lost || State == RunState.Won) &&
-                Time.unscaledTime - endTime < restartDelay) return;
+            if (RunOver && Time.unscaledTime - endTime < restartDelay) return;
             PreviousBest = best;
             RecordEligible = hasPlayed;
             RecordBroken = false;
@@ -246,7 +249,7 @@ namespace GardenSnake
             Direction last = Heading;
             foreach (Direction queued in turns) last = queued;
             // Reversing into the neck is not a move, and neither is turning the way you already face.
-            if (wish == last || ((int)wish + 2) % 4 == (int)last) return;
+            if (wish == last || IsOpposite(wish, last)) return;
             turns.Enqueue(wish);
             // The lean is measured against the heading the snake is on now, not the one it will
             // be on by the time this turn comes out of the buffer.
@@ -271,7 +274,7 @@ namespace GardenSnake
 
         public void Click() => Clicked?.Invoke();
 
-        // ---------------------------------------------------------------- the step
+        // The step
 
         private void Advance()
         {
@@ -289,7 +292,7 @@ namespace GardenSnake
                 UpdateBest();
                 AppleEaten?.Invoke(new AppleBeat(eatenAt, Score, beat));
             }
-            if (result == StepResult.Lost || result == StepResult.Won)
+            if (result is StepResult.Lost or StepResult.Won)
             {
                 endTime = Time.unscaledTime;
                 SaveBest();
@@ -304,14 +307,14 @@ namespace GardenSnake
             if (State != RunState.Playing) return StepResult.None;
             if (turns.Count > 0) Heading = turns.Dequeue();
             Cell next = body[0] + Offset(Heading);
-            bool eat = next == Food;
-            if (next.X < 0 || next.Y < 0 || next.X >= boardWidth || next.Y >= boardHeight)
-                return Lose("You reached the garden edge.");
-            // Growth happens only when the oldest swallowed apple reaches the tail.
+            if (!InBounds(next)) return Lose("You reached the garden edge.");
+            // Growth happens only when the oldest swallowed apple reaches the tail, so until then
+            // the cell the tail is about to vacate is free to enter.
             bool grow = digestion.Count > 0 && digestion[0] + DigestionPerStep >= body.Count;
             int occupied = body.Count - (grow ? 0 : 1);
             for (int i = 0; i < occupied; i++)
                 if (body[i] == next) return Lose("You crossed your own tail.");
+            bool eat = next == Food;
             body.Insert(0, next);
             if (!grow) body.RemoveAt(body.Count - 1);
             for (int i = 0; i < digestion.Count; i++) digestion[i] += DigestionPerStep;
@@ -345,17 +348,18 @@ namespace GardenSnake
             body.Clear();
             turns.Clear();
             digestion.Clear();
-            int x = boardWidth / 2;
-            int y = boardHeight / 2;
-            for (int i = 0; i < initialLength; i++) body.Add(new Cell(x - i, y));
+            int startX = boardWidth / 2;
+            int startY = boardHeight / 2;
+            for (int i = 0; i < initialLength; i++) body.Add(new Cell(startX - i, startY));
             Heading = Direction.Right;
             Score = 0;
             EndReason = string.Empty;
             State = RunState.Ready;
             // The first apple teaches movement immediately; later apples use free-cell sampling.
-            Food = new Cell(x + firstAppleDistance, y);
+            Food = new Cell(startX + firstAppleDistance, startY);
         }
 
+        /// <summary>Picks the nth free cell, so spawning never retries and never hangs on a full board.</summary>
         private void SpawnFood()
         {
             int index = random.Next(boardWidth * boardHeight - body.Count);
@@ -369,7 +373,7 @@ namespace GardenSnake
             throw new InvalidOperationException("No free food cell.");
         }
 
-        // ---------------------------------------------------------------- the record
+        // The record
 
         /// <summary>Compares this apple against the record the run started with.</summary>
         private RecordBeat ScoreRecord()
@@ -407,22 +411,21 @@ namespace GardenSnake
 
         private void OnApplicationQuit() => SaveBest();
 
-        // ---------------------------------------------------------------- board space
+        // Board space
 
         /// <summary>Where a cell sits in the world. The one place board coordinates become metres.</summary>
         public Vector3 World(Cell cell) =>
             new Vector3(cell.X - (boardWidth - 1) * .5f, 0, cell.Y - (boardHeight - 1) * .5f);
 
-        public static Cell Offset(Direction direction)
+        public static Cell Offset(Direction direction) => direction switch
         {
-            switch (direction)
-            {
-                case Direction.Up: return new Cell(0, 1);
-                case Direction.Right: return new Cell(1, 0);
-                case Direction.Down: return new Cell(0, -1);
-                default: return new Cell(-1, 0);
-            }
-        }
+            Direction.Up => new Cell(0, 1),
+            Direction.Right => new Cell(1, 0),
+            Direction.Down => new Cell(0, -1),
+            _ => new Cell(-1, 0)
+        };
+
+        private static bool IsOpposite(Direction a, Direction b) => ((int)a + 2) % 4 == (int)b;
 
         /// <summary>-1 for a left turn, 1 for a right turn, 0 when the heading does not change.</summary>
         private static int TurnSign(Direction from, Direction to)

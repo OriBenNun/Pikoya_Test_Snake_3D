@@ -18,7 +18,7 @@ namespace GardenSnake
         [Header("Proportions")]
         [SerializeField, Range(.8f, 1.6f)] private float appleScale = 1.16f;
 
-        // ---- the fruit's character, not settings --------------------------------------------
+        // The fruit's character, not settings.
         private const float BreathFrequency = 3.2f;
         private const float BreathScale = .04f;
         private const float ArrivalDuration = .34f;
@@ -51,19 +51,15 @@ namespace GardenSnake
             apple = Instantiate(applePrefab, transform).transform;
         }
 
-        /// <summary>A fresh apple has been placed; drop it in.</summary>
+        /// <summary>A fresh apple has been placed; move to its cell and drop in from above.</summary>
         public void Respawn()
         {
             age = 0;
             apple.position = loop.World(loop.Food);
         }
 
-        /// <summary>Put the apple straight onto its cell with no arrival, for a fresh board.</summary>
-        public void Settle()
-        {
-            age = 0;
-            apple.position = loop.World(loop.Food);
-        }
+        /// <summary>The first apple of a run. It arrives the same way any other one does.</summary>
+        public void Settle() => Respawn();
 
         public void Show(bool visible)
         {

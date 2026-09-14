@@ -23,7 +23,7 @@ namespace GardenSnake
         {
             [Range(.1f, 3)] public float startPitch = 1;
             [Range(0, 1)] public float startVolume = .5f;
-            public Vector2 turnPitch = new Vector2(.96f, 1.06f);
+            public Vector2 turnPitch = new(.96f, 1.06f);
             [Range(0, 1)] public float turnVolume = .16f;
             [Range(.1f, 3)] public float clickPitch = 1;
             [Range(0, 1)] public float clickVolume = .35f;
@@ -50,7 +50,7 @@ namespace GardenSnake
             public MMF_Player newBest;
             public MMF_Player recordApple;
             [Tooltip("Intensity of the first pickup and of a fully escalated pickup.")]
-            public Vector2 pickupIntensity = new Vector2(.75f, 1.5f);
+            public Vector2 pickupIntensity = new(.75f, 1.5f);
             [Min(1)] public int fullPickupIntensityScore = 14;
             [Min(0)] public float deathIntensity = 1;
             [Min(0)] public float runStartIntensity = 1;
@@ -95,11 +95,11 @@ namespace GardenSnake
         [SerializeField] private AudioClip bestSound;
         [SerializeField] private AudioClip clickSound;
         [Header("Tuning")]
-        [SerializeField] private SoundMix sound = new SoundMix();
-        [SerializeField] private FeelPlayers feel = new FeelPlayers();
-        [SerializeField] private WaveCues waves = new WaveCues();
+        [SerializeField] private SoundMix sound = new();
+        [SerializeField] private FeelPlayers feel = new();
+        [SerializeField] private WaveCues waves = new();
 
-        // ---- the shape of each reaction, not settings ---------------------------------------
+        // The shape of each reaction, not settings.
         private const float BurstDuration = .42f;
         private const float BurstEasePower = 2.6f;
         private const float BurstStartScale = .6f;
@@ -112,11 +112,13 @@ namespace GardenSnake
         private const float PaceVolumeBlendSpeed = 1.2f;
         private const int DeathParticleCount = 18;
         private const float DeathParticleHeight = .3f;
+        /// <summary>Age given to a burst that is over, so it never replays on its own.</summary>
+        private const float Finished = 99f;
 
         private static readonly int AlphaProperty = Shader.PropertyToID("_Alpha");
 
         private Material burstMaterial;
-        private float burstAge = 99;
+        private float burstAge = Finished;
         private bool burstShown;
 
         private void Awake()
@@ -151,7 +153,7 @@ namespace GardenSnake
 
         private void Start() => musicSource.Play();
 
-        // ---------------------------------------------------------------- beats
+        // Beats
 
         private void OnRunStarted(Vector3 head)
         {
@@ -219,7 +221,7 @@ namespace GardenSnake
 
         private void OnVisualsReset()
         {
-            burstAge = 99;
+            burstAge = Finished;
             pickupParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
 
@@ -229,7 +231,7 @@ namespace GardenSnake
             musicSource.mute = muted;
         }
 
-        // ---------------------------------------------------------------- the frame
+        // The frame
 
         private void Update()
         {
@@ -274,7 +276,7 @@ namespace GardenSnake
             trailParticles.transform.position = snake.HeadPosition + Vector3.up * TrailHeight;
         }
 
-        // ---------------------------------------------------------------- striking a beat
+        // Striking a beat
 
         /// <summary>
         /// Plays the Feel player for a beat and puts the same beat on the garden's channel, so

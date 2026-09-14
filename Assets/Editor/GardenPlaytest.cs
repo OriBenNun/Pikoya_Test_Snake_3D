@@ -31,6 +31,10 @@ namespace GardenSnake.Editor
         private static int shotIndex;
         private static int runs;
         private static int lastScore;
+        /// <summary>Every direction, in turn order, reused so steering allocates nothing.</summary>
+        private static readonly Direction[] AllDirections =
+            { Direction.Up, Direction.Right, Direction.Down, Direction.Left };
+        private static readonly List<Direction> wishes = new List<Direction>(8);
         private static readonly List<double> pending = new List<double>();
         private static int bestScore;
         private static string label;
@@ -139,10 +143,12 @@ namespace GardenSnake.Editor
         {
             Cell head = controller.Body[0];
             Cell food = controller.Food;
-            var wishes = new List<Direction>();
+            wishes.Clear();
             if (food.X != head.X) wishes.Add(food.X > head.X ? Direction.Right : Direction.Left);
             if (food.Y != head.Y) wishes.Add(food.Y > head.Y ? Direction.Up : Direction.Down);
-            foreach (Direction fallback in new[] { controller.Heading, Direction.Up, Direction.Right, Direction.Down, Direction.Left })
+            // Straight on first, then anything legal, so a blocked chase still keeps moving.
+            if (!wishes.Contains(controller.Heading)) wishes.Add(controller.Heading);
+            foreach (Direction fallback in AllDirections)
                 if (!wishes.Contains(fallback)) wishes.Add(fallback);
             foreach (Direction wish in wishes)
             {
@@ -156,15 +162,15 @@ namespace GardenSnake.Editor
         private static bool Safe(Direction direction)
         {
             Cell next = controller.Body[0] + GameLoopManager.Offset(direction);
-            if (next.X < 0 || next.Y < 0 || next.X >= controller.BoardWidth || next.Y >= controller.BoardHeight) return false;
+            if (!controller.InBounds(next)) return false;
             for (int i = 0; i < controller.Body.Count - 1; i++)
                 if (controller.Body[i] == next) return false;
-            // one-step lookahead keeps the pilot out of pockets it cannot leave
+            // One-step lookahead keeps the pilot out of pockets it cannot leave.
             int exits = 0;
-            foreach (Direction option in new[] { Direction.Up, Direction.Right, Direction.Down, Direction.Left })
+            foreach (Direction option in AllDirections)
             {
                 Cell after = next + GameLoopManager.Offset(option);
-                if (after.X < 0 || after.Y < 0 || after.X >= controller.BoardWidth || after.Y >= controller.BoardHeight) continue;
+                if (!controller.InBounds(after)) continue;
                 bool blocked = false;
                 for (int i = 0; i < controller.Body.Count - 2; i++)
                     if (controller.Body[i] == after) blocked = true;
@@ -173,16 +179,13 @@ namespace GardenSnake.Editor
             return exits > 0;
         }
 
-        private static Key KeyFor(Direction direction)
+        private static Key KeyFor(Direction direction) => direction switch
         {
-            switch (direction)
-            {
-                case Direction.Up: return Key.W;
-                case Direction.Right: return Key.D;
-                case Direction.Down: return Key.S;
-                default: return Key.A;
-            }
-        }
+            Direction.Up => Key.W,
+            Direction.Right => Key.D,
+            Direction.Down => Key.S,
+            _ => Key.A
+        };
 
         private static void Press(Key key)
         {

@@ -6,18 +6,54 @@ namespace GardenSnake
     /// <summary>Articulates the existing face and carries the picked apple into its mouth.</summary>
     public sealed class SnakeMouth : MonoBehaviour
     {
+        /// <summary>A piece of the upper face, and where it sits when the mouth is shut.</summary>
+        private readonly struct FacePart
+        {
+            public readonly Transform Transform;
+            public readonly Vector3 RestPosition;
+            public readonly Quaternion RestRotation;
+
+            public FacePart(Transform transform, Vector3 restPosition, Quaternion restRotation)
+            {
+                Transform = transform;
+                RestPosition = restPosition;
+                RestRotation = restRotation;
+            }
+        }
+
+        /// <summary>One eye and everything on that side of the face, parented so they move together.</summary>
+        private readonly struct EyeRig
+        {
+            public readonly Transform Transform;
+            public readonly Vector3 RestPosition;
+
+            public EyeRig(Transform transform, Vector3 restPosition)
+            {
+                Transform = transform;
+                RestPosition = restPosition;
+            }
+        }
+
+        /// <summary>Age given to a swallow that is over, so it never replays on its own.</summary>
+        private const float Finished = 99f;
+
         [SerializeField] private SnakeMouthSettings settings;
         private bool ownsSettings;
-        private readonly List<Transform> upperFace = new List<Transform>();
-        private readonly List<Vector3> upperRest = new List<Vector3>();
-        private readonly List<Quaternion> upperRestRotation = new List<Quaternion>();
-        private readonly List<Transform> eyes = new List<Transform>();
-        private readonly List<Vector3> eyeRest = new List<Vector3>();
-        private Transform cavity, lip, jaw, tongue, muzzle, swallowedApple;
-        private Vector3 muzzleScale, appleStart, appleSize;
+        private readonly List<FacePart> upperFace = new();
+        private readonly List<EyeRig> eyes = new();
+        private Transform cavity;
+        private Transform lip;
+        private Transform jaw;
+        private Transform tongue;
+        private Transform muzzle;
+        private Transform swallowedApple;
+        private Vector3 muzzleScale;
+        private Vector3 appleStart;
+        private Vector3 appleSize;
         private Vector3 facePivot;
         private float faceLever;
-        private float swallowAge = 99, swallowDuration = .2f;
+        private float swallowAge = Finished;
+        private float swallowDuration = .2f;
         private float excitementAge;
         public float Openness { get; private set; }
 
@@ -25,33 +61,30 @@ namespace GardenSnake
         {
             if (tuning != null) settings = tuning;
             if (settings == null) { settings = ScriptableObject.CreateInstance<SnakeMouthSettings>(); ownsSettings = true; }
+            MeshRenderer[] parts = GetComponentsInChildren<MeshRenderer>();
             Material cream = null, ink = null, blush = null;
-            foreach (var renderer in GetComponentsInChildren<MeshRenderer>())
+            foreach (var renderer in parts)
             {
                 string part = renderer.name;
                 if (part == "Muzzle") { muzzle = renderer.transform; cream = renderer.sharedMaterial; }
                 if (part.StartsWith("Pupil")) ink = renderer.sharedMaterial;
                 if (part.StartsWith("Cheek")) blush = renderer.sharedMaterial;
-                if (part.StartsWith("Smile") || part == "Tongue")
-                {
-                    renderer.enabled = false;
-                    continue;
-                }
-                if (!IsEyePart(part))
-                {
-                    upperFace.Add(renderer.transform);
-                    upperRest.Add(transform.InverseTransformPoint(renderer.transform.position));
-                    upperRestRotation.Add(Quaternion.Inverse(transform.rotation) * renderer.transform.rotation);
-                    if (part == "Head") facePivot = upperRest[upperRest.Count - 1];
-                }
+                // The authored smile and tongue give way to the articulated pieces built below.
+                if (part.StartsWith("Smile") || part == "Tongue") { renderer.enabled = false; continue; }
+                if (IsEyePart(part)) continue;
+                var face = new FacePart(renderer.transform,
+                    transform.InverseTransformPoint(renderer.transform.position),
+                    Quaternion.Inverse(transform.rotation) * renderer.transform.rotation);
+                upperFace.Add(face);
+                if (part == "Head") facePivot = face.RestPosition;
             }
-            CreateEyeRigs();
+            CreateEyeRigs(parts);
             faceLever = Mathf.Max(.01f, Mathf.Abs(transform.InverseTransformPoint(muzzle.position).z - facePivot.z));
             muzzleScale = muzzle.localScale;
-            cavity = Piece("Mouth interior", ink);
-            lip = Piece("Stretchy mouth rim", cream);
-            jaw = Piece("Lower jaw", cream);
-            tongue = Piece("Mouth tongue", blush);
+            cavity = CreateBlob("Mouth interior", ink);
+            lip = CreateBlob("Stretchy mouth rim", cream);
+            jaw = CreateBlob("Lower jaw", cream);
+            tongue = CreateBlob("Mouth tongue", blush);
             swallowedApple = Instantiate(applePrefab, transform.parent).transform;
             swallowedApple.name = "Swallowed apple";
             ResetPose();
@@ -60,9 +93,9 @@ namespace GardenSnake
         private static bool IsEyePart(string part) => part.StartsWith("Eye white") ||
             part.StartsWith("Pupil") || part.StartsWith("Eye glint") || part.StartsWith("Eyebrow");
 
-        private void CreateEyeRigs()
+        /// <summary>Re-parents each eye's pieces under one rig, so an excited eye moves as a unit.</summary>
+        private void CreateEyeRigs(MeshRenderer[] parts)
         {
-            var parts = GetComponentsInChildren<MeshRenderer>();
             foreach (var white in parts)
             {
                 if (!white.name.StartsWith("Eye white")) continue;
@@ -76,19 +109,19 @@ namespace GardenSnake
                     float side = transform.InverseTransformPoint(part.transform.position).x;
                     if (Mathf.Sign(side) == Mathf.Sign(rest.x)) part.transform.SetParent(rig, true);
                 }
-                eyes.Add(rig);
-                eyeRest.Add(rest);
+                eyes.Add(new EyeRig(rig, rest));
             }
         }
 
-        private Transform Piece(string label, Material material)
+        /// <summary>The mouth's soft parts are all the same thing: a tinted sphere it stretches.</summary>
+        private Transform CreateBlob(string label, Material material)
         {
-            var piece = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            piece.name = label;
-            piece.transform.SetParent(transform, false);
-            Destroy(piece.GetComponent<Collider>());
-            piece.GetComponent<MeshRenderer>().sharedMaterial = material;
-            return piece.transform;
+            var blob = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            blob.name = label;
+            blob.transform.SetParent(transform, false);
+            Destroy(blob.GetComponent<Collider>());
+            blob.GetComponent<MeshRenderer>().sharedMaterial = material;
+            return blob.transform;
         }
 
         public void Swallow(Transform apple, float stepSeconds)
@@ -106,7 +139,7 @@ namespace GardenSnake
 
         public void ResetPose()
         {
-            swallowAge = 99;
+            swallowAge = Finished;
             excitementAge = 0;
             Openness = 0;
             swallowedApple.gameObject.SetActive(false);
@@ -145,20 +178,25 @@ namespace GardenSnake
             Quaternion opening = Quaternion.Euler(-Mathf.Atan2(settings.UpperFaceLift, faceLever)
                 * Mathf.Rad2Deg * Openness, 0, 0);
             for (int i = 0; i < upperFace.Count; i++)
-                upperFace[i].SetPositionAndRotation(transform.TransformPoint(facePivot + opening * (upperRest[i] - facePivot)),
-                    transform.rotation * opening * upperRestRotation[i]);
+            {
+                FacePart face = upperFace[i];
+                face.Transform.SetPositionAndRotation(
+                    transform.TransformPoint(facePivot + opening * (face.RestPosition - facePivot)),
+                    transform.rotation * opening * face.RestRotation);
+            }
             // Imported facial meshes have local Y along the snout and local Z pointing upward.
             muzzle.localScale = Vector3.Scale(muzzleScale, new Vector3(1 + settings.MuzzleWidening * Openness,
                 1 - settings.MuzzleRetraction * Openness, 1));
             for (int i = 0; i < eyes.Count; i++)
             {
-                Vector3 rest = eyeRest[i];
+                EyeRig eye = eyes[i];
+                Vector3 rest = eye.RestPosition;
                 float bounce = Mathf.Sin(excitementAge * settings.EyeBounceFrequency * Mathf.PI * 2 + i * .8f)
                     * settings.EyeBounce * Openness;
-                eyes[i].localPosition = facePivot + opening * (rest - facePivot) +
+                eye.Transform.localPosition = facePivot + opening * (rest - facePivot) +
                     new Vector3(Mathf.Sign(rest.x) * settings.EyeSpread * Openness, settings.EyeLift * Openness + bounce, 0);
-                eyes[i].localRotation = opening;
-                eyes[i].localScale = Vector3.Lerp(Vector3.one, settings.ExcitedEyeScale, Openness);
+                eye.Transform.localRotation = opening;
+                eye.Transform.localScale = Vector3.Lerp(Vector3.one, settings.ExcitedEyeScale, Openness);
             }
             cavity.localPosition = settings.CavityPosition + settings.CavityOpeningOffset * Openness;
             cavity.localScale = settings.CavityScale + settings.CavityOpeningScale * Openness;
@@ -173,6 +211,7 @@ namespace GardenSnake
             tongue.localScale = settings.TongueScale + settings.TongueOpeningScale * Openness;
             tongue.gameObject.SetActive(Openness > settings.TongueThreshold);
         }
+
         private void OnDestroy()
         {
             if (ownsSettings && settings != null) Destroy(settings);

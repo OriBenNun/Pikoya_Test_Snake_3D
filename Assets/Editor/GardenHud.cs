@@ -282,7 +282,6 @@ namespace GardenSnake.Editor
 
         private static readonly Vector2 TopLeft = new Vector2(0, 1);
         private static readonly Vector2 TopRight = new Vector2(1, 1);
-        private static readonly Vector2 BottomLeft = new Vector2(0, 0);
         private static readonly Vector2 BottomRight = new Vector2(1, 0);
         private static readonly Vector2 Middle = new Vector2(.5f, .5f);
 

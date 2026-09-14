@@ -68,10 +68,18 @@ namespace GardenSnake
         [Header("Mesh quality")]
         [SerializeField, Range(8, 128)] private int discSegments = 40;
         [SerializeField, Range(1, 30)] private float arcSegmentDegrees = 5;
+        /// <summary>The caption bands, slowest first; Paused overrides whatever the pace is.</summary>
+        private enum PaceBand { Idle, Cruising, Zippy, Zoomies, Paused }
+
         private GameLoopManager loop;
-        private float displayed, velocity, kick, previousPace = -1;
-        private float drawnDisplayed = float.NaN, drawnKick = float.NaN;
-        private int shownSpeed = -1, shownBand = -1;
+        private float displayed;
+        private float velocity;
+        private float kick;
+        private float previousPace = -1;
+        private float drawnDisplayed = float.NaN;
+        private float drawnKick = float.NaN;
+        private int shownSpeed = -1;
+        private PaceBand? shownBand;
         public float DisplayedPace => displayed;
         public float TargetPace => loop == null ? 0 : loop.Pace;
 
@@ -102,11 +110,11 @@ namespace GardenSnake
                 shownSpeed = speed;
                 readout.SetText("{0:1}", speed / 10f);
             }
-            int band = paused ? 4 : target > zoomiesThreshold ? 3 : target > zippyThreshold ? 2 : target > cruisingThreshold ? 1 : 0;
+            PaceBand band = BandFor(target, paused);
             if (shownBand != band)
             {
                 shownBand = band;
-                caption.text = band == 4 ? pausedCaption : band == 3 ? zoomiesCaption : band == 2 ? zippyCaption : band == 1 ? cruisingCaption : idleCaption;
+                caption.text = CaptionFor(band);
             }
             // The face is a full procedural mesh, so rebuilding it costs an allocation every time.
             // A settled needle draws the same face as last frame; leave it alone until it moves.
@@ -116,6 +124,22 @@ namespace GardenSnake
             drawnKick = kick;
             SetVerticesDirty();
         }
+
+        private PaceBand BandFor(float pace, bool paused) =>
+            paused ? PaceBand.Paused
+            : pace > zoomiesThreshold ? PaceBand.Zoomies
+            : pace > zippyThreshold ? PaceBand.Zippy
+            : pace > cruisingThreshold ? PaceBand.Cruising
+            : PaceBand.Idle;
+
+        private string CaptionFor(PaceBand band) => band switch
+        {
+            PaceBand.Paused => pausedCaption,
+            PaceBand.Zoomies => zoomiesCaption,
+            PaceBand.Zippy => zippyCaption,
+            PaceBand.Cruising => cruisingCaption,
+            _ => idleCaption
+        };
 
         protected override void OnPopulateMesh(VertexHelper vh)
         {
@@ -138,8 +162,8 @@ namespace GardenSnake
                 Arc(vh, center, i % 2 == 0 ? majorTickInnerRadius : minorTickInnerRadius, tickOuterRadius, a, tickSweep, ink);
             }
             float angle = Mathf.Lerp(sweepAngles.x, sweepAngles.y, displayed) * Mathf.Deg2Rad;
-            Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-            Vector2 side = new Vector2(-direction.y, direction.x);
+            Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
+            Vector2 side = new(-direction.y, direction.x);
             Triangle(vh, center - direction * needleRearLength + side * needleHalfWidth, center - direction * needleRearLength - side * needleHalfWidth, center + direction * needleLength, coral);
             Disc(vh, center, hubRadius, ink);
             Disc(vh, center + hubHighlightOffset, hubHighlightRadius, gold);
@@ -158,9 +182,11 @@ namespace GardenSnake
 
         private void Disc(VertexHelper vh, Vector2 center, float radius, Color color)
         {
-            for (int i = 0; i < Mathf.Max(3, discSegments); i++)
+            int segments = Mathf.Max(3, discSegments);
+            for (int i = 0; i < segments; i++)
             {
-                float a = i * Mathf.PI * 2 / Mathf.Max(3, discSegments), b = (i + 1) * Mathf.PI * 2 / Mathf.Max(3, discSegments);
+                float a = i * Mathf.PI * 2 / segments;
+                float b = (i + 1) * Mathf.PI * 2 / segments;
                 Triangle(vh, center, center + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * radius,
                     center + new Vector2(Mathf.Cos(b), Mathf.Sin(b)) * radius, color);
             }
@@ -173,7 +199,7 @@ namespace GardenSnake
             {
                 float a = (angle + sweep * s / pieces) * Mathf.Deg2Rad;
                 float b = (angle + sweep * (s + 1) / pieces) * Mathf.Deg2Rad;
-                Vector2 av = new Vector2(Mathf.Cos(a), Mathf.Sin(a)), bv = new Vector2(Mathf.Cos(b), Mathf.Sin(b));
+                Vector2 av = new(Mathf.Cos(a), Mathf.Sin(a)), bv = new(Mathf.Cos(b), Mathf.Sin(b));
                 Triangle(vh, center + av * inner, center + av * outer, center + bv * outer, color);
                 Triangle(vh, center + av * inner, center + bv * outer, center + bv * inner, color);
             }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -8,7 +9,7 @@ namespace GardenSnake.Editor
     /// <summary>Small, reproducible clay wildlife rigs. No colliders or gameplay components.</summary>
     public static class GardenWildlifeBuilder
     {
-        private static Material Mat(string name) => AssetDatabase.LoadAssetAtPath<Material>(GardenBuilder.Root + "/Materials/" + name + ".mat");
+        private static Material SharedMaterial(string name) => AssetDatabase.LoadAssetAtPath<Material>(GardenBuilder.Root + "/Materials/" + name + ".mat");
 
         [MenuItem("Garden Snake/Add ambient wildlife")]
         public static void Install()
@@ -19,7 +20,7 @@ namespace GardenSnake.Editor
             var old = GameObject.Find("Garden wildlife");
             if (old != null) UnityEngine.Object.DestroyImmediate(old);
             foreach (var t in UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsSortMode.None))
-                if (t != null && (t.name == "Bird perch" || t.name == "Perch branch")) UnityEngine.Object.DestroyImmediate(t.gameObject);
+                if (t != null && t.name is "Bird perch" or "Perch branch") UnityEngine.Object.DestroyImmediate(t.gameObject);
             Create();
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
@@ -112,11 +113,11 @@ namespace GardenSnake.Editor
         {
             var root = Group(species.ToString(), parent, a);
             root.localScale = Vector3.one * (species == GardenAnimal.Species.Butterfly ? .58f : species == GardenAnimal.Species.Ladybug ? .7f : .88f);
-            ReservePatch(a, b, species == GardenAnimal.Species.Bunny || species == GardenAnimal.Species.Turtle ? .8f : .42f);
+            ReservePatch(a, b, species is GardenAnimal.Species.Bunny or GardenAnimal.Species.Turtle ? .8f : .42f);
             root.localRotation = Quaternion.Euler(0, 150 + phase * 35, 0);
             Transform body = Group("Body", root, Vector3.zero), head, left = null, right = null;
-            var limbs = new System.Collections.Generic.List<Transform>();
-            var ears = new System.Collections.Generic.List<Transform>();
+            var limbs = new List<Transform>();
+            var ears = new List<Transform>();
             if (species == GardenAnimal.Species.Bunny)
             {
                 Sculpt("Pear body", "Pear", body, new Vector3(0, .36f, -.06f), new Vector3(.56f, .67f, .7f), "Cream");
@@ -163,7 +164,7 @@ namespace GardenSnake.Editor
                     Part("Flipper", foot, Vector3.zero, new Vector3(.25f, .16f, .29f), "WildlifeSkin"); limbs.Add(foot);
                 }
             }
-            else if (species == GardenAnimal.Species.Bird || species == GardenAnimal.Species.Butterfly)
+            else if (species is GardenAnimal.Species.Bird or GardenAnimal.Species.Butterfly)
             {
                 bool bird = species == GardenAnimal.Species.Bird;
                 Sculpt("Body shape", "Bird", body, new Vector3(0, .29f, 0), bird ? new Vector3(.43f, .46f, .65f) : new Vector3(.10f, .1f, .43f), bird ? "Aqua" : "Ink");
@@ -288,7 +289,7 @@ namespace GardenSnake.Editor
             go.name = name; go.transform.SetParent(parent, false);
             go.transform.localPosition = position; go.transform.localScale = scale;
             UnityEngine.Object.DestroyImmediate(go.GetComponent<Collider>());
-            go.GetComponent<Renderer>().sharedMaterial = Mat(material);
+            go.GetComponent<Renderer>().sharedMaterial = SharedMaterial(material);
             return go.transform;
         }
 
@@ -296,7 +297,7 @@ namespace GardenSnake.Editor
         {
             var t = Group(name, parent, position); t.localScale = scale;
             t.gameObject.AddComponent<MeshFilter>().sharedMesh = GardenWildlifeMeshes.Get(mesh);
-            t.gameObject.AddComponent<MeshRenderer>().sharedMaterial = Mat(material);
+            t.gameObject.AddComponent<MeshRenderer>().sharedMaterial = SharedMaterial(material);
             return t;
         }
 
@@ -306,7 +307,7 @@ namespace GardenSnake.Editor
             var material = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (material == null)
             {
-                material = new Material(Mat("Aqua")) { name = name };
+                material = new Material(SharedMaterial("Aqua")) { name = name };
                 AssetDatabase.CreateAsset(material, path);
             }
             material.SetColor("_BaseColor", GardenPalette.Hex(hex));

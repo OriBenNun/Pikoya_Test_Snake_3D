@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Collections.Generic;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -165,11 +164,12 @@ namespace GardenSnake
             // at all. Checking once beats a matrix multiply and a rotation per vertex.
             localIsWorld = worldToLocal.isIdentity;
             bool rebuildTopology = topologyCount != bodyCount || !Mathf.Approximately(topologyBellyArc, settings.BellyArc);
+            int rings = (pointCount - 1) * samplesPerCell + 1;
 
             SampleCenterline(poses, tail, bodyCount, scales);
-            BuildTube(rebuildTopology, scales.Body);
+            BuildTube(rebuildTopology, scales.Body, rings);
             BuildMarkings(rebuildTopology, bodyCount, scales.Body);
-            UploadMesh(rebuildTopology, bodyCount);
+            UploadMesh(rebuildTopology, bodyCount, rings);
         }
 
         /// <summary>Reads this frame's poses into a centerline of world points and relative widths.</summary>
@@ -198,27 +198,36 @@ namespace GardenSnake
             centerline[bodyCount] = centerline[bodyCount - 1] + tipDirection.normalized * settings.TailTipLength;
             centerlineWidths[bodyCount] = 0;
             // Hide the neck's open end inside the head, and taper the final cell to a single tip.
-            widths[0] *= settings.NeckWidth;
-            widths[bodyCount - 1] *= settings.TailWidth;
-            bool visible = widths[0] > .001f || widths[bodyCount - 1] > .001f;
+            // Hide the neck's open end inside the head, and taper the final cell to a single tip.
+            centerlineWidths[0] *= settings.NeckWidth;
+            centerlineWidths[bodyCount - 1] *= settings.TailWidth;
+            bool visible = centerlineWidths[0] > .001f || centerlineWidths[bodyCount - 1] > .001f;
             if (skinRenderer.enabled != visible) skinRenderer.enabled = visible;
-            vertices.Clear(); normals.Clear();
-            int rings = (count - 1) * SamplesPerCell + 1;
-            // A ring's triangles are the same whatever else the body is doing, so the tube's
-            // indices only ever need extending. Rebuilding all of them on every apple was the
-            // spike the player felt when the snake grew.
-            bool rebuildTube = rebuildTopology && (rings < topologyRings || !Mathf.Approximately(topologyBellyArc, settings.BellyArc));
-            if (rebuildTube) { top.Clear(); belly.Clear(); topologyRings = 0; }
-            if (rebuildTopology) markings.Clear();
+        }
+
+        /// <summary>
+        /// Extrudes the tube along the centerline. A ring's triangles are the same whatever else
+        /// the body is doing, so the tube's indices only ever need extending; rebuilding all of
+        /// them on every apple was the spike the player felt when the snake grew.
+        /// </summary>
+        private void BuildTube(bool rebuildTopology, float bodyScale, int rings)
+        {
+            vertices.Clear();
+            normals.Clear();
+            bool rebuildTube = rebuildTopology &&
+                (rings < topologyRings || !Mathf.Approximately(topologyBellyArc, settings.BellyArc));
+            if (rebuildTube) { topTriangles.Clear(); bellyTriangles.Clear(); topologyRings = 0; }
+            if (rebuildTopology) spotTriangles.Clear();
             int firstNewRing = Mathf.Max(1, topologyRings);
             // Centerline and digestion cost scales with rings, not rings multiplied by 21 vertices.
-            // The bounds come from the same pass: every vertex sits within its ring's profile,
-            // so a box around the centreline padded by that profile contains the whole skin.
+            // The bounds come from the same pass: every vertex sits within its ring's profile, so a
+            // box around the centerline padded by that profile contains the whole skin.
             boundsMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             boundsMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
             float reach = Mathf.Max(shapeRadius, shapeCenterHeight + shapeHeight) * bodyScale + settings.SpotSurfaceOffset;
             for (int ring = 0; ring < rings; ring++)
-                SurfaceFrame frame = EvaluateFrame(ring / (float)SamplesPerCell);
+            {
+                SurfaceFrame frame = EvaluateFrame(ring / (float)samplesPerCell);
                 surfaceFrames[ring] = frame;
                 float pad = reach * Mathf.Max(1f, frame.width);
                 Vector3 c = frame.center;
@@ -231,10 +240,10 @@ namespace GardenSnake
             }
             for (int ring = 0; ring < rings; ring++)
             {
-                for (int s = 0; s <= Sides; s++)
-                    Surface(surfaceFrames[ring], circle[s].x, circle[s].y, bodyScale, 0);
+                for (int s = 0; s <= sides; s++)
+                    Surface(surfaceFrames[ring], ringProfile[s].x, ringProfile[s].y, bodyScale, 0);
                 if (ring == 0 || ring < firstNewRing) continue;
-                for (int s = 0; s < Sides; s++)
+                for (int s = 0; s < sides; s++)
                 {
                     int a = (ring - 1) * (sides + 1) + s, b = a + sides + 1;
                     var triangles = Mathf.Abs((s + .5f) / sides - .5f) < settings.BellyArc * .5f
@@ -265,7 +274,7 @@ namespace GardenSnake
             }
         }
 
-        private void UploadMesh(bool rebuildTopology, int bodyCount)
+        private void UploadMesh(bool rebuildTopology, int bodyCount, int rings)
         {
             if (rebuildTopology) mesh.Clear();
             mesh.SetVertices(vertices);
@@ -387,7 +396,6 @@ namespace GardenSnake
         /// </summary>
         private void Surface(in SurfaceFrame frame, float sin, float cos, float size, float offset)
         {
-            float width = frame.width;
             float width = frame.width;
             float scaled = size * width;
             float radius = shapeRadius * scaled;

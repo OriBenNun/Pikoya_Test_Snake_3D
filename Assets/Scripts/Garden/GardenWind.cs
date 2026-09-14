@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,8 +20,8 @@ namespace GardenSnake
         [SerializeField, Range(0f, 3f)] private float frequency = .9f;
         [SerializeField, Range(0f, 1f)] private float spatialScale = .2f;
         [SerializeField, Range(0f, 1f)] private float gustDepth = .45f;
-        [SerializeField] private Vector2 phaseDirection = new Vector2(1, .6f);
-        [SerializeField] private Vector2 leanDirection = new Vector2(1, .55f);
+        [SerializeField] private Vector2 phaseDirection = new(1, .6f);
+        [SerializeField] private Vector2 leanDirection = new(1, .55f);
         [SerializeField, Min(0)] private float gustFrequency = .23f;
         [SerializeField, Range(0, 1)] private float frequencyVariation = .16f;
         [SerializeField] private float variationSpatialScale = 3.71f;
@@ -41,7 +42,8 @@ namespace GardenSnake
         [SerializeField, Min(0)] private float pulseDecay = 3f;
         [SerializeField, Min(0)] private float pulseAmplitude = 12f;
         private Quaternion[] rest;
-        private float[] pulseAt, pulseStrength;
+        private float[] pulseAt;
+        private float[] pulseStrength;
         private float[] weight;
         public int MovingCount => stems == null ? 0 : stems.Length;
 
@@ -49,17 +51,18 @@ namespace GardenSnake
         {
             var plants = new HashSet<Transform>();
             if (stems != null) foreach (var stem in stems) if (stem != null) plants.Add(stem);
-            if (discoverPlants) foreach (var t in FindObjectsByType<Transform>(FindObjectsSortMode.None))
+            if (discoverPlants) foreach (var candidate in FindObjectsByType<Transform>(FindObjectsSortMode.None))
             {
-                if (t.gameObject.scene != gameObject.scene) continue;
-                string n = t.name;
-                if ((plantNames != null && System.Array.IndexOf(plantNames, n) >= 0) ||
-                    (!string.IsNullOrEmpty(sproutPrefix) && n.StartsWith(sproutPrefix))) plants.Add(t);
+                if (candidate.gameObject.scene != gameObject.scene) continue;
+                string plant = candidate.name;
+                if ((plantNames != null && Array.IndexOf(plantNames, plant) >= 0) ||
+                    (!string.IsNullOrEmpty(sproutPrefix) && plant.StartsWith(sproutPrefix))) plants.Add(candidate);
             }
             stems = new Transform[plants.Count];
             plants.CopyTo(stems);
             rest = new Quaternion[stems.Length];
-            pulseAt = new float[stems.Length]; pulseStrength = new float[stems.Length];
+            pulseAt = new float[stems.Length];
+            pulseStrength = new float[stems.Length];
             weight = new float[stems.Length];
             for (int i = 0; i < stems.Length; i++)
             {
@@ -99,13 +102,19 @@ namespace GardenSnake
             for (int i = 0; i < stems.Length; i++)
             {
                 if (stems[i] == null) continue;
-                Vector3 p = stems[i].position;
-                float phase = (p.x * phaseDirection.x + p.z * phaseDirection.y) * spatialScale;
+                Vector3 position = stems[i].position;
+                // Phase by where a plant stands, so the gust travels across the meadow.
+                float phase = (position.x * phaseDirection.x + position.z * phaseDirection.y) * spatialScale;
                 float localClock = clock * (1f + frequencyVariation * Mathf.Sin(phase * variationSpatialScale));
-                float turbulence = (Mathf.PerlinNoise(phase + noiseOffset, Time.time * turbulenceFrequency) - .5f) * turbulenceStrength;
-                float sway = Mathf.Sin(localClock + phase) * primarySway + turbulence + secondarySway * Mathf.Sin(localClock * secondaryFrequency + phase * secondarySpatialScale);
+                float turbulence = (Mathf.PerlinNoise(phase + noiseOffset, Time.time * turbulenceFrequency) - .5f)
+                    * turbulenceStrength;
+                float sway = Mathf.Sin(localClock + phase) * primarySway + turbulence
+                    + secondarySway * Mathf.Sin(localClock * secondaryFrequency + phase * secondarySpatialScale);
                 float age = Time.time - pulseAt[i];
-                float pulse = reactToFeedback && age >= 0 && age < pulseDuration ? Mathf.Sin(age * pulseFrequency) * Mathf.Exp(-age * pulseDecay) * pulseStrength[i] * pulseAmplitude : 0;
+                bool pulsing = reactToFeedback && age >= 0 && age < pulseDuration;
+                float pulse = pulsing
+                    ? Mathf.Sin(age * pulseFrequency) * Mathf.Exp(-age * pulseDecay) * pulseStrength[i] * pulseAmplitude
+                    : 0;
                 float lean = (sway * amplitude * gust + pulse) * weight[i];
                 stems[i].localRotation = rest[i] * Quaternion.Euler(lean * leanDirection.x, 0, lean * leanDirection.y);
             }

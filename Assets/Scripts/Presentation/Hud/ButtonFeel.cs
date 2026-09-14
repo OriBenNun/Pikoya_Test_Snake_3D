@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace GardenSnake
 {
     /// <summary>Small, unscaled hover and press reactions that leave Button click handling intact.</summary>
-    [RequireComponent(typeof(UnityEngine.UI.Button))]
+    [RequireComponent(typeof(Button))]
     public sealed class ButtonFeel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         IPointerDownHandler, IPointerUpHandler
     {
@@ -13,7 +14,7 @@ namespace GardenSnake
         [SerializeField, Min(.01f)] private float settleTime = .065f;
         [SerializeField, Min(0)] private float releaseKick = 1.2f;
 
-        private UnityEngine.UI.Button button;
+        private Button button;
         private Vector3 restScale;
         private float scale = 1;
         private float velocity;
@@ -22,7 +23,7 @@ namespace GardenSnake
 
         private void Awake()
         {
-            button = GetComponent<UnityEngine.UI.Button>();
+            button = GetComponent<Button>();
             restScale = transform.localScale;
         }
 
@@ -36,9 +37,9 @@ namespace GardenSnake
 
         private void Update()
         {
-            bool interactive = button.IsInteractable();
-            if (!interactive) hovered = pressed = false;
-            float target = interactive ? pressed ? pressScale : hovered ? hoverScale : 1 : 1;
+            // Losing interactivity clears both flags, so rest is already the fallthrough.
+            if (!button.IsInteractable()) hovered = pressed = false;
+            float target = pressed ? pressScale : hovered ? hoverScale : 1;
             scale = Mathf.SmoothDamp(scale, target, ref velocity, settleTime,
                 Mathf.Infinity, Mathf.Min(Time.unscaledDeltaTime, .05f));
             transform.localScale = restScale * scale;
@@ -46,10 +47,7 @@ namespace GardenSnake
 
         public void OnPointerEnter(PointerEventData eventData) => hovered = true;
 
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            hovered = pressed = false;
-        }
+        public void OnPointerExit(PointerEventData eventData) => hovered = pressed = false;
 
         public void OnPointerDown(PointerEventData eventData)
         {

@@ -119,6 +119,9 @@ namespace GardenSnake
         [SerializeField, Min(0)] private int goodScore = 12;
         [SerializeField, Min(0)] private int magnificentScore = 25;
 
+        /// <summary>Pre-rendered numerals: the score changes every apple and never allocates.</summary>
+        private static readonly string[] Numerals = BuildNumerals();
+
         [Header("Scene")]
         [SerializeField] private GameLoopManager loop;
         [SerializeField] private PlayerController input;
@@ -152,7 +155,7 @@ namespace GardenSnake
             toast.alpha = 0;
             toastHalo.color = WithAlpha(toastHalo.color, 0);
             banner.alpha = 0;
-            bannerFill.color = FadeTo(bannerFill.color, 0);
+            bannerFill.color = WithAlpha(bannerFill.color, 0);
             loop.Changed += Refresh;
             Refresh();
         }
@@ -167,72 +170,47 @@ namespace GardenSnake
             if (shownScore != loop.Score)
             {
                 shownScore = loop.Score;
-                scoreText.text = Count(loop.Score);
+                scoreText.text = Numeral(loop.Score);
             }
             if (shownBest != loop.Best)
             {
                 shownBest = loop.Best;
-                bestText.text = bestPrefix + Count(loop.Best);
+                bestText.text = bestPrefix + Numeral(loop.Best);
             }
             muteGlyph.sprite = loop.Muted ? soundOffSprite : soundOnSprite;
-            muteGlyph.color = FadeTo(controlColor, loop.Muted ? mutedOpacity : soundOnOpacity);
+            muteGlyph.color = WithAlpha(controlColor, loop.Muted ? mutedOpacity : soundOnOpacity);
             pauseGlyph.sprite = loop.State == RunState.Paused ? resumeSprite : pauseSprite;
-            pauseButton.interactable = loop.State == RunState.Playing || loop.State == RunState.Paused;
+            pauseButton.interactable = loop.State is RunState.Playing or RunState.Paused;
 
-            if (lastState != loop.State)
+            if (shownState != loop.State)
             {
-                if (loop.State == RunState.Playing && lastState != RunState.Paused)
+                if (loop.State == RunState.Playing && shownState != RunState.Paused)
                     toastTime = bannerTime = whisperTime = 0;
                 cardTime = 0;
-                lastState = loop.State;
+                shownState = loop.State;
             }
             bool showCard = loop.State != RunState.Playing;
             card.SetActive(showCard);
-            bool ended = loop.State == RunState.Lost || loop.State == RunState.Won;
+            bool ended = loop.State is RunState.Lost or RunState.Won;
             cardTally.SetActive(ended);
-            if (ended) cardTallyValue.text = Count(loop.Score);
+            if (ended) cardTallyValue.text = Numeral(loop.Score);
             LayoutCard(ended);
-            if (!showCard) return;
-            switch (loop.State)
-            {
-                case RunState.Ready:
-                    cardEyebrow.text = readyEyebrow;
-                    cardTitle.text = readyTitle;
-                    cardBody.text = readyBody;
-                    primaryLabel.text = playLabel;
-                    break;
-                case RunState.Paused:
-                    cardEyebrow.text = pausedEyebrow;
-                    cardTitle.text = pausedTitle;
-                    cardBody.text = pausedBody;
-                    primaryLabel.text = resumeLabel;
-                    break;
-                case RunState.Lost:
-                case RunState.Won:
-                    bool won = loop.State == RunState.Won;
-                    cardEyebrow.text = won ? wonEyebrow
-                        : loop.RecordBroken ? recordEyebrow
-                        : lostEyebrow;
-                    cardTitle.text = won ? wonTitle : Verdict(loop.Score);
-                    cardBody.text = loop.EndReason + "\n" + bestResultPrefix + loop.Best;
-                    primaryLabel.text = replayLabel;
-                    break;
-            }
+            if (showCard) WriteCard();
         }
 
-        private void WriteCard(SnakeGame game)
+        private void WriteCard()
         {
-            (cardEyebrow.text, cardTitle.text, cardBody.text, primaryLabel.text) = game.State switch
+            (cardEyebrow.text, cardTitle.text, cardBody.text, primaryLabel.text) = loop.State switch
             {
                 RunState.Ready => (readyEyebrow, readyTitle, readyBody, playLabel),
                 RunState.Paused => (pausedEyebrow, pausedTitle, pausedBody, resumeLabel),
-                RunState.Won => (wonEyebrow, wonTitle, EndSummary(game), replayLabel),
-                _ => (controller.Record.Broken ? recordEyebrow : lostEyebrow,
-                      Verdict(game.Score), EndSummary(game), replayLabel)
+                RunState.Won => (wonEyebrow, wonTitle, EndSummary(), replayLabel),
+                _ => (loop.RecordBroken ? recordEyebrow : lostEyebrow,
+                      Verdict(loop.Score), EndSummary(), replayLabel)
             };
         }
 
-        private string EndSummary(SnakeGame game) => game.EndReason + "\n" + bestResultPrefix + controller.Best;
+        private string EndSummary() => loop.EndReason + "\n" + bestResultPrefix + loop.Best;
 
         /// <summary>The card is only as tall as the state needs, so it never shows an empty gap.</summary>
         private void LayoutCard(bool ended)
@@ -286,8 +264,7 @@ namespace GardenSnake
             AnimateBestFlash(delta);
             AnimateToast(delta);
             AnimateBanner(delta);
-            brandGroup.alpha = Mathf.MoveTowards(brandGroup.alpha,
-                controller.Game.State == RunState.Playing ? playingBrandOpacity : 1f, delta * chromeFadeSpeed);
+            AnimateChrome(delta);
             AnimateCard(delta);
         }
 
@@ -317,7 +294,7 @@ namespace GardenSnake
             float bannerFade = Mathf.Min(1, bannerTime * bannerFadeSpeed);
             float bannerRise = Mathf.Clamp01((bannerDuration - bannerTime) * bannerRiseSpeed);
             banner.alpha = bannerFade;
-            bannerFill.color = FadeTo(bannerFill.color, bannerFade * bannerFillOpacity);
+            bannerFill.color = WithAlpha(bannerFill.color, bannerFade * bannerFillOpacity);
             bannerRoot.localScale = Vector3.one * Mathf.Lerp(bannerStartScale, 1f, 1 - Mathf.Pow(1 - bannerRise, bannerEasePower));
 
         }
