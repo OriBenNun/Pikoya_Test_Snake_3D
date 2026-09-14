@@ -70,7 +70,7 @@ if (board == null) {
 
 def state():
     return evaluate("""
-var controller = UnityEngine.Object.FindAnyObjectByType<GardenSnake.SnakeController>();
+var controller = UnityEngine.Object.FindAnyObjectByType<GardenSnake.GameLoopManager>();
 if (controller == null) return "no-controller";
 var game = controller.Game;
 return string.Format("state={0} score={1} len={2} head={3},{4} food={5},{6} best={7} step={8:0.000}",
