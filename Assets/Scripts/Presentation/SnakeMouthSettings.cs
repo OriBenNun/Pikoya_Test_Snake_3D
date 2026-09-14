@@ -2,11 +2,14 @@ using UnityEngine;
 
 namespace GardenSnake.Presentation
 {
-    /// <summary>Persistent Inspector tuning shared by runtime-created snake presentation components.</summary>
+    /// <summary>
+    /// The face: how the mouth opens, what it does with a swallowed apple, and where every soft
+    /// piece of the head sits. Edit it outside Play Mode.
+    /// </summary>
     [CreateAssetMenu(menuName = "Garden Snake/Snake Mouth Settings")]
     public sealed class SnakeMouthSettings : ScriptableObject
     {
-        [Header("Anticipation (live tuning)")]
+        [Header("Anticipation")]
         [SerializeField, Min(0)] private float anticipationDistance = 3.2f;
         public float AnticipationDistance => anticipationDistance;
         [SerializeField, Min(.01f)] private float anticipationRamp = 1.7f;

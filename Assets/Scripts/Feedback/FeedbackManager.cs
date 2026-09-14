@@ -1,3 +1,4 @@
+using System.Collections;
 using GardenSnake.Gameplay;
 using GardenSnake.Presentation;
 using GardenSnake.Presentation.Hud;
@@ -10,8 +11,8 @@ namespace GardenSnake
     /// <summary>
     /// The reaction layer. It listens to the game loop and answers every beat a player can feel:
     /// the sound, the Feel players, the ripple through the board, the ring a picked apple throws,
-    /// the sparkle behind the head, the vignette that closes in with the pace, and the words the
-    /// HUD throws up.
+    /// the sparkle behind the head, the vignette that closes in with the pace, the camera pushing
+    /// in on a run, and the words the HUD throws up.
     /// <para>
     /// Nothing holds a reference to it. It only ever observes, so the game can run with this
     /// object switched off and still be a correct, silent game.
@@ -20,30 +21,7 @@ namespace GardenSnake
     [DefaultExecutionOrder(-50)]
     public sealed class FeedbackManager : MonoBehaviour
     {
-        /// <summary>The pitch and level of every one-shot, kept together so the mix reads as a mix.</summary>
-        [System.Serializable]
-        public sealed class SoundMix
-        {
-            [Range(.1f, 3)] public float startPitch = 1;
-            [Range(0, 1)] public float startVolume = .5f;
-            public Vector2 turnPitch = new(.96f, 1.06f);
-            [Range(0, 1)] public float turnVolume = .16f;
-            [Range(.1f, 3)] public float clickPitch = 1;
-            [Range(0, 1)] public float clickVolume = .35f;
-            [Range(.1f, 3)] public float pickupPitch = 1;
-            [Tooltip("Pickups climb a short scale, then start it again.")]
-            [Min(1)] public int pickupPitchCycle = 6;
-            [Min(0)] public float pickupPitchIncrement = .045f;
-            [Range(0, 1)] public float pickupVolume = .6f;
-            [Range(.1f, 3)] public float bestPitch = 1;
-            [Range(0, 1)] public float bestVolume = .45f;
-            [Range(.1f, 3)] public float recordPitch = 1.35f;
-            [Range(0, 1)] public float recordVolume = .1f;
-            [Range(.1f, 3)] public float losePitch = 1;
-            [Range(0, 1)] public float loseVolume = .55f;
-        }
-
-        /// <summary>The Feel players, and how hard each beat is allowed to land.</summary>
+        /// <summary>The Feel players, one per beat. Wiring, not tuning.</summary>
         [System.Serializable]
         public sealed class FeelPlayers
         {
@@ -52,30 +30,6 @@ namespace GardenSnake
             public MMF_Player runStart;
             public MMF_Player newBest;
             public MMF_Player recordApple;
-            [Tooltip("Intensity of the first pickup and of a fully escalated pickup.")]
-            public Vector2 pickupIntensity = new(.75f, 1.5f);
-            [Min(1)] public int fullPickupIntensityScore = 14;
-            [Min(0)] public float deathIntensity = 1;
-            [Min(0)] public float runStartIntensity = 1;
-            [Min(0)] public float newBestIntensity = 1;
-            [Min(0)] public float recordAppleIntensity = 1;
-        }
-
-        /// <summary>Which wave the board runs for each moment, and how far it carries.</summary>
-        [System.Serializable]
-        public sealed class WaveCues
-        {
-            public GridCellWaves.Pattern start = GridCellWaves.Pattern.Sweep;
-            public GridCellWaves.Pattern death = GridCellWaves.Pattern.Ripple;
-            public GridCellWaves.Pattern best = GridCellWaves.Pattern.Bloom;
-            public GridCellWaves.Pattern milestone = GridCellWaves.Pattern.CheckerHop;
-            public GridCellWaves.Pattern victory = GridCellWaves.Pattern.Bloom;
-            [Min(0)] public float startIntensity = 1;
-            [Min(0)] public float deathIntensity = 1;
-            [Min(0)] public float bestIntensity = 1;
-            [Min(0)] public float milestoneIntensity = 1;
-            [Min(0)] public float victoryIntensity = 1.5f;
-            [Min(1)] public int milestoneAppleInterval = 10;
         }
 
         [Header("Observed")]
@@ -84,6 +38,7 @@ namespace GardenSnake
         [Header("Stage")]
         [SerializeField] private SnakeHud hud;
         [SerializeField] private GridCellWaves cellWaves;
+        [SerializeField] private Camera view;
         [SerializeField] private Volume paceVolume;
         [SerializeField] private Transform burstRing;
         [SerializeField] private ParticleSystem pickupParticles;
@@ -97,24 +52,19 @@ namespace GardenSnake
         [SerializeField] private AudioClip startSound;
         [SerializeField] private AudioClip bestSound;
         [SerializeField] private AudioClip clickSound;
-        [Header("Tuning")]
-        [SerializeField] private SoundMix sound = new();
+        [Header("Feel")]
         [SerializeField] private FeelPlayers feel = new();
-        [SerializeField] private WaveCues waves = new();
+        [Header("Tuning")]
+        [SerializeField] private SoundMixSettings sound;
+        [SerializeField] private FeelBeatSettings beats;
+        [SerializeField] private WaveCueSettings waves;
+        [SerializeField] private ReactionSettings reactions;
+        [Header("Camera")]
+        [SerializeField, Range(1f, 1.4f), Tooltip("How far the camera sits back on the menus, against the framing it plays at.")]
+        private float restingZoom = 1.13f;
+        [SerializeField, Range(.05f, 2f), Tooltip("Seconds the camera takes to push in on a run, and to settle back after it.")]
+        private float zoomSeconds = .45f;
 
-        // The shape of each reaction, not settings.
-        private const float BurstDuration = .42f;
-        private const float BurstEasePower = 2.6f;
-        private const float BurstStartScale = .6f;
-        private const float BurstEndScale = 2.5f;
-        private const float BurstOpacity = .55f;
-        private const float BurstHeight = .05f;
-        private const float TrailEmissionSlow = 10f;
-        private const float TrailEmissionFast = 30f;
-        private const float TrailHeight = .12f;
-        private const float PaceVolumeBlendSpeed = 1.2f;
-        private const int DeathParticleCount = 18;
-        private const float DeathParticleHeight = .3f;
         /// <summary>Age given to a burst that is over, so it never replays on its own.</summary>
         private const float Finished = 99f;
 
@@ -123,11 +73,23 @@ namespace GardenSnake
         private Material burstMaterial;
         private float burstAge = Finished;
         private bool burstShown;
+        /// <summary>The framing the scene was authored at; the player settings decide the window.</summary>
+        private float playingSize;
+        private float zoomTarget;
+        private Coroutine zooming;
 
         private void Awake()
         {
+            sound = Tuning.Or(sound);
+            beats = Tuning.Or(beats);
+            waves = Tuning.Or(waves);
+            reactions = Tuning.Or(reactions);
             burstMaterial = burstRing.GetComponent<Renderer>().material;
             burstShown = burstRing.gameObject.activeSelf;
+            if (view == null) return;
+            playingSize = view.orthographicSize;
+            zoomTarget = playingSize * restingZoom;
+            view.orthographicSize = zoomTarget;
         }
 
         private void OnEnable()
@@ -162,34 +124,36 @@ namespace GardenSnake
         {
             cellWaves.Clear();
             Play(startSound, sound.startPitch, sound.startVolume);
-            Strike(Beat.RunStart, feel.runStart, head, feel.runStartIntensity);
+            Strike(Beat.RunStart, feel.runStart, head, beats.runStartIntensity);
             cellWaves.Play(waves.start, loop.Body[0], waves.startIntensity);
         }
 
         private void OnAppleEaten(AppleBeat apple)
         {
-            Strike(Beat.Pickup, feel.pickup, apple.At, Mathf.Lerp(feel.pickupIntensity.x, feel.pickupIntensity.y,
-                Mathf.Clamp01(apple.Score / (float)feel.fullPickupIntensityScore)));
+            Strike(Beat.Pickup, feel.pickup, apple.At,
+                Mathf.Lerp(beats.pickupIntensity.x, beats.pickupIntensity.y,
+                    Mathf.Clamp01(apple.Score / (float)Mathf.Max(1, beats.fullPickupIntensityScore))));
             burstAge = 0;
-            burstRing.position = apple.At + Vector3.up * BurstHeight;
-            Play(pickupSound, sound.pickupPitch + apple.Score % sound.pickupPitchCycle * sound.pickupPitchIncrement,
+            burstRing.position = apple.At + Vector3.up * reactions.burstHeight;
+            Play(pickupSound,
+                sound.pickupPitch + apple.Score % Mathf.Max(1, sound.pickupPitchCycle) * sound.pickupPitchIncrement,
                 sound.pickupVolume);
             bool extended = apple.Record == RecordBeat.Extended;
             hud.ShowPickup(extended ? "+1 <size=55%>best</size>" : "+1", apple.At, extended);
             if (apple.Record == RecordBeat.Broken)
             {
                 cellWaves.Play(waves.best, loop.Body[0], waves.bestIntensity);
-                Strike(Beat.NewBest, feel.newBest, apple.At, feel.newBestIntensity);
+                Strike(Beat.NewBest, feel.newBest, apple.At, beats.newBestIntensity);
                 Play(bestSound, sound.bestPitch, sound.bestVolume);
                 hud.ShowBanner("NEW BEST");
             }
             else if (extended)
             {
-                Strike(Beat.RecordApple, feel.recordApple, apple.At, feel.recordAppleIntensity);
+                Strike(Beat.RecordApple, feel.recordApple, apple.At, beats.recordAppleIntensity);
                 Play(bestSound, sound.recordPitch, sound.recordVolume);
                 hud.WhisperBest();
             }
-            else if (apple.Score % waves.milestoneAppleInterval == 0)
+            else if (apple.Score % Mathf.Max(1, waves.appleInterval) == 0)
             {
                 cellWaves.Play(waves.milestone, loop.Body[0], waves.milestoneIntensity);
                 hud.ShowBanner(apple.Score + " APPLES");
@@ -203,10 +167,10 @@ namespace GardenSnake
             if (result == StepResult.Lost)
             {
                 Play(loseSound, sound.losePitch, sound.loseVolume);
-                Strike(Beat.Death, feel.death, at, feel.deathIntensity);
+                Strike(Beat.Death, feel.death, at, beats.deathIntensity);
                 cellWaves.Play(waves.death, head, waves.deathIntensity);
-                pickupParticles.transform.position = at + Vector3.up * DeathParticleHeight;
-                pickupParticles.Emit(DeathParticleCount);
+                pickupParticles.transform.position = at + Vector3.up * reactions.deathParticleHeight;
+                pickupParticles.Emit(reactions.deathParticleCount);
             }
             else
             {
@@ -220,7 +184,11 @@ namespace GardenSnake
 
         private void OnClicked() => Play(clickSound, sound.clickPitch, sound.clickVolume);
 
-        private void OnChanged() => cellWaves.Frozen = loop.State == RunState.Paused;
+        private void OnChanged()
+        {
+            cellWaves.Frozen = loop.State == RunState.Paused;
+            ZoomTo(loop.State == RunState.Playing ? playingSize : playingSize * restingZoom);
+        }
 
         private void OnVisualsReset()
         {
@@ -234,6 +202,32 @@ namespace GardenSnake
             musicSource.mute = muted;
         }
 
+        // The camera
+
+        /// <summary>
+        /// The garden is framed by the player settings' resolution, so the camera only ever eases
+        /// between two sizes: pushed in while a run is going, sitting back on the menus.
+        /// </summary>
+        private void ZoomTo(float size)
+        {
+            if (view == null || Mathf.Approximately(zoomTarget, size)) return;
+            zoomTarget = size;
+            if (zooming != null) StopCoroutine(zooming);
+            zooming = StartCoroutine(Zooming(size));
+        }
+
+        private IEnumerator Zooming(float size)
+        {
+            float from = view.orthographicSize;
+            for (float age = 0; age < zoomSeconds; age += Time.unscaledDeltaTime)
+            {
+                view.orthographicSize = Mathf.Lerp(from, size, Mathf.SmoothStep(0, 1, age / zoomSeconds));
+                yield return null;
+            }
+            view.orthographicSize = size;
+            zooming = null;
+        }
+
         // The frame
 
         private void Update()
@@ -243,23 +237,25 @@ namespace GardenSnake
             AnimateBurst(delta);
             AnimateTrail(moving);
             float wanted = moving ? loop.CurrentPace : 0;
-            paceVolume.weight = Mathf.MoveTowards(paceVolume.weight, wanted, delta * PaceVolumeBlendSpeed);
+            paceVolume.weight = Mathf.MoveTowards(paceVolume.weight, wanted,
+                delta * reactions.paceVolumeBlendSpeed);
         }
 
         /// <summary>One expanding ring per apple: the pickup gets a shape, not just particles.</summary>
         private void AnimateBurst(float delta)
         {
-            if (burstAge >= BurstDuration)
+            if (burstAge >= reactions.burstDuration)
             {
                 ShowBurst(false);
                 return;
             }
             burstAge += delta;
             ShowBurst(true);
-            float t = Mathf.Clamp01(burstAge / BurstDuration);
-            float eased = 1 - Mathf.Pow(1 - t, BurstEasePower);
-            burstRing.localScale = Vector3.one * Mathf.Lerp(BurstStartScale, BurstEndScale, eased);
-            burstMaterial.SetFloat(AlphaProperty, (1 - t) * (1 - t) * BurstOpacity);
+            float t = Mathf.Clamp01(burstAge / reactions.burstDuration);
+            float eased = 1 - Mathf.Pow(1 - t, reactions.burstEasePower);
+            burstRing.localScale = Vector3.one
+                * Mathf.Lerp(reactions.burstStartScale, reactions.burstEndScale, eased);
+            burstMaterial.SetFloat(AlphaProperty, (1 - t) * (1 - t) * reactions.burstOpacity);
         }
 
         private void ShowBurst(bool visible)
@@ -273,10 +269,11 @@ namespace GardenSnake
         {
             var emission = trailParticles.emission;
             // The faster the run gets, the more the snake leaves behind it.
-            emission.rateOverTime = Mathf.Lerp(TrailEmissionSlow, TrailEmissionFast, loop.CurrentPace);
+            emission.rateOverTime = Mathf.Lerp(reactions.trailEmissionSlow, reactions.trailEmissionFast,
+                loop.CurrentPace);
             if (moving && !trailParticles.isPlaying) trailParticles.Play();
             if (!moving && trailParticles.isPlaying) trailParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-            trailParticles.transform.position = snake.HeadPosition + Vector3.up * TrailHeight;
+            trailParticles.transform.position = snake.HeadPosition + Vector3.up * reactions.trailHeight;
         }
 
         // Striking a beat

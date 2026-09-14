@@ -13,28 +13,11 @@ namespace GardenSnake.Presentation
         [Header("Models")]
         [SerializeField] private GameObject applePrefab;
         [SerializeField] private Transform marker;
+        [Header("Tuning")]
+        [SerializeField] private AppleMotionSettings motion;
         [Header("Scene")]
         [SerializeField] private GameLoopManager loop;
         [SerializeField] private GridCellWaves board;
-        [Header("Proportions")]
-        [SerializeField, Range(.8f, 1.6f)] private float appleScale = 1.16f;
-
-        // The fruit's character, not settings.
-        private const float BreathFrequency = 3.2f;
-        private const float BreathScale = .04f;
-        private const float ArrivalDuration = .34f;
-        private const float ArrivalEasePower = 3f;
-        private const float ArrivalOscillation = 9f;
-        private const float ArrivalSwell = .55f;
-        private const float HoverHeight = .14f;
-        private const float BobAmplitude = .07f;
-        private const float DropHeight = .5f;
-        private const float SpinSpeed = 34f;
-        private const float RockFrequency = 2.1f;
-        private const float RockAngle = 6f;
-        private const float MarkerHeight = .04f;
-        private const float MarkerScale = 2.1f;
-        private const float MarkerPulse = .18f;
 
         private Transform apple;
         private float age;
@@ -49,6 +32,7 @@ namespace GardenSnake.Presentation
 
         private void Awake()
         {
+            motion = Tuning.Or(motion);
             apple = Instantiate(applePrefab, transform).transform;
         }
 
@@ -75,24 +59,24 @@ namespace GardenSnake.Presentation
             age += Time.unscaledDeltaTime;
             Vector3 cell = loop.World(loop.Food);
             float lift = board.HeightAt(cell);
-            float breathe = Mathf.Sin(Time.unscaledTime * BreathFrequency);
+            float breathe = Mathf.Sin(Time.unscaledTime * motion.breathFrequency);
             // A fresh apple drops in with a little overshoot rather than blinking into place.
-            float arrival = Mathf.Clamp01(age / ArrivalDuration);
+            float arrival = Mathf.Clamp01(age / Mathf.Max(.01f, motion.duration));
             float pop = arrival >= 1
                 ? 1
-                : 1 - Mathf.Pow(1 - arrival, ArrivalEasePower) * Mathf.Cos(arrival * ArrivalOscillation) * ArrivalSwell;
+                : 1 - Mathf.Pow(1 - arrival, motion.easePower) * Mathf.Cos(arrival * motion.oscillation) * motion.swell;
             apple.position = cell + Vector3.up *
-                (lift + HoverHeight + breathe * BobAmplitude + (1 - arrival) * DropHeight);
-            apple.rotation = Quaternion.Euler(0, Time.unscaledTime * SpinSpeed,
-                Mathf.Sin(Time.unscaledTime * RockFrequency) * RockAngle);
-            apple.localScale = Vector3.one * (appleScale * (1 + breathe * BreathScale) * pop);
+                (lift + motion.hoverHeight + breathe * motion.bobAmplitude + (1 - arrival) * motion.dropHeight);
+            apple.rotation = Quaternion.Euler(0, Time.unscaledTime * motion.spinSpeed,
+                Mathf.Sin(Time.unscaledTime * motion.rockFrequency) * motion.rockAngle);
+            apple.localScale = Vector3.one * (motion.scale * (1 + breathe * motion.breathScale) * pop);
             if (markerShown != shown)
             {
                 markerShown = shown;
                 marker.gameObject.SetActive(shown);
             }
-            marker.position = cell + Vector3.up * (MarkerHeight + lift);
-            marker.localScale = Vector3.one * ((MarkerScale + breathe * MarkerPulse) * arrival);
+            marker.position = cell + Vector3.up * (motion.height + lift);
+            marker.localScale = Vector3.one * ((motion.markerScale + breathe * motion.pulse) * arrival);
         }
     }
 }

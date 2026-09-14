@@ -10,9 +10,8 @@ namespace GardenSnake.Presentation
     /// continuous skin, the face, the blink, the death - and rebuilds them from whatever the game
     /// loop currently says is true. It never decides a rule and never makes a sound.
     /// <para>
-    /// Only the pieces an art director would actually reach for are exposed: the three models,
-    /// the two shared tuning assets, and the proportions of head, body and tail. Everything else
-    /// is the animal's character rather than a setting, so it is baked into this class.
+    /// Nothing here is a setting: the component is pure wiring, and everything the animal does is
+    /// either its character - baked into the constants below - or one of the two tuning assets.
     /// </para>
     /// </summary>
     [DefaultExecutionOrder(-100)]
@@ -21,51 +20,15 @@ namespace GardenSnake.Presentation
         [Header("Models")]
         [SerializeField] private GameObject headPrefab;
         [SerializeField] private GameObject bodyPrefab;
-        [Header("Shared tuning")]
+        [Header("Tuning")]
         [SerializeField] private SnakeSkinSettings skinSettings;
         [SerializeField] private SnakeMouthSettings mouthSettings;
-        [Header("Proportions")]
-        [SerializeField, Range(.8f, 1.6f)] private float headScale = 1.22f;
-        [SerializeField, Range(.8f, 1.6f)] private float bodyScale = 1.3f;
-        [SerializeField, Range(.8f, 1.6f)] private float tailScale = 1.24f;
+        [SerializeField] private SnakeMotionSettings motion;
         [Header("Scene")]
         [SerializeField] private GameLoopManager loop;
         [SerializeField] private AppleView appleView;
         [SerializeField] private GridCellWaves board;
 
-        // The animal's character, not settings.
-        // Banking into a corner.
-        private const float BankRecoverySpeed = 3.4f;
-        private const float BankAngle = -16f;
-        private const float HeadTurnSpeed = 22f;
-        // The shallow sideways wave that sells "alive" without ever leaving the cell.
-        private const float SlitherAmplitude = .055f;
-        private const float SlitherFrequency = 2.1f;
-        private const float SlitherSegmentPhase = .42f;
-        // A new segment swells as it appears.
-        private const float GrowthDuration = .2f;
-        private const float GrowthSwell = .2f;
-        // Breathing while the board is still waiting for the player.
-        private const float IdleBreathFrequency = 2.4f;
-        private const float IdleBreathSegmentPhase = .5f;
-        private const float IdleBreathAmplitude = .035f;
-        private const float IdleBreathStretch = 2.2f;
-        private const float IdleBreathLift = .5f;
-        // Blinking.
-        private const float FirstBlinkDelay = 2.5f;
-        private const float MinimumBlinkGap = 2.2f;
-        private const float MaximumBlinkGap = 5.5f;
-        private const float BlinkDuration = .16f;
-        private const float BlinkClosure = .92f;
-        // The death: a shove into whatever stopped it, then head-first out of existence.
-        private const float DeathBeat = .26f;
-        private const float DeathRecoilDuration = .1f;
-        private const float DeathRecoilDistance = .18f;
-        private const float DeathSegmentDelay = .05f;
-        private const float DeathTotalStagger = .34f;
-        private const float DeathSwell = .35f;
-        private const float DeathShrinkStart = .55f;
-        private const float DeathLift = .22f;
         /// <summary>Age given to a one-shot animation that is over, so it never replays on its own.</summary>
         private const float Finished = 99f;
 
@@ -77,6 +40,7 @@ namespace GardenSnake.Presentation
         private readonly List<float> visualDigestion = new();
         private readonly List<Vector3> digestionAnchors = new();
         private Transform tail;
+        private float headScale, bodyScale, tailScale;
         private SnakeSkin skin;
         private SnakeMouth mouth;
         private Transform[] eyeParts;
@@ -86,7 +50,7 @@ namespace GardenSnake.Presentation
         private float slither;
         private float bank;
         private float blinkAge;
-        private float nextBlink = FirstBlinkDelay;
+        private float nextBlink;
         private int grownIndex = -1;
         private float grownAge = Finished;
         private float deathAge;
@@ -99,6 +63,12 @@ namespace GardenSnake.Presentation
 
         private void Start()
         {
+            skinSettings = Tuning.Or(skinSettings);
+            motion = Tuning.Or(motion);
+            nextBlink = motion.firstBlinkDelay;
+            headScale = skinSettings.HeadScale;
+            bodyScale = skinSettings.BodyScale;
+            tailScale = skinSettings.TailScale;
             segments.Add(Instantiate(headPrefab, transform).transform);
             mouth = segments[0].gameObject.AddComponent<SnakeMouth>();
             mouth.Initialize(appleView.Prefab, mouthSettings);
@@ -108,7 +78,7 @@ namespace GardenSnake.Presentation
             var skinObject = new GameObject("Snake skin");
             skinObject.transform.SetParent(transform, false);
             skin = skinObject.AddComponent<SnakeSkin>();
-            skin.Initialize(bodyPrefab, loop.BoardWidth * loop.BoardHeight, skinSettings);
+            skin.Initialize(bodyPrefab, GameLoopManager.Columns * GameLoopManager.Rows, skinSettings);
             Prewarm();
             ResetVisuals();
 
@@ -169,7 +139,7 @@ namespace GardenSnake.Presentation
             deathAge = dying ? deathAge + delta : 0;
             if (!paused) grownAge += delta;
             Blink(paused ? 0 : delta);
-            bank = Mathf.MoveTowards(bank, 0, delta * BankRecoverySpeed);
+            bank = Mathf.MoveTowards(bank, 0, delta * motion.bankRecoverySpeed);
             if (loop.State == RunState.Playing) slither += Time.deltaTime / loop.CurrentStep;
 
             AnimateBody(dying);
@@ -222,34 +192,36 @@ namespace GardenSnake.Presentation
             if (along.sqrMagnitude > .01f && !dying)
             {
                 Vector3 side = Vector3.Cross(Vector3.up, along.normalized);
-                position += side * (Mathf.Sin((slither - index * SlitherSegmentPhase) * SlitherFrequency) * SlitherAmplitude);
+                position += side * (Mathf.Sin((slither - index * motion.segmentPhase) * motion.frequency) * motion.amplitude);
             }
-            if (index == grownIndex && grownAge < GrowthDuration)
+            if (index == grownIndex && grownAge < motion.duration)
             {
-                float birth = grownAge / GrowthDuration;
-                scale *= 1 + Mathf.Sin(birth * Mathf.PI) * GrowthSwell;
+                float birth = grownAge / Mathf.Max(.01f, motion.duration);
+                scale *= 1 + Mathf.Sin(birth * Mathf.PI) * motion.swell;
             }
             if (loop.State == RunState.Ready)
             {
-                float breath = Mathf.Sin(Time.unscaledTime * IdleBreathFrequency - index * IdleBreathSegmentPhase) * IdleBreathAmplitude;
-                scale += new Vector3(-breath, breath * IdleBreathStretch, -breath);
-                position += Vector3.up * (breath * IdleBreathLift);
+                float breath = Mathf.Sin(Time.unscaledTime * motion.breathFrequency - index * motion.breathSegmentPhase) * motion.breathAmplitude;
+                scale += new Vector3(-breath, breath * motion.breathStretch, -breath);
+                position += Vector3.up * (breath * motion.breathLift);
             }
             if (!dying) return new SegmentPose(position, scale);
 
             // The head shoves into whatever stopped it before the snake gives up.
-            if (index == 0 && deathAge < DeathRecoilDuration)
+            if (index == 0 && deathAge < motion.recoilDuration)
             {
-                float recoil = Mathf.Sin(deathAge / DeathRecoilDuration * Mathf.PI) * DeathRecoilDistance;
+                float recoil = Mathf.Sin(deathAge / Mathf.Max(.01f, motion.recoilDuration) * Mathf.PI) * motion.recoilDistance;
                 position += (loop.World(loop.Body[0]) - loop.World(loop.Body[1])).normalized * recoil;
             }
             // Each piece swells and pops out of existence, head first, so the board is clear by
             // the time the results card arrives.
-            float stagger = Mathf.Min(DeathSegmentDelay, DeathTotalStagger / count);
-            float pop = Mathf.Clamp01((deathAge - index * stagger) / DeathBeat);
-            float swell = Mathf.Sin(pop * Mathf.PI) * DeathSwell;
-            float shrink = pop < DeathShrinkStart ? 1 : 1 - (pop - DeathShrinkStart) / (1 - DeathShrinkStart);
-            return new SegmentPose(position + Vector3.up * (pop * DeathLift),
+            float stagger = Mathf.Min(motion.segmentDelay, motion.totalStagger / count);
+            float pop = Mathf.Clamp01((deathAge - index * stagger) / Mathf.Max(.01f, motion.beat));
+            float swell = Mathf.Sin(pop * Mathf.PI) * motion.deathSwell;
+            float shrink = pop < motion.shrinkStart
+                ? 1
+                : 1 - (pop - motion.shrinkStart) / Mathf.Max(.001f, 1 - motion.shrinkStart);
+            return new SegmentPose(position + Vector3.up * (pop * motion.lift),
                 Vector3.one * ((1 + swell) * shrink * shrink));
         }
 
@@ -258,8 +230,8 @@ namespace GardenSnake.Presentation
         {
             if (index == 0)
             {
-                Quaternion facing = Rotation(loop.Heading) * Quaternion.Euler(0, 0, bank * BankAngle);
-                part.rotation = Quaternion.Slerp(part.rotation, facing, Time.unscaledDeltaTime * HeadTurnSpeed);
+                Quaternion facing = Rotation(loop.Heading) * Quaternion.Euler(0, 0, bank * motion.bankAngle);
+                part.rotation = Quaternion.Slerp(part.rotation, facing, Time.unscaledDeltaTime * motion.headTurnSpeed);
                 return;
             }
             Vector3 toward = segments[index - 1].position - part.position;
@@ -295,7 +267,7 @@ namespace GardenSnake.Presentation
         /// </summary>
         private void Prewarm()
         {
-            int capacity = loop.BoardWidth * loop.BoardHeight;
+            int capacity = GameLoopManager.Columns * GameLoopManager.Rows;
             segments.Capacity = capacity;
             previousPositions.Capacity = capacity;
             for (int i = segments.Count; i < capacity - 1; i++)
@@ -380,14 +352,15 @@ namespace GardenSnake.Presentation
         {
             if (eyeParts.Length == 0) return;
             blinkAge += delta;
-            if (blinkAge > nextBlink + BlinkDuration)
+            if (blinkAge > nextBlink + motion.blinkDuration)
             {
                 blinkAge = 0;
-                nextBlink = UnityEngine.Random.Range(MinimumBlinkGap, MaximumBlinkGap);
+                nextBlink = UnityEngine.Random.Range(motion.minimumBlinkGap, motion.maximumBlinkGap);
             }
             float open = blinkAge < nextBlink
                 ? 1
-                : 1 - Mathf.Sin(Mathf.Clamp01((blinkAge - nextBlink) / BlinkDuration) * Mathf.PI) * BlinkClosure;
+                : 1 - Mathf.Sin(Mathf.Clamp01((blinkAge - nextBlink) / Mathf.Max(.01f, motion.blinkDuration))
+                    * Mathf.PI) * motion.blinkClosure;
             // Food gets wide-eyed attention; do not blink away the anticipation pose.
             open = Mathf.Lerp(open, 1, mouth.Openness);
             for (int i = 0; i < eyeParts.Length; i++)

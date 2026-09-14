@@ -64,31 +64,26 @@ namespace GardenSnake.Gameplay
         private float speedGainPerApple = .0055f;
         [SerializeField, Range(0f, 1f), Tooltip("Still beat after PLAY before the first step, so the board can be read.")]
         private float openingBeat = .45f;
+        [Header("Tuning")]
+        [SerializeField] private RunRulesSettings rules;
         [Header("Scene")]
         [SerializeField] private PlayerController input;
 
         /// <summary>
-        /// The authored board. The scene carries exactly this grid of patches and nothing rebuilds
-        /// it, so the size is the game's shape rather than a setting.
+        /// The authored board. The scene carries exactly one grid of patches, laid out row by row
+        /// from the bottom left, and nothing rebuilds it - so this is the game's shape rather than
+        /// a setting. Changing it here would leave the rules playing on a board the garden does
+        /// not have.
         /// </summary>
         public const int Columns = 21;
         public const int Rows = 12;
         private const int Cells = Columns * Rows;
-
-        // The rules, and the frame the player is given them in.
-        private const int InitialLength = 3;
-        private const int TurnBufferSize = 2;
-        /// <summary>The first apple sits this far straight ahead, so the first swipe is obvious.</summary>
-        private const int FirstAppleDistance = 2;
-        private const int TargetFrameRate = 60;
-        /// <summary>A death is not a cue to press again; the card has to land first.</summary>
-        private const float RestartDelay = .35f;
+        /// <summary>One stalled browser frame must not advance the snake through several cells unseen.</summary>
+        private const float MaximumCatchUp = .1f;
 
         private const string BestKey = "GardenSnake.Best";
         private const string PlayedKey = "GardenSnake.HasPlayed";
         private const string MutedKey = "GardenSnake.Muted";
-        // One stalled browser frame must not advance the snake through several cells unseen.
-        private const float MaximumCatchUp = .1f;
         /// <summary>Food keeps its pickup cell as the snake slides over it: one body index per move.</summary>
         public const float DigestionPerStep = 1f;
         /// <summary>The board has no food on it at all.</summary>
@@ -130,12 +125,10 @@ namespace GardenSnake.Gameplay
         public RunState State { get; private set; }
         public int Score { get; private set; }
         public string EndReason { get; private set; } = string.Empty;
-        public int BoardWidth => boardWidth;
-        public int BoardHeight => boardHeight;
         /// <summary>The run has finished, won or lost, and is waiting on the results card.</summary>
         public bool RunOver => State is RunState.Lost or RunState.Won;
         public bool InBounds(Cell cell) =>
-            cell.X >= 0 && cell.Y >= 0 && cell.X < boardWidth && cell.Y < boardHeight;
+            cell.X >= 0 && cell.Y >= 0 && cell.X < Columns && cell.Y < Rows;
 
         // The record
 
@@ -177,7 +170,8 @@ namespace GardenSnake.Gameplay
 
         private void Awake()
         {
-            Application.targetFrameRate = TargetFrameRate;
+            rules = Tuning.Or(rules);
+            Application.targetFrameRate = Mathf.Max(1, rules.targetFrameRate);
             Application.runInBackground = true;
             random = new System.Random(Environment.TickCount);
             body.Capacity = Cells;
@@ -226,7 +220,7 @@ namespace GardenSnake.Gameplay
         {
             if (State == RunState.Paused) { TogglePause(); return; }
             if (State == RunState.Playing) return;
-            if (RunOver && Time.unscaledTime - endTime < RestartDelay) return;
+            if (RunOver && Time.unscaledTime - endTime < rules.restartDelay) return;
             PreviousBest = best;
             RecordEligible = hasPlayed;
             RecordBroken = false;
@@ -251,7 +245,7 @@ namespace GardenSnake.Gameplay
         public void Turn(Direction wish)
         {
             if (State == RunState.Ready) PrimaryAction();
-            if (State != RunState.Playing || turns.Count >= TurnBufferSize) return;
+            if (State != RunState.Playing || turns.Count >= rules.turnBufferSize) return;
             Direction last = Heading;
             foreach (Direction queued in turns) last = queued;
             // Reversing into the neck is not a move, and neither is turning the way you already face.
@@ -356,13 +350,14 @@ namespace GardenSnake.Gameplay
             digestion.Clear();
             int startX = Columns / 2;
             int startY = Rows / 2;
-            for (int i = 0; i < InitialLength; i++) body.Add(new Cell(startX - i, startY));
+            int length = Mathf.Clamp(rules.initialLength, 2, startX + 1);
+            for (int i = 0; i < length; i++) body.Add(new Cell(startX - i, startY));
             Heading = Direction.Right;
             Score = 0;
             EndReason = string.Empty;
             State = RunState.Ready;
             // The first apple teaches movement immediately; later apples use free-cell sampling.
-            Food = new Cell(startX + FirstAppleDistance, startY);
+            Food = new Cell(startX + Mathf.Clamp(rules.firstAppleDistance, 1, Columns - startX - 1), startY);
         }
 
         /// <summary>Picks the nth free cell, so spawning never retries and never hangs on a full board.</summary>

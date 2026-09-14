@@ -1,11 +1,11 @@
-using System;
 using GardenSnake.Gameplay;
 using UnityEngine;
 
 namespace GardenSnake.Presentation
 {
     /// <summary>
-    /// Bounded, additive visual waves. Cell coordinates and collision never move.
+    /// Bounded, additive visual waves through the board's patches. Cell coordinates and collision
+    /// never move; only the drawn grass does.
     /// <para>
     /// It knows nothing about the run: whoever triggers a wave also tells it when the garden
     /// should hold still, so the board can be exercised on its own.
@@ -16,62 +16,28 @@ namespace GardenSnake.Presentation
     {
         public enum Pattern { Ripple, Bloom, Sweep, CheckerHop }
 
-        [Serializable]
-        public struct Preset
-        {
-            public Pattern pattern;
-            [Min(0)] public float amplitude;
-            [Min(.1f)] public float speed;
-            [Min(.1f)] public float duration;
-            [Min(.1f)] public float width;
-            public Preset(Pattern pattern, float amplitude, float speed, float duration, float width)
-            {
-                this.pattern = pattern;
-                this.amplitude = amplitude;
-                this.speed = speed;
-                this.duration = duration;
-                this.width = width;
-            }
-        }
-
-        [Serializable]
-        public sealed class Shape
-        {
-            [Range(0, 1)] public float rippleModulation = .35f;
-            [Min(0)] public float rippleCycles = 2f;
-            [Range(0, 1)] public float checkerAlternateHeight = .3f;
-            [Min(0)] public float bloomFalloff = .035f;
-            [Min(.1f)] public float envelopePower = 2f;
-            [Tooltip("Sweep direction in board coordinates; normalized when sampled.")]
-            public Vector2 sweepDirection = Vector2.one;
-        }
-
-        [Header("Board references (set before Play Mode)")]
-        [SerializeField] private Transform[] cells;
-        [SerializeField, Min(1)] private int columns = 21;
-        [SerializeField, Range(1, 64), Tooltip("Maximum simultaneous waves. Applied on entering Play Mode.")]
-        private int maximumConcurrentWaves = 8;
-        [Header("Wave limits")]
-        [SerializeField, Min(0)] private float maximumHeight = .48f;
-        [SerializeField, Min(0)] private float maximumDepth = .08f;
-        [SerializeField, Min(0)] private float maximumStrength = 2f;
-        [SerializeField, Range(.016f, .1f)] private float maximumFrameStep = .05f;
-        [Header("Presets (live tuning; new waves use current values)")]
-        [SerializeField] private Preset ripple = new(Pattern.Ripple, .25f, 13, .6f, 1.5f);
-        [SerializeField] private Preset celebration = new(Pattern.Bloom, .44f, 15, .85f, 2);
-        [SerializeField] private Preset sweep = new(Pattern.Sweep, .25f, 15, .6f, 2);
-        [SerializeField] private Preset checker = new(Pattern.CheckerHop, .22f, 12, .65f, 2);
-        [SerializeField] private Shape shape = new();
+        [Header("Board")]
+        [SerializeField, Tooltip("Every patch of the board, row by row from the bottom left.")]
+        private Transform[] cells;
+        [Header("Tuning")]
+        [SerializeField] private BoardWaveSettings waves;
+        [SerializeField, Range(0f, 2f), Tooltip("How high the grass lifts when a wave passes. 0 holds the board flat.")]
+        private float waveHeight = 1f;
 
         private struct Wave
         {
-            public Preset preset;
-            public Vector2 source;
-            public float age;
+            public Pattern Pattern;
+            public BoardWaveSettings.Preset Preset;
+            public Vector2 Source;
+            public float Age;
         }
 
-        private static readonly Shape DefaultShape = new();
-        private Wave[] waves;
+        // The authored board, laid out row by row from the bottom left. Not a setting: the cells
+        // above are that grid, and nothing rebuilds it.
+        private const int Columns = GameLoopManager.Columns;
+        private const int Rows = GameLoopManager.Rows;
+
+        private Wave[] live;
         private Vector3[] rest;
         private int waveCount;
         public int ActiveCount => waveCount;
@@ -82,49 +48,40 @@ namespace GardenSnake.Presentation
 
         private void Awake()
         {
-            columns = Mathf.Max(1, columns);
-            waves = new Wave[Mathf.Clamp(maximumConcurrentWaves, 1, 64)];
+            waves = Tuning.Or(waves);
+            live = new Wave[Mathf.Clamp(waves.maximumConcurrentWaves, 1, 64)];
             rest = new Vector3[CellCount];
             for (int i = 0; i < rest.Length; i++) if (cells[i] != null) rest[i] = cells[i].localPosition;
         }
 
         public void Play(Pattern pattern, Cell source, float strength = 1)
         {
-            Preset preset = pattern switch
+            if (!isActiveAndEnabled || live == null || CellCount == 0) return;
+            BoardWaveSettings.Preset preset = pattern switch
             {
-                Pattern.Bloom => celebration,
-                Pattern.Sweep => sweep,
-                Pattern.CheckerHop => checker,
-                _ => ripple
+                Pattern.Bloom => waves.bloom,
+                Pattern.Sweep => waves.sweep,
+                Pattern.CheckerHop => waves.checkerHop,
+                _ => waves.ripple
             };
-            preset.amplitude *= Mathf.Clamp(strength, 0, maximumStrength);
-            Play(preset, source);
-        }
-
-        public void Play(Preset preset, Cell source)
-        {
-            if (!isActiveAndEnabled || waves == null || CellCount == 0) return;
-            preset.amplitude = Mathf.Max(0, preset.amplitude);
+            preset.amplitude = Mathf.Max(0, preset.amplitude)
+                * Mathf.Clamp(strength, 0, waves.maximumStrength) * Mathf.Max(0, waveHeight);
             preset.speed = Mathf.Max(.1f, preset.speed);
             preset.duration = Mathf.Max(.1f, preset.duration);
             preset.width = Mathf.Max(.1f, preset.width);
             // The buffer is full: drop the oldest wave so the newest beat is never the one lost.
-            if (waveCount == waves.Length)
+            if (waveCount == live.Length)
             {
-                for (int i = 1; i < waveCount; i++) waves[i - 1] = waves[i];
+                for (int i = 1; i < waveCount; i++) live[i - 1] = live[i];
                 waveCount--;
             }
-            waves[waveCount++] = new Wave { preset = preset, source = new Vector2(source.X, source.Y) };
+            live[waveCount++] = new Wave
+            {
+                Pattern = pattern,
+                Preset = preset,
+                Source = new Vector2(source.X, source.Y)
+            };
         }
-
-        [ContextMenu("Preview ripple from center")]
-        private void PreviewRipple() => Play(Pattern.Ripple, new Cell(columns / 2, CellCount / columns / 2));
-        [ContextMenu("Preview bloom from center")]
-        private void PreviewBloom() => Play(Pattern.Bloom, new Cell(columns / 2, CellCount / columns / 2));
-        [ContextMenu("Preview sweep from corner")]
-        private void PreviewSweep() => Play(Pattern.Sweep, new Cell(0, 0));
-        [ContextMenu("Preview checker hop")]
-        private void PreviewChecker() => Play(Pattern.CheckerHop, new Cell(columns / 2, CellCount / columns / 2));
 
         public void Clear()
         {
@@ -137,56 +94,65 @@ namespace GardenSnake.Presentation
         {
             if (waveCount == 0 || rest == null || Frozen) return;
             // The furthest a wave can have to travel: one corner of the board to the other.
-            float maxDistance = columns + Mathf.CeilToInt(CellCount / (float)columns);
-            float step = Mathf.Min(Time.unscaledDeltaTime, Mathf.Max(.001f, maximumFrameStep));
+            const float maxDistance = Columns + Rows;
+            float step = Mathf.Min(Time.unscaledDeltaTime, Mathf.Max(.001f, waves.maximumFrameStep));
             for (int i = waveCount - 1; i >= 0; i--)
             {
                 // Preserve the source beat after a stalled frame instead of jumping past it.
-                waves[i].age += step;
-                Preset preset = waves[i].preset;
+                live[i].Age += step;
+                BoardWaveSettings.Preset preset = live[i].Preset;
                 float lifetime = maxDistance / preset.speed + preset.duration + preset.width / preset.speed;
-                if (waves[i].age > lifetime) waves[i] = waves[--waveCount];
+                if (live[i].Age > lifetime) live[i] = live[--waveCount];
             }
+            float lift = Mathf.Max(0, waves.maximumLift);
+            float dip = Mathf.Max(0, waves.maximumDip);
             for (int i = 0; i < rest.Length; i++)
             {
                 if (cells[i] == null) continue;
                 float height = 0;
-                var cell = new Vector2(i % columns, i / columns);
-                for (int w = 0; w < waveCount; w++) height += Sample(waves[w].preset, cell - waves[w].source, waves[w].age, shape);
-                cells[i].localPosition = rest[i] + Vector3.up * Mathf.Clamp(height, -Mathf.Max(0, maximumDepth), Mathf.Max(0, maximumHeight));
+                var cell = new Vector2(i % Columns, i / Columns);
+                for (int w = 0; w < waveCount; w++)
+                    height += Sample(live[w], cell - live[w].Source);
+                cells[i].localPosition = rest[i] + Vector3.up * Mathf.Clamp(height, -dip, lift);
             }
         }
 
-        public static float Sample(Preset preset, Vector2 offset, float age, Shape shape = null)
+        /// <summary>How far one wave lifts a patch that far from its source, at the wave's current age.</summary>
+        private float Sample(in Wave wave, Vector2 offset)
         {
-            shape ??= DefaultShape;
-            float distance = preset.pattern == Pattern.Sweep ? Mathf.Abs(Vector2.Dot(offset, shape.sweepDirection.normalized)) : offset.magnitude;
-            float local = age - distance / Mathf.Max(.1f, preset.speed);
-            float duration = Mathf.Max(.1f, preset.duration) + Mathf.Max(.1f, preset.width) / Mathf.Max(.1f, preset.speed);
+            BoardWaveSettings.Preset preset = wave.Preset;
+            float distance = wave.Pattern == Pattern.Sweep
+                ? Mathf.Abs(Vector2.Dot(offset, waves.sweepDirection.normalized))
+                : offset.magnitude;
+            float local = wave.Age - distance / preset.speed;
+            float duration = preset.duration + preset.width / preset.speed;
             if (local <= 0 || local >= duration) return 0;
             float t = local / duration;
             float envelope = Mathf.Sin(t * Mathf.PI);
-            if (preset.pattern == Pattern.Ripple) envelope *= 1 - shape.rippleModulation + shape.rippleModulation * Mathf.Cos(t * Mathf.PI * 2 * shape.rippleCycles);
-            if (preset.pattern == Pattern.CheckerHop)
-                envelope *= ((Mathf.RoundToInt(offset.x + offset.y) & 1) == 0) ? 1 : shape.checkerAlternateHeight;
-            float falloff = preset.pattern == Pattern.Bloom ? 1 / (1 + distance * Mathf.Max(0, shape.bloomFalloff)) : 1;
-            return preset.amplitude * Mathf.Pow(Mathf.Abs(envelope), Mathf.Max(.1f, shape.envelopePower)) * falloff;
+            if (wave.Pattern == Pattern.Ripple)
+                envelope *= 1 - waves.rippleModulation
+                    + waves.rippleModulation * Mathf.Cos(t * Mathf.PI * 2 * waves.rippleCycles);
+            if (wave.Pattern == Pattern.CheckerHop)
+                envelope *= ((Mathf.RoundToInt(offset.x + offset.y) & 1) == 0) ? 1 : waves.checkerAlternateHeight;
+            float falloff = wave.Pattern == Pattern.Bloom
+                ? 1 / (1 + distance * Mathf.Max(0, waves.bloomFalloff)) : 1;
+            return preset.amplitude * Mathf.Pow(Mathf.Abs(envelope), Mathf.Max(.1f, waves.envelopePower)) * falloff;
         }
 
+        /// <summary>How far the drawn board has risen under a world position, for anything riding it.</summary>
         public float HeightAt(Vector3 world)
         {
-            if (rest == null || columns < 1 || CellCount < columns) return 0;
+            if (rest == null || CellCount < Columns) return 0;
             Vector3 local = transform.InverseTransformPoint(world);
-            float x = local.x + (columns - 1) * .5f;
-            int rows = CellCount / columns;
-            float y = local.z + (rows - 1) * .5f;
-            int x0 = Mathf.Clamp(Mathf.FloorToInt(x), 0, columns - 1);
-            int y0 = Mathf.Clamp(Mathf.FloorToInt(y), 0, rows - 1);
-            int x1 = Mathf.Min(x0 + 1, columns - 1), y1 = Mathf.Min(y0 + 1, rows - 1);
+            float x = local.x + (Columns - 1) * .5f;
+            float y = local.z + (Rows - 1) * .5f;
+            int x0 = Mathf.Clamp(Mathf.FloorToInt(x), 0, Columns - 1);
+            int y0 = Mathf.Clamp(Mathf.FloorToInt(y), 0, Rows - 1);
+            int x1 = Mathf.Min(x0 + 1, Columns - 1), y1 = Mathf.Min(y0 + 1, Rows - 1);
             float Lift(int column, int row)
             {
-                int i = row * columns + column;
-                return cells[i] != null ? cells[i].localPosition.y - rest[i].y : 0;
+                int i = row * Columns + column;
+                return i < rest.Length && cells[i] != null ? cells[i].localPosition.y - rest[i].y : 0;
             }
             float acrossX = Mathf.Clamp01(x - x0);
             return Mathf.Lerp(Mathf.Lerp(Lift(x0, y0), Lift(x1, y0), acrossX),

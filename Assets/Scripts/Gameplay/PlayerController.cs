@@ -20,12 +20,13 @@ namespace GardenSnake
         public event Action MuteRequested;
         public event Action<Direction> TurnRequested;
 
-        [Header("Swipe")]
-        [SerializeField, Min(1)] private float swipeMinimumPixels = 24;
-        [SerializeField, Range(0, 1)] private float swipeScreenHeightFraction = .035f;
+        [Header("Tuning")]
+        [SerializeField] private SwipeSettings swipe;
 
         private Vector2 pointerStart;
         private bool trackingSwipe;
+
+        private void Awake() => swipe = Tuning.Or(swipe);
 
         private void Update()
         {
@@ -59,7 +60,7 @@ namespace GardenSnake
             if (trackingSwipe && pointer.press.isPressed)
             {
                 Vector2 delta = pointer.position.ReadValue() - pointerStart;
-                if (delta.magnitude >= Mathf.Max(swipeMinimumPixels, Screen.height * swipeScreenHeightFraction))
+                if (delta.magnitude >= Mathf.Max(swipe.minimumPixels, Screen.height * swipe.screenHeightFraction))
                 {
                     TurnRequested?.Invoke(Mathf.Abs(delta.x) > Mathf.Abs(delta.y)
                         ? delta.x > 0 ? Direction.Right : Direction.Left

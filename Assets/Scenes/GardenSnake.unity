@@ -12503,7 +12503,7 @@ Camera:
   far clip plane: 90
   field of view: 60
   orthographic: 1
-  orthographic size: 9.5
+  orthographic size: 7.7
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -12925,7 +12925,7 @@ Transform:
   m_GameObject: {fileID: 242722900}
   serializedVersion: 2
   m_LocalRotation: {x: 0.46174863, y: 0, z: 0, w: 0.8870109}
-  m_LocalPosition: {x: -0, y: 21.297953, z: -14.912988}
+  m_LocalPosition: {x: -0, y: 21.099209, z: -15.196823}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -76093,7 +76093,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1374285422}
-  - component: {fileID: 1374285423}
   m_Layer: 0
   m_Name: Camera Rig
   m_TagString: Untagged
@@ -76117,25 +76116,6 @@ Transform:
   - {fileID: 242722906}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1374285423
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1374285421}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d277a37dd92ac64d9e6f907bb478215, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GardenSnake.Presentation::GardenSnake.GameCameraRig
-  view: {fileID: 242722901}
-  loop: {fileID: 2019928695}
-  edgePadding: 1
-  hudBandTop: 0.105
-  hudBandBottom: 0.15
-  restingZoom: 1.13
-  zoomSpeed: 3.4
 --- !u!1 &1374330536
 GameObject:
   m_ObjectHideFlags: 0
@@ -110066,6 +110046,7 @@ MonoBehaviour:
   snake: {fileID: 2019928698}
   hud: {fileID: 21261508}
   cellWaves: {fileID: 117806718}
+  view: {fileID: 242722901}
   paceVolume: {fileID: 1115958325}
   burstRing: {fileID: 508896412}
   pickupParticles: {fileID: 510161936}
@@ -110078,47 +110059,15 @@ MonoBehaviour:
   startSound: {fileID: 8300000, guid: 42e276b3617886c4da55a95babdc4913, type: 3}
   bestSound: {fileID: 8300000, guid: ab0591c72516fcd4eb247906f6020353, type: 3}
   clickSound: {fileID: 8300000, guid: 98eeb1ecc92a50642ae4b8d45cb010a0, type: 3}
-  sound:
-    startPitch: 1
-    startVolume: 0.5
-    turnPitch: {x: 0.96, y: 1.06}
-    turnVolume: 0.16
-    clickPitch: 1
-    clickVolume: 0.35
-    pickupPitch: 1
-    pickupPitchCycle: 6
-    pickupPitchIncrement: 0.045
-    pickupVolume: 0.6
-    bestPitch: 1
-    bestVolume: 0.45
-    recordPitch: 1.35
-    recordVolume: 0.1
-    losePitch: 1
-    loseVolume: 0.55
   feel:
     pickup: {fileID: 2143907628}
     death: {fileID: 1507081860}
     runStart: {fileID: 204938101}
     newBest: {fileID: 313974954}
     recordApple: {fileID: 628128116}
-    pickupIntensity: {x: 0.75, y: 1.5}
-    fullPickupIntensityScore: 14
-    deathIntensity: 1
-    runStartIntensity: 1
-    newBestIntensity: 1
-    recordAppleIntensity: 1
-  waves:
-    start: 2
-    death: 0
-    best: 1
-    milestone: 3
-    victory: 1
-    startIntensity: 1
-    deathIntensity: 1
-    bestIntensity: 1
-    milestoneIntensity: 1
-    victoryIntensity: 1.5
-    milestoneAppleInterval: 10
+  pickupIntensity: {x: 0.75, y: 1.5}
+  restingZoom: 1.13
+  zoomSeconds: 0.45
 --- !u!114 &2019928698
 MonoBehaviour:
   m_ObjectHideFlags: 0
