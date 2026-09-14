@@ -1,7 +1,7 @@
 """Inspect actual FBX exports, recording import contracts and three-angle renders.
 
 Usage: blender -b --python Tools/Blender/audit_model_exports.py --
-       --input Assets/GardenSnake/Art/Models --output Artifacts/model-sweep/before
+       --input Assets/Art/Models --output Artifacts/model-sweep/before
 """
 import argparse
 import json
@@ -46,7 +46,7 @@ for path in sorted(args.input.glob('*.fbx')):
     if args.no_render: continue
     for mat in bpy.data.materials:
         label = 'JadeHead' if path.stem == 'SnakeHead' and mat.name == 'Jade' else mat.name
-        source = ROOT/'Assets/GardenSnake/Materials'/f'{label}.mat'
+        source = ROOT/'Assets/Materials'/f'{label}.mat'
         if source.exists():
             match = re.search(r'_BaseColor: \{r: ([\d.eE+-]+), g: ([\d.eE+-]+), b: ([\d.eE+-]+), a: ([\d.eE+-]+)\}',source.read_text())
             if match:

@@ -3,7 +3,7 @@ string source = "Artifacts/model-sweep/wildlife";
 int count = 0;
 foreach (var path in System.IO.Directory.GetFiles(source, "*.meshbin")) {
     string name = System.IO.Path.GetFileNameWithoutExtension(path);
-    string target = "Assets/GardenSnake/Art/Wildlife/" + name + ".asset";
+    string target = "Assets/Art/Wildlife/" + name + ".asset";
     var mesh = AssetDatabase.LoadAssetAtPath<Mesh>(target);
     if (mesh == null) throw new System.InvalidOperationException("Missing existing mesh: " + target);
     Vector3[] vertices, normals;

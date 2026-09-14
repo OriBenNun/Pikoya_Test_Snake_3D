@@ -1,6 +1,6 @@
 var rows = new System.Collections.Generic.List<string>();
 var failures = new System.Collections.Generic.List<string>();
-foreach (var path in System.IO.Directory.GetFiles("Assets/GardenSnake/Art/Models", "*.fbx")) {
+foreach (var path in System.IO.Directory.GetFiles("Assets/Art/Models", "*.fbx")) {
     var model = AssetDatabase.LoadAssetAtPath<GameObject>(path);
     if (model == null) { failures.Add("Missing model " + path); continue; }
     foreach (var asset in AssetDatabase.LoadAllAssetsAtPath(path)) {
@@ -8,7 +8,7 @@ foreach (var path in System.IO.Directory.GetFiles("Assets/GardenSnake/Art/Models
         AssetDatabase.TryGetGUIDAndLocalFileIdentifier(mesh, out string guid, out long id);
         rows.Add(System.IO.Path.GetFileNameWithoutExtension(path) + "|" + mesh.name + "|" + id);
     }
-    var prefabPath = "Assets/GardenSnake/Prefabs/" + System.IO.Path.GetFileNameWithoutExtension(path) + ".prefab";
+    var prefabPath = "Assets/Prefabs/" + System.IO.Path.GetFileNameWithoutExtension(path) + ".prefab";
     var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
     if (prefab == null) { failures.Add("Missing prefab " + prefabPath); continue; }
     foreach (var filter in prefab.GetComponentsInChildren<MeshFilter>(true))

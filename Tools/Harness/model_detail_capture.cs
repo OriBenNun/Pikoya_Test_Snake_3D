@@ -1,5 +1,6 @@
 if (!Application.isPlaying) throw new System.InvalidOperationException("Play Mode required.");
-const string folder = "Artifacts/model-sweep/details";
+string label = SessionState.GetString("ModelSweep.Detail", "details");
+string folder = "Artifacts/model-sweep/" + label;
 System.IO.Directory.CreateDirectory(folder);
 void Capture(GameObject source, string label, bool back = false) {
     var model = UnityEngine.Object.Instantiate(source);
@@ -48,7 +49,7 @@ foreach (var animal in UnityEngine.Object.FindObjectsByType<GardenSnake.GardenAn
     Capture(animal.gameObject, animal.name + "-back", true);
 }
 var mouth = UnityEngine.Object.FindFirstObjectByType<GardenSnake.SnakeMouth>();
-var controller = UnityEngine.Object.FindFirstObjectByType<GardenSnake.SnakeController>();
+var controller = UnityEngine.Object.FindFirstObjectByType<GardenSnake.GameLoopManager>();
 if (mouth == null || controller == null) throw new System.InvalidOperationException("No live snake.");
 seen.Clear();
 var rows = new System.Collections.Generic.List<string>();
@@ -66,11 +67,11 @@ tick = () => {
         System.IO.File.WriteAllLines(folder + "/index.txt", rows);
         return;
     }
-    string phase = controller.Game.Score == 0 ? "anticipate" : "swallow";
+    string phase = controller.Score == 0 ? "anticipate" : "swallow";
     string key = phase + "-" + Mathf.Clamp(Mathf.FloorToInt(mouth.Openness * 4), 0, 3);
     if (seen.Add(key)) {
         Capture(mouth.gameObject, "head-" + key);
-        rows.Add(key + " openness=" + mouth.Openness.ToString("F3") + " score=" + controller.Game.Score);
+        rows.Add(key + " openness=" + mouth.Openness.ToString("F3") + " score=" + controller.Score);
     }
 };
 EditorApplication.update += tick;

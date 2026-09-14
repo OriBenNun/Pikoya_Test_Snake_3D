@@ -1,5 +1,5 @@
 if (Application.isPlaying) throw new System.InvalidOperationException("Stop Play Mode before saving model materials.");
-const string folder = "Assets/GardenSnake/Materials/";
+const string folder = "Assets/Materials/";
 Material Load(string name) => AssetDatabase.LoadAssetAtPath<Material>(folder + name + ".mat");
 Color Hex(string text) { ColorUtility.TryParseHtmlString("#" + text, out var color); return color; }
 void Tune(string name, float smoothness, string color = null) {
@@ -48,12 +48,12 @@ Tune("WildlifeShellLight", .41f);
 Tune("WildlifeSkin", .34f);
 Tune("WildlifeWing", .32f);
 foreach (string model in new[] { "Tree", "Bush" }) {
-    var importer = (ModelImporter)AssetImporter.GetAtPath("Assets/GardenSnake/Art/Models/" + model + ".fbx");
+    var importer = (ModelImporter)AssetImporter.GetAtPath("Assets/Art/Models/" + model + ".fbx");
     foreach (string material in new[] { "FoliageSun", "FoliageShade" })
         importer.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material), material), Load(material));
     importer.SaveAndReimport();
 }
-var lavender = (ModelImporter)AssetImporter.GetAtPath("Assets/GardenSnake/Art/Models/Lavender.fbx");
+var lavender = (ModelImporter)AssetImporter.GetAtPath("Assets/Art/Models/Lavender.fbx");
 lavender.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material), "Aqua"), Load("PetalLilac"));
 lavender.SaveAndReimport();
 return "Saved 26 shared model materials; remapped foliage variants and lilac lavender. Board, lighting and UI unchanged.";

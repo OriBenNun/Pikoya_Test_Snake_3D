@@ -117,7 +117,7 @@ def write_geometry(obj, path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input',type=Path,default=ROOT/'Assets/GardenSnake/Art/Wildlife')
+    parser.add_argument('--input',type=Path,default=ROOT/'Assets/Art/Wildlife')
     parser.add_argument('--output',type=Path)
     parser.add_argument('--blend',type=Path,required=True)
     parser.add_argument('--polish',action='store_true')
