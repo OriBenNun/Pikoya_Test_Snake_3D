@@ -18,6 +18,7 @@ namespace GardenSnake.Editor
     public static class GardenPlaytest
     {
         private const string ShotFolder = "Artifacts/shots";
+        private const string DriverKeyboard = "PlaytestKeyboard";
         private const string ReportPath = "Artifacts/playtest.txt";
 
         private static GameLoopManager controller;
@@ -58,7 +59,15 @@ namespace GardenSnake.Editor
             Application.runInBackground = true;
             backgroundBehavior = InputSystem.settings.backgroundBehavior;
             InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
-            if (keyboard == null || !keyboard.added) keyboard = InputSystem.AddDevice<Keyboard>("PlaytestKeyboard");
+            // A domain reload forgets this field but not the device, so a run that ends badly
+            // leaves a keyboard behind. Left to accumulate, one of the orphans becomes
+            // Keyboard.current and quietly swallows every key the driver sends.
+            for (int i = InputSystem.devices.Count - 1; i >= 0; i--)
+            {
+                InputDevice device = InputSystem.devices[i];
+                if (device != keyboard && device.name.StartsWith(DriverKeyboard)) InputSystem.RemoveDevice(device);
+            }
+            if (keyboard == null || !keyboard.added) keyboard = InputSystem.AddDevice<Keyboard>(DriverKeyboard);
             File.WriteAllText(ReportPath, "running");
             EditorApplication.update -= Tick;
             EditorApplication.update += Tick;

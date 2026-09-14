@@ -23,7 +23,11 @@ namespace GardenSnake
         private float cachedSpotLength = -1, cachedSpotArc = -1;
         private Matrix4x4 worldToLocal;
         private Quaternion inverseRotation;
+        private bool localIsWorld;
+        private float shapeRadius, shapeHeight, shapeCenterHeight;
+        private Vector3 boundsMin, boundsMax;
         private int topologyCount;
+        private int topologyRings;
         private float topologyBellyArc = -1;
         private readonly List<Vector3> vertices = new List<Vector3>();
         private readonly List<Vector3> normals = new List<Vector3>();
@@ -87,6 +91,14 @@ namespace GardenSnake
             count = bodyCount + 1;
             worldToLocal = transform.worldToLocalMatrix;
             inverseRotation = Quaternion.Inverse(transform.rotation);
+            // Read the profile once. Surface() runs tens of thousands of times a frame, and a
+            // property call per vertex is a property call forty thousand times over.
+            shapeRadius = settings.Radius;
+            shapeHeight = settings.Height;
+            shapeCenterHeight = settings.CenterHeight;
+            // The skin object sits at the origin unturned, so the usual case is no transform
+            // at all. Checking once beats a matrix multiply and a rotation per vertex.
+            localIsWorld = worldToLocal.isIdentity;
             bool rebuildTopology = topologyCount != bodyCount || !Mathf.Approximately(topologyBellyArc, settings.BellyArc);
             for (int i = 0; i < bodyCount; i++)
             {
@@ -114,16 +126,38 @@ namespace GardenSnake
             bool visible = widths[0] > .001f || widths[bodyCount - 1] > .001f;
             if (skinRenderer.enabled != visible) skinRenderer.enabled = visible;
             vertices.Clear(); normals.Clear();
-            if (rebuildTopology) { top.Clear(); belly.Clear(); markings.Clear(); }
             int rings = (count - 1) * SamplesPerCell + 1;
+            // A ring's triangles are the same whatever else the body is doing, so the tube's
+            // indices only ever need extending. Rebuilding all of them on every apple was the
+            // spike the player felt when the snake grew.
+            bool rebuildTube = rebuildTopology && (rings < topologyRings || !Mathf.Approximately(topologyBellyArc, settings.BellyArc));
+            if (rebuildTube) { top.Clear(); belly.Clear(); topologyRings = 0; }
+            if (rebuildTopology) markings.Clear();
+            int firstNewRing = Mathf.Max(1, topologyRings);
             // Centerline and digestion cost scales with rings, not rings multiplied by 21 vertices.
+            // The bounds come from the same pass: every vertex sits within its ring's profile,
+            // so a box around the centreline padded by that profile contains the whole skin.
+            boundsMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            boundsMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            float reach = Mathf.Max(shapeRadius, shapeCenterHeight + shapeHeight) * bodyScale + settings.SpotSurfaceOffset;
             for (int ring = 0; ring < rings; ring++)
-                surfaceFrames[ring] = EvaluateFrame(ring / (float)SamplesPerCell);
+            {
+                SurfaceFrame frame = EvaluateFrame(ring / (float)SamplesPerCell);
+                surfaceFrames[ring] = frame;
+                float pad = reach * Mathf.Max(1f, frame.width);
+                Vector3 c = frame.center;
+                if (c.x - pad < boundsMin.x) boundsMin.x = c.x - pad;
+                if (c.y - pad < boundsMin.y) boundsMin.y = c.y - pad;
+                if (c.z - pad < boundsMin.z) boundsMin.z = c.z - pad;
+                if (c.x + pad > boundsMax.x) boundsMax.x = c.x + pad;
+                if (c.y + pad > boundsMax.y) boundsMax.y = c.y + pad;
+                if (c.z + pad > boundsMax.z) boundsMax.z = c.z + pad;
+            }
             for (int ring = 0; ring < rings; ring++)
             {
                 for (int s = 0; s <= Sides; s++)
                     Surface(surfaceFrames[ring], circle[s].x, circle[s].y, bodyScale, 0);
-                if (ring == 0 || !rebuildTopology) continue;
+                if (ring == 0 || ring < firstNewRing) continue;
                 for (int s = 0; s < Sides; s++)
                 {
                     int a = (ring - 1) * (Sides + 1) + s, b = a + Sides + 1;
@@ -157,9 +191,14 @@ namespace GardenSnake
                 mesh.subMeshCount = 3;
                 mesh.SetTriangles(top, 0, false); mesh.SetTriangles(belly, 1, false); mesh.SetTriangles(markings, 2, false);
                 topologyCount = bodyCount;
+                topologyRings = rings;
                 topologyBellyArc = settings.BellyArc;
             }
-            mesh.RecalculateBounds();
+            // Walking every vertex again just to find the box is the single most expensive
+            // thing left in the draw, and the ring pass already knows the answer.
+            Vector3 centre = (boundsMin + boundsMax) * .5f;
+            if (!localIsWorld) centre = worldToLocal.MultiplyPoint3x4(centre);
+            mesh.bounds = new Bounds(centre, boundsMax - boundsMin);
         }
 
         private void CacheSpotSamples()
@@ -239,21 +278,49 @@ namespace GardenSnake
             };
         }
 
-        private void Surface(SurfaceFrame frame, float sin, float cos, float size, float offset)
+        /// <summary>
+        /// One vertex of the tube, and its normal. This is the whole cost of the skin: it runs
+        /// once per side per ring, plus once per sample of every marking, so it is written out in
+        /// floats rather than Vector3 operators. The maths is unchanged.
+        /// <para>The centreline's forward and side both lie flat, so their Y is always zero.</para>
+        /// </summary>
+        private void Surface(in SurfaceFrame frame, float sin, float cos, float size, float offset)
         {
-            Vector3 center = frame.center, side = frame.side;
             float width = frame.width;
-            float radius = settings.Radius * size * width;
-            float height = settings.Height * size * width;
-            center += Vector3.up * (settings.CenterHeight * size * width);
+            float scaled = size * width;
+            float radius = shapeRadius * scaled;
+            float height = shapeHeight * scaled;
+            float sideX = frame.side.x, sideZ = frame.side.z;
+            float lean = size * frame.slope;
+
             // Include the rising and falling profile in the lighting, so lumps read as round apples.
-            Vector3 tangent = frame.forward + size * frame.slope *
-                (side * (settings.Radius * sin) + Vector3.up * (settings.CenterHeight + settings.Height * cos));
-            Vector3 around = side * (settings.Radius * cos) - Vector3.up * (settings.Height * sin);
-            Vector3 normal = Vector3.Cross(tangent, around).normalized;
-            Vector3 vertex = center + side * (sin * radius) + Vector3.up * (cos * height) + normal * offset * width;
-            vertices.Add(worldToLocal.MultiplyPoint3x4(vertex));
-            normals.Add(inverseRotation * normal);
+            float radialSin = shapeRadius * sin;
+            float tangentX = frame.forward.x + lean * sideX * radialSin;
+            float tangentY = lean * (shapeCenterHeight + shapeHeight * cos);
+            float tangentZ = frame.forward.z + lean * sideZ * radialSin;
+
+            float radialCos = shapeRadius * cos;
+            float aroundX = sideX * radialCos;
+            float aroundY = -shapeHeight * sin;
+            float aroundZ = sideZ * radialCos;
+
+            float nx = tangentY * aroundZ - tangentZ * aroundY;
+            float ny = tangentZ * aroundX - tangentX * aroundZ;
+            float nz = tangentX * aroundY - tangentY * aroundX;
+            // Vector3.normalized collapses to zero below this magnitude; match it exactly.
+            float length = Mathf.Sqrt(nx * nx + ny * ny + nz * nz);
+            if (length > 1e-5f) { float inv = 1f / length; nx *= inv; ny *= inv; nz *= inv; }
+            else { nx = ny = nz = 0f; }
+
+            float push = offset * width;
+            float vx = frame.center.x + sideX * (sin * radius) + nx * push;
+            float vy = frame.center.y + shapeCenterHeight * scaled + cos * height + ny * push;
+            float vz = frame.center.z + sideZ * (sin * radius) + nz * push;
+
+            var vertex = new Vector3(vx, vy, vz);
+            var normal = new Vector3(nx, ny, nz);
+            vertices.Add(localIsWorld ? vertex : worldToLocal.MultiplyPoint3x4(vertex));
+            normals.Add(localIsWorld ? normal : inverseRotation * normal);
         }
 
         private Vector3 Center(float u)

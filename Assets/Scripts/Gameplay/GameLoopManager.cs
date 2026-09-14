@@ -165,6 +165,10 @@ namespace GardenSnake
             Changed?.Invoke();
         }
 
+        /// <summary>
+        /// One entry point, deliberately not overloaded: an overload set here is ambiguous to
+        /// reflection, which is how Unity's SendMessage and the Play mode drivers reach it.
+        /// </summary>
         public void Turn(Direction wish)
         {
             if (Game.State == RunState.Ready) PrimaryAction();
@@ -172,9 +176,6 @@ namespace GardenSnake
             if (!Game.QueueTurn(wish)) return;
             TurnAccepted?.Invoke(turnSign);
         }
-
-        /// <summary>Kept for callers that hand a raw <see cref="Direction"/> value across a boundary.</summary>
-        public void Turn(int direction) => Turn((Direction)direction);
 
         public void TogglePause()
         {
