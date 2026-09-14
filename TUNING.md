@@ -1,42 +1,81 @@
 # Garden Snake tuning
 
-Open `Assets/GardenSnake/Scenes/GardenSnake.unity`. Gameplay and presentation tuning lives in serialized Inspector fields; current defaults preserve the existing look and timing.
+Open `Assets/Scenes/GardenSnake.unity`. The `Snake Game` object carries the four layers, and each
+one exposes only what belongs to it.
 
 | Select | Controls |
 | --- | --- |
-| `Snake Game` / `SnakeController` | Pace, opening delay, starting length, input buffer, proportions, slither, growth, blink, death, apple motion, camera framing, ring/trail, event wave patterns and intensities, sound pitch/volume |
-| `Assets/GardenSnake/Tuning/Snake Skin.asset` | Body shape, segment bumps, curve tension, belly, markings, digestion bulge size/length, mesh quality and optional material overrides |
-| `Assets/GardenSnake/Tuning/Snake Mouth.asset` | Anticipation range, jaw speed, swallow duration/spin/shrink, face lift and mouth/jaw/tongue geometry |
-| Object with `GardenWind` | Sway amplitude/frequency/direction, turbulence, spatial variation, tree/bush weights, gusts and feedback propagation/decay |
+| `Snake Game` / `PlayerController` | Swipe threshold in pixels and as a fraction of screen height |
+| `Snake Game` / `GameLoopManager` | Board size, pace and speed gain, opening beat, starting length, turn buffer, first apple distance, target frame rate, restart delay |
+| `Snake Game` / `SnakeManager` | The two models, the two shared tuning assets, and the head/body/tail proportions |
+| `Snake Game` / `FeedbackManager` | Clips and sources, plus three grouped blocks: **Sound** (pitch and level per one-shot), **Feel** (the five MMF players and their beat intensities) and **Waves** (which board wave each moment runs, how far it carries, and the milestone interval) |
+| `Apple` / `AppleView` | Apple scale; the marker and prefab references |
+| `Camera Rig` / `GameCameraRig` | Edge padding, the two HUD bands, resting zoom and zoom speed |
+| `Assets/Tuning/Snake Skin.asset` | Body shape, segment bumps, curve tension, belly, markings, digestion bulge size and length, mesh quality and optional material overrides |
+| `Assets/Tuning/Snake Mouth.asset` | Anticipation range, jaw speed, swallow duration/spin/shrink, face lift and mouth/jaw/tongue geometry |
 | Board / `GridCellWaves` | Four presets, height/depth/strength limits, concurrent waves, ripple modulation, checker contrast, bloom falloff and sweep direction |
-| Each wildlife object / `GardenAnimal` | Species, routes/perch, travel/rest variation, reactions, hops, wings, body/head/limb/ear animation |
-| `SnakeFeel` and its linked `MMF_Player` objects | Beat intensities and individual Feel effects |
-| Canvas / `SnakeHud` | Card copy/layout, toast/banner behavior, colors, fading, result timing and score thresholds |
-| `SpeedGauge` | Needle spring/damping, pace bands/captions, colors, face geometry and mesh quality |
+| `Meadow` / `GardenWind` | Sway amplitude, frequency and direction, turbulence, spatial variation, tree and bush weights, gusts, and how a beat travels and decays |
+| Each wildlife object / `GardenAnimal` | Species, routes and perch, travel and rest variation, reactions, hops, wings, body/head/limb/ear animation |
+| Canvas / `SnakeHud` | Card copy and layout, toast and banner behaviour, colours, fading, result timing and score thresholds |
+| `SpeedGauge` | Needle spring and damping, pace bands and captions, colours, face geometry and mesh quality |
 | Existing cameras, lights, volumes, materials, prefabs, AudioSources and ParticleSystems | Their normal Unity Inspector settings |
 
-Use the Hierarchy search `t:GardenWind`, `t:GridCellWaves`, etc. to locate components. The shared skin/mouth assets are assigned under **Shared snake tuning** on `Snake Game`; duplicate an asset and assign the copy to create another preset. Runtime-created skin/mouth objects read those references instead of hiding their only editable settings in Play Mode.
+Use the Hierarchy search `t:GardenWind`, `t:GridCellWaves`, etc. to locate components.
 
-Most animation values update while playing. Wave presets affect newly triggered waves; wildlife duration ranges apply when the next activity starts. Rules, plant discovery, wave buffer capacity, mesh quality, material overrides and wildlife random seed/tempo are initialized when Play Mode starts. Restart Play Mode after changing these. Board dimensions and cell references must match the authored board; changing numbers alone does not rebuild its geometry.
+## What is no longer a setting
 
-Scene component edits made during Play Mode are temporary. To keep them, copy the component values before stopping and paste them back in Edit Mode, then save the scene. ScriptableObject edits change the asset itself; save or revert them deliberately. Setting wind **Amplitude** and **Pulse Amplitude** to zero removes all wind motion; disabling `GardenWind` restores plant rotations. Setting a wave preset's amplitude or an event's wave intensity to zero suppresses that lift.
+`SnakeManager` used to expose around fifty fields for slither, banking, blinking, idle breathing,
+growth and the death animation, and `AppleView`'s motion and `FeedbackManager`'s ring and trail were
+the same. Those are the animal's character rather than settings a designer trades off, so they are
+now named constants at the top of each class, where they read as one description of how the creature
+behaves instead of fifty sliders to keep consistent. Change them in code; the values are unchanged
+from what the scene was serialising.
 
-`GardenTuning.Bind` reuses existing assets and preserves assigned overrides when the explicit scene rebuild tool is used. Routine tuning requires no rebuild.
+What stayed in the Inspector is what an art director or designer actually reaches for: proportions,
+pace, rules, the audio mix, beat intensities, wave choices, and the two shared tuning assets.
 
-Swallowed apples remain at their pickup cells while successive body segments pass over them. Digestion therefore advances exactly one body index per movement step; its speed is no longer independently adjustable. Growth happens after the tail reaches the pickup cell, with a short visual settle. `Segment Bump` controls the smaller rounded shape on every body part; `Belly Bulge` and `Bulge Half Length` control the larger temporary apple bump.
+## Live versus startup
 
-## Play Mode verification
+Most animation values update while playing. Wave presets affect newly triggered waves; wildlife
+duration ranges apply when the next activity starts. Rules, plant discovery, wave buffer capacity,
+mesh quality, material overrides and wildlife random seed and tempo are read when Play Mode starts —
+restart Play Mode after changing these. Board dimensions and cell references must match the authored
+board; changing the numbers alone does not rebuild its geometry.
 
-The harness requires a connected Unity Editor. No unit tests are involved.
+Scene component edits made during Play Mode are temporary. To keep them, copy the component values
+before stopping and paste them back in Edit Mode, then save the scene. ScriptableObject edits change
+the asset itself; save or revert them deliberately. Setting wind **Amplitude** and **Pulse
+Amplitude** to zero removes all wind motion; disabling `GardenWind` restores plant rotations. Setting
+a wave preset's amplitude or an event's wave intensity to zero suppresses that lift.
+
+`GardenTuning.Bind` reuses existing assets and preserves assigned overrides when the explicit scene
+rebuild tool is used. Routine tuning requires no rebuild.
+
+Swallowed apples remain at their pickup cells while successive body segments pass over them.
+Digestion therefore advances exactly one body index per movement step; its speed is not
+independently adjustable. Growth happens after the tail reaches the pickup cell, with a short visual
+settle. `Segment Bump` controls the smaller rounded shape on every body part; `Belly Bulge` and
+`Bulge Half Length` control the larger temporary apple bump.
+
+## Verification
+
+The harness requires a connected Unity Editor.
 
 ```powershell
 python Tools/Harness/gs.py compile
-python Tools/Harness/gs.py play
-unity command eval_file --file Tools/Harness/tuning_play.cs --json
+python Tools/Harness/gs.py playtest tuning 40 4
 ```
 
-After the live checks finish, inspect `Artifacts/tuning-verification.txt` and `Artifacts/shots/tuning/`. This script compares zero/strong wind, low/high wave amplitudes and limits, live skin/mouth SO edits, wildlife travel, and unchanged simulation coordinates. It uses temporary SO clones and restores original component values. Stop Play Mode afterward.
+That plays the game unattended with real Input System events and writes a filmstrip to
+`Artifacts/shots` plus a report to `Artifacts/playtest.txt`. For frame cost and garbage, run
+`Tools/Harness/perf_probe.cs` during the session; `Tools/Harness/alloc_hunt.cs` attributes
+allocation to one system at a time when the number looks wrong.
 
-Run `polish_waves.cs`, `digestion_play.cs` and `digestion_final_apple.cs` in separate fresh Play Mode sessions for all wave patterns, overlapping digestion/turns/pause/restart, and final-apple victory. Inspect their reports and captures under `Artifacts/`.
+The snake skin is the only thing whose cost grows with the run, so `Tools/Harness/skin_load.cs`
+stages fixed body lengths and measures it, including the frame the body grows on. Mesh quality
+(`Sides`, `Samples Per Cell` on the skin asset) is what that cost is bought with: raising either
+sharpens the silhouette and costs frame time in direct proportion. Re-run the probe after changing
+them.
 
-Run `stationary_digestion_play.cs` in a fresh Play Mode session for a repeatable eight-segment route with three apples. It checks fixed pickup coordinates, the measured center of the deformed surface, successive body parts, turns, pause, and growth only after tail contact. Inspect `Artifacts/stationary-digestion-verification.txt` and the captured sequence under `Artifacts/shots/stationary-digestion/`. The harness pauses when finished; stop Play Mode to restore the authored starting length.
+Judge the result by looking at the captures, and finish with a human playtest — synthetic input
+proves behaviour, not feel.
