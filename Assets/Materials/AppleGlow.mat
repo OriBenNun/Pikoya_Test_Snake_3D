@@ -8,18 +8,19 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: AppleGlow
-  m_Shader: {fileID: 4800000, guid: a36b7719ff0465b42ab1407d67672c5f, type: 3}
+  m_Shader: {fileID: 4800000, guid: 650dd9526735d5b46b79224bc6e94025, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - GLOW_ON
-  m_InvalidKeywords:
   - _SURFACE_TYPE_TRANSPARENT
+  m_InvalidKeywords:
+  - GLOW_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
+  m_DoubleSidedGI: 1
   m_CustomRenderQueue: 3000
-  stringTagMap: {}
+  stringTagMap:
+    RenderType: Transparent
   disabledShaderPasses:
   - MOTIONVECTORS
   - DepthOnly
@@ -93,7 +94,7 @@ Material:
     - _AlphaRoundThreshold: 0.5
     - _AlphaToMask: 0
     - _BillboardY: 0
-    - _Blend: 2
+    - _Blend: 0
     - _BlendOp: 0
     - _BlurHD: 0
     - _BlurIntensity: 10
@@ -116,14 +117,14 @@ Material:
     - _ColorSwapGreenLuminosity: 0.5
     - _ColorSwapRedLuminosity: 0.5
     - _Contrast: 1
-    - _Cull: 2
+    - _Cull: 0
     - _CullingOption: 0
     - _Cutoff: 0.5
     - _DistortAmount: 0.5
     - _DistortTexXSpeed: 5
     - _DistortTexYSpeed: 5
-    - _DstBlend: 1
-    - _DstBlendAlpha: 1
+    - _DstBlend: 10
+    - _DstBlendAlpha: 10
     - _EditorDrawers: 6
     - _FadeAmount: -0.1
     - _FadeBurnGlow: 2
@@ -243,8 +244,8 @@ Material:
     - _ZoomUvAmount: 0.5
     m_Colors:
     - _AlphaOutlineColor: {r: 1, g: 1, b: 1, a: 1}
-    - _BaseColor: {r: 0.9490196, g: 0.5686275, b: 0.23921569, a: 1}
-    - _Color: {r: 0.9490196, g: 0.5686275, b: 0.23921569, a: 1}
+    - _BaseColor: {r: 3.3215687, g: 1.9901962, b: 0.8372549, a: 1}
+    - _Color: {r: 3.321569, g: 1.9901962, b: 0.8372549, a: 1}
     - _ColorChangeNewCol: {r: 1, g: 1, b: 0, a: 1}
     - _ColorChangeNewCol2: {r: 1, g: 1, b: 0, a: 1}
     - _ColorChangeNewCol3: {r: 1, g: 1, b: 0, a: 1}

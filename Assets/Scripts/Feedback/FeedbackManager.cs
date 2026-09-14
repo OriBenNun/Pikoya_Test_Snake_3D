@@ -68,9 +68,11 @@ namespace GardenSnake
         /// <summary>Age given to a burst that is over, so it never replays on its own.</summary>
         private const float Finished = 99f;
 
-        private static readonly int AlphaProperty = Shader.PropertyToID("_Alpha");
+        private static readonly int BaseColorProperty = Shader.PropertyToID("_BaseColor");
 
         private Material burstMaterial;
+        /// <summary>The ring's authored colour; only its alpha moves.</summary>
+        private Color burstTint;
         private float burstAge = Finished;
         private bool burstShown;
         /// <summary>The framing the scene was authored at; the player settings decide the window.</summary>
@@ -85,6 +87,7 @@ namespace GardenSnake
             waves = Tuning.Or(waves);
             reactions = Tuning.Or(reactions);
             burstMaterial = burstRing.GetComponent<Renderer>().material;
+            burstTint = burstMaterial.GetColor(BaseColorProperty);
             burstShown = burstRing.gameObject.activeSelf;
             if (view == null) return;
             playingSize = view.orthographicSize;
@@ -255,7 +258,8 @@ namespace GardenSnake
             float eased = 1 - Mathf.Pow(1 - t, reactions.burstEasePower);
             burstRing.localScale = Vector3.one
                 * Mathf.Lerp(reactions.burstStartScale, reactions.burstEndScale, eased);
-            burstMaterial.SetFloat(AlphaProperty, (1 - t) * (1 - t) * reactions.burstOpacity);
+            burstTint.a = (1 - t) * (1 - t) * reactions.burstOpacity;
+            burstMaterial.SetColor(BaseColorProperty, burstTint);
         }
 
         private void ShowBurst(bool visible)
