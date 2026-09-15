@@ -12,6 +12,9 @@ namespace GardenSnake.Presentation.Hud
     /// </summary>
     public sealed class SnakeHud : MonoBehaviour
     {
+        /// <summary>Pre-rendered numerals: the score changes every apple and never allocates.</summary>
+        private static readonly string[] Numerals = BuildNumerals();
+
         [Header("Persistent")]
         [SerializeField] private CanvasGroup brandGroup;
         [SerializeField] private TMP_Text scoreText;
@@ -59,9 +62,6 @@ namespace GardenSnake.Presentation.Hud
         [SerializeField] private PlayerController input;
         [SerializeField] private Camera view;
 
-        /// <summary>Pre-rendered numerals: the score changes every apple and never allocates.</summary>
-        private static readonly string[] Numerals = BuildNumerals();
-
         private RectTransform canvasRect;
         private Vector2 toastAnchor;
         private float toastTime;
@@ -74,38 +74,7 @@ namespace GardenSnake.Presentation.Hud
         private int shownScore = -1;
         private int shownBest = -1;
 
-        public Transform ScoreTransform => scoreText != null ? scoreText.transform : null;
-
-        private void Start()
-        {
-            chrome = Tuning.Or(chrome);
-            toastStyle = Tuning.Or(toastStyle);
-            cardStyle = Tuning.Or(cardStyle);
-            copy = Tuning.Or(copy);
-            canvasRect = (RectTransform)transform;
-            // This visual dimmer must not swallow corner controls or board swipes.
-            scrimGroup.blocksRaycasts = false;
-            // Buttons are input, so they ask the input layer rather than the game directly.
-            primaryButton.onClick.AddListener(input.RequestPrimary);
-            pauseButton.onClick.AddListener(input.RequestPause);
-            muteButton.onClick.AddListener(input.RequestMute);
-            foreach (Button button in new[] { primaryButton, pauseButton, muteButton })
-                button.onClick.AddListener(loop.Click);
-            if (gauge != null) gauge.Bind(loop);
-            toast.alpha = 0;
-            toastHalo.color = WithAlpha(toastHalo.color, 0);
-            banner.alpha = 0;
-            bannerFill.color = WithAlpha(bannerFill.color, 0);
-            loop.Changed += Refresh;
-            Refresh();
-        }
-
-        private void OnDestroy()
-        {
-            if (loop != null) loop.Changed -= Refresh;
-        }
-
-        public void Refresh()
+        private void Refresh()
         {
             if (shownScore != loop.Score)
             {
@@ -129,13 +98,62 @@ namespace GardenSnake.Presentation.Hud
                 cardTime = 0;
                 shownState = loop.State;
             }
-            bool showCard = loop.State != RunState.Playing;
+            var showCard = loop.State != RunState.Playing;
             card.SetActive(showCard);
-            bool ended = loop.State is RunState.Lost or RunState.Won;
+            var ended = loop.State is RunState.Lost or RunState.Won;
             cardTally.SetActive(ended);
             if (ended) cardTallyValue.text = Numeral(loop.Score);
             LayoutCard(ended);
             if (showCard) WriteCard();
+        }
+
+        /// <summary>A number that pops where the apple was, then drifts up and fades.</summary>
+        public void ShowPickup(string message, Vector3 worldPosition, bool quiet = false)
+        {
+            toast.text = message;
+            toastQuiet = quiet;
+            toast.fontSize = quiet ? toastStyle.quietFontSize : toastStyle.fontSize;
+            toastDuration = quiet ? toastStyle.quietDuration : toastStyle.duration;
+            toastTime = toastDuration;
+            toastAnchor = ScreenAnchor(worldPosition);
+            toastRoot.anchoredPosition = toastAnchor;
+        }
+
+        public void WhisperBest() => whisperTime = chrome.bestFlashDuration;
+
+        public void ShowBanner(string message)
+        {
+            banner.text = message;
+            bannerTime = toastStyle.bannerDuration;
+        }
+
+        private void Start()
+        {
+            chrome = Tuning.Or(chrome);
+            toastStyle = Tuning.Or(toastStyle);
+            cardStyle = Tuning.Or(cardStyle);
+            copy = Tuning.Or(copy);
+            canvasRect = (RectTransform)transform;
+            // This visual dimmer must not swallow corner controls or board swipes.
+            scrimGroup.blocksRaycasts = false;
+            // Buttons are input, so they ask the input layer rather than the game directly.
+            primaryButton.onClick.AddListener(input.RequestPrimary);
+            pauseButton.onClick.AddListener(input.RequestPause);
+            muteButton.onClick.AddListener(input.RequestMute);
+            foreach (var button in new[] { primaryButton, pauseButton, muteButton })
+                button.onClick.AddListener(loop.Click);
+            if (gauge != null) gauge.Bind(loop);
+            toast.alpha = 0;
+            toastHalo.color = WithAlpha(toastHalo.color, 0);
+            banner.alpha = 0;
+            bannerFill.color = WithAlpha(bannerFill.color, 0);
+            loop.Changed += Refresh;
+            Refresh();
+        }
+
+        private void OnDestroy()
+        {
+            if (loop != null) loop.Changed -= Refresh;
         }
 
         private void WriteCard()
@@ -176,31 +194,11 @@ namespace GardenSnake.Presentation.Hud
             return copy.startingVerdict;
         }
 
-        /// <summary>A number that pops where the apple was, then drifts up and fades.</summary>
-        public void ShowPickup(string message, Vector3 worldPosition, bool quiet = false)
-        {
-            toast.text = message;
-            toastQuiet = quiet;
-            toast.fontSize = quiet ? toastStyle.quietFontSize : toastStyle.fontSize;
-            toastDuration = quiet ? toastStyle.quietDuration : toastStyle.duration;
-            toastTime = toastDuration;
-            toastAnchor = ScreenAnchor(worldPosition);
-            toastRoot.anchoredPosition = toastAnchor;
-        }
-
-        public void WhisperBest() => whisperTime = chrome.bestFlashDuration;
-
-        public void ShowBanner(string message)
-        {
-            banner.text = message;
-            bannerTime = toastStyle.bannerDuration;
-        }
-
         private void Update()
         {
             // Start binds the HUD; until then there is nothing to draw.
             if (canvasRect == null) return;
-            float delta = Time.unscaledDeltaTime;
+            var delta = Time.unscaledDeltaTime;
             AnimateBestFlash(delta);
             AnimateToast(delta);
             AnimateBanner(delta);
@@ -211,7 +209,7 @@ namespace GardenSnake.Presentation.Hud
         private void AnimateBestFlash(float delta)
         {
             whisperTime = Mathf.Max(0, whisperTime - delta);
-            float whisper = Mathf.Sin(whisperTime / Mathf.Max(.01f, chrome.bestFlashDuration) * Mathf.PI);
+            var whisper = Mathf.Sin(whisperTime / Mathf.Max(.01f, chrome.bestFlashDuration) * Mathf.PI);
             bestText.transform.localScale = Vector3.one * (1 + whisper * chrome.bestFlashScale);
             bestText.color = Color.Lerp(chrome.bestColor, chrome.bestFlashColor, whisper);
         }
@@ -219,11 +217,11 @@ namespace GardenSnake.Presentation.Hud
         private void AnimateToast(float delta)
         {
             toastTime = Mathf.Max(0, toastTime - delta);
-            float progress = 1 - toastTime / Mathf.Max(.01f, toastDuration);
-            float fade = Mathf.Min(1, toastTime * toastStyle.fadeSpeed);
+            var progress = 1 - toastTime / Mathf.Max(.01f, toastDuration);
+            var fade = Mathf.Min(1, toastTime * toastStyle.fadeSpeed);
             toast.alpha = fade;
             toastHalo.color = WithAlpha(toastHalo.color, fade * (toastQuiet ? toastStyle.quietHaloOpacity : toastStyle.haloOpacity));
-            Vector2 lift = toastAnchor + new Vector2(0, toastStyle.startHeight + progress * toastStyle.rise);
+            var lift = toastAnchor + new Vector2(0, toastStyle.startHeight + progress * toastStyle.rise);
             toastRoot.anchoredPosition = new Vector2(lift.x, Mathf.Min(lift.y, canvasRect.rect.height * .5f - toastStyle.topPadding));
             toastRoot.localScale = Vector3.one * Mathf.Lerp(toastStyle.scale.x, toastStyle.scale.y, Mathf.Clamp01(progress * toastStyle.scaleSpeed));
         }
@@ -231,8 +229,8 @@ namespace GardenSnake.Presentation.Hud
         private void AnimateBanner(float delta)
         {
             bannerTime = Mathf.Max(0, bannerTime - delta);
-            float bannerFade = Mathf.Min(1, bannerTime * toastStyle.bannerFadeSpeed);
-            float bannerRise = Mathf.Clamp01((toastStyle.bannerDuration - bannerTime) * toastStyle.bannerRiseSpeed);
+            var bannerFade = Mathf.Min(1, bannerTime * toastStyle.bannerFadeSpeed);
+            var bannerRise = Mathf.Clamp01((toastStyle.bannerDuration - bannerTime) * toastStyle.bannerRiseSpeed);
             banner.alpha = bannerFade;
             bannerFill.color = WithAlpha(bannerFill.color, bannerFade * toastStyle.bannerFillOpacity);
             bannerRoot.localScale = Vector3.one * Mathf.Lerp(toastStyle.bannerStartScale, 1f, 1 - Mathf.Pow(1 - bannerRise, toastStyle.bannerEasePower));
@@ -253,10 +251,10 @@ namespace GardenSnake.Presentation.Hud
                 return;
             }
             cardTime += delta;
-            bool ended = shownState is RunState.Lost or RunState.Won;
+            var ended = shownState is RunState.Lost or RunState.Won;
             // A short beat after a death lets the collision land before the card interrupts.
-            float t = Mathf.Clamp01((cardTime - (ended ? resultsDelay : 0)) / Mathf.Max(.01f, cardStyle.fadeDuration));
-            float eased = 1 - Mathf.Pow(1 - t, cardStyle.easePower);
+            var t = Mathf.Clamp01((cardTime - (ended ? resultsDelay : 0)) / Mathf.Max(.01f, cardStyle.fadeDuration));
+            var eased = 1 - Mathf.Pow(1 - t, cardStyle.easePower);
             cardGroup.alpha = t;
             cardGroup.interactable = t >= 1;
             cardGroup.blocksRaycasts = t > 0;
@@ -268,7 +266,7 @@ namespace GardenSnake.Presentation.Hud
         private Vector2 ScreenAnchor(Vector3 worldPosition)
         {
             Vector2 screen = view.WorldToScreenPoint(worldPosition);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screen, null, out Vector2 local);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screen, null, out var local);
             return local;
         }
 
@@ -277,7 +275,7 @@ namespace GardenSnake.Presentation.Hud
         private static string[] BuildNumerals()
         {
             var numerals = new string[400];
-            for (int i = 0; i < numerals.Length; i++) numerals[i] = i.ToString();
+            for (var i = 0; i < numerals.Length; i++) numerals[i] = i.ToString();
             return numerals;
         }
 

@@ -24,17 +24,10 @@ namespace GardenSnake.Presentation
         private bool shown = true;
         private bool markerShown = true;
 
-        /// <summary>The apple currently on the board.</summary>
         public Transform Apple => apple;
 
         /// <summary>The model a swallowed copy is made from.</summary>
         public GameObject Prefab => applePrefab;
-
-        private void Awake()
-        {
-            motion = Tuning.Or(motion);
-            apple = Instantiate(applePrefab, transform).transform;
-        }
 
         /// <summary>A fresh apple has been placed; move to its cell and drop in from above.</summary>
         public void Respawn()
@@ -57,12 +50,12 @@ namespace GardenSnake.Presentation
         public void Animate()
         {
             age += Time.unscaledDeltaTime;
-            Vector3 cell = loop.World(loop.Food);
-            float lift = board.HeightAt(cell);
-            float breathe = Mathf.Sin(Time.unscaledTime * motion.breathFrequency);
+            var cell = loop.World(loop.Food);
+            var lift = board.HeightAt(cell);
+            var breathe = Mathf.Sin(Time.unscaledTime * motion.breathFrequency);
             // A fresh apple drops in with a little overshoot rather than blinking into place.
-            float arrival = Mathf.Clamp01(age / Mathf.Max(.01f, motion.duration));
-            float pop = arrival >= 1
+            var arrival = Mathf.Clamp01(age / Mathf.Max(.01f, motion.duration));
+            var pop = arrival >= 1
                 ? 1
                 : 1 - Mathf.Pow(1 - arrival, motion.easePower) * Mathf.Cos(arrival * motion.oscillation) * motion.swell;
             apple.position = cell + Vector3.up *
@@ -77,6 +70,12 @@ namespace GardenSnake.Presentation
             }
             marker.position = cell + Vector3.up * (motion.height + lift);
             marker.localScale = Vector3.one * ((motion.markerScale + breathe * motion.pulse) * arrival);
+        }
+
+        private void Awake()
+        {
+            motion = Tuning.Or(motion);
+            apple = Instantiate(applePrefab, transform).transform;
         }
     }
 }

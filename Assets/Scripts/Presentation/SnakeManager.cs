@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using GardenSnake.Gameplay;
 using UnityEngine;
 
@@ -17,20 +18,17 @@ namespace GardenSnake.Presentation
     [DefaultExecutionOrder(-100)]
     public sealed class SnakeManager : MonoBehaviour
     {
-        [Header("Models")]
-        [SerializeField] private GameObject headPrefab;
-        [SerializeField] private GameObject bodyPrefab;
-        [Header("Tuning")]
-        [SerializeField] private SnakeSkinSettings skinSettings;
-        [SerializeField] private SnakeMouthSettings mouthSettings;
-        [SerializeField] private SnakeMotionSettings motion;
-        [Header("Scene")]
-        [SerializeField] private GameLoopManager loop;
-        [SerializeField] private AppleView appleView;
-        [SerializeField] private GridCellWaves board;
-
         /// <summary>Age given to a one-shot animation that is over, so it never replays on its own.</summary>
         private const float Finished = 99f;
+
+        [Header("Models")] [SerializeField] private GameObject headPrefab;
+        [SerializeField] private GameObject bodyPrefab;
+        [Header("Tuning")] [SerializeField] private SnakeSkinSettings skinSettings;
+        [SerializeField] private SnakeMouthSettings mouthSettings;
+        [SerializeField] private SnakeMotionSettings motion;
+        [Header("Scene")] [SerializeField] private GameLoopManager loop;
+        [SerializeField] private AppleView appleView;
+        [SerializeField] private GridCellWaves board;
 
         /// <summary>The snake has been re-posed for a fresh run; anything trailing it should reset.</summary>
         public event Action VisualsReset;
@@ -59,7 +57,7 @@ namespace GardenSnake.Presentation
 
         /// <summary>Where the head is being drawn this frame.</summary>
         public Vector3 HeadPosition => segments.Count > 0 ? segments[0].position : transform.position;
-        public float MouthOpenness => mouth != null ? mouth.Openness : 0;
+
 
         private void Start()
         {
@@ -133,9 +131,9 @@ namespace GardenSnake.Presentation
 
         private void Update()
         {
-            float delta = Time.unscaledDeltaTime;
-            bool paused = loop.State == RunState.Paused;
-            bool dying = loop.State == RunState.Lost;
+            var delta = Time.unscaledDeltaTime;
+            var paused = loop.State == RunState.Paused;
+            var dying = loop.State == RunState.Lost;
             deathAge = dying ? deathAge + delta : 0;
             if (!paused) grownAge += delta;
             Blink(paused ? 0 : delta);
@@ -149,32 +147,21 @@ namespace GardenSnake.Presentation
 
         private void AnimateBody(bool dying)
         {
-            float stepBlend = loop.StepProgress;
-            int count = loop.Body.Count;
-            for (int i = 0; i < count; i++)
+            var stepBlend = loop.StepProgress;
+            var count = loop.Body.Count;
+            for (var i = 0; i < count; i++)
             {
-                Transform part = i == count - 1 ? tail : segments[i];
-                SegmentPose pose = EvaluateSegment(i, count, stepBlend, dying);
+                var part = i == count - 1 ? tail : segments[i];
+                var pose = EvaluateSegment(i, count, stepBlend, dying);
                 part.position = pose.Position + Vector3.up * board.HeightAt(pose.Position);
                 part.localScale = SegmentBasis(i, count) * pose.Scale;
                 AimSegment(i, part);
             }
+
             CollectDigestion();
             skin.Draw(segments, tail, count, new SnakeSkin.SegmentScales(headScale, bodyScale, tailScale),
-                new SnakeSkin.Digestion(visualDigestion, digestionAnchors, stepBlend, dying ? 0 : 1, finishingDigestion));
-        }
-
-        /// <summary>Where one segment sits and how big it is drawn, before the board's wave lifts it.</summary>
-        private readonly struct SegmentPose
-        {
-            public readonly Vector3 Position;
-            public readonly Vector3 Scale;
-
-            public SegmentPose(Vector3 position, Vector3 scale)
-            {
-                Position = position;
-                Scale = scale;
-            }
+                new SnakeSkin.Digestion(visualDigestion, digestionAnchors, stepBlend, dying ? 0 : 1,
+                    finishingDigestion));
         }
 
         private float SegmentBasis(int index, int count) =>
@@ -182,43 +169,50 @@ namespace GardenSnake.Presentation
 
         private SegmentPose EvaluateSegment(int index, int count, float stepBlend, bool dying)
         {
-            Vector3 target = loop.World(loop.Body[index]);
-            Vector3 from = previousPositions[index];
-            Vector3 position = Vector3.Lerp(from, target, stepBlend);
-            Vector3 scale = Vector3.one;
+            var target = loop.World(loop.Body[index]);
+            var from = previousPositions[index];
+            var position = Vector3.Lerp(from, target, stepBlend);
+            var scale = Vector3.one;
 
             // A shallow sideways wave sells "alive" without ever leaving the cell.
-            Vector3 along = target - from;
+            var along = target - from;
             if (along.sqrMagnitude > .01f && !dying)
             {
-                Vector3 side = Vector3.Cross(Vector3.up, along.normalized);
-                position += side * (Mathf.Sin((slither - index * motion.segmentPhase) * motion.frequency) * motion.amplitude);
+                var side = Vector3.Cross(Vector3.up, along.normalized);
+                position += side * (Mathf.Sin((slither - index * motion.segmentPhase) * motion.frequency) *
+                                    motion.amplitude);
             }
+
             if (index == grownIndex && grownAge < motion.duration)
             {
-                float birth = grownAge / Mathf.Max(.01f, motion.duration);
+                var birth = grownAge / Mathf.Max(.01f, motion.duration);
                 scale *= 1 + Mathf.Sin(birth * Mathf.PI) * motion.swell;
             }
+
             if (loop.State == RunState.Ready)
             {
-                float breath = Mathf.Sin(Time.unscaledTime * motion.breathFrequency - index * motion.breathSegmentPhase) * motion.breathAmplitude;
+                var breath = Mathf.Sin(Time.unscaledTime * motion.breathFrequency - index * motion.breathSegmentPhase) *
+                             motion.breathAmplitude;
                 scale += new Vector3(-breath, breath * motion.breathStretch, -breath);
                 position += Vector3.up * (breath * motion.breathLift);
             }
+
             if (!dying) return new SegmentPose(position, scale);
 
             // The head shoves into whatever stopped it before the snake gives up.
             if (index == 0 && deathAge < motion.recoilDuration)
             {
-                float recoil = Mathf.Sin(deathAge / Mathf.Max(.01f, motion.recoilDuration) * Mathf.PI) * motion.recoilDistance;
+                var recoil = Mathf.Sin(deathAge / Mathf.Max(.01f, motion.recoilDuration) * Mathf.PI) *
+                             motion.recoilDistance;
                 position += (loop.World(loop.Body[0]) - loop.World(loop.Body[1])).normalized * recoil;
             }
+
             // Each piece swells and pops out of existence, head first, so the board is clear by
             // the time the results card arrives.
-            float stagger = Mathf.Min(motion.segmentDelay, motion.totalStagger / count);
-            float pop = Mathf.Clamp01((deathAge - index * stagger) / Mathf.Max(.01f, motion.beat));
-            float swell = Mathf.Sin(pop * Mathf.PI) * motion.deathSwell;
-            float shrink = pop < motion.shrinkStart
+            var stagger = Mathf.Min(motion.segmentDelay, motion.totalStagger / count);
+            var pop = Mathf.Clamp01((deathAge - index * stagger) / Mathf.Max(.01f, motion.beat));
+            var swell = Mathf.Sin(pop * Mathf.PI) * motion.deathSwell;
+            var shrink = pop < motion.shrinkStart
                 ? 1
                 : 1 - (pop - motion.shrinkStart) / Mathf.Max(.001f, 1 - motion.shrinkStart);
             return new SegmentPose(position + Vector3.up * (pop * motion.lift),
@@ -230,11 +224,12 @@ namespace GardenSnake.Presentation
         {
             if (index == 0)
             {
-                Quaternion facing = Rotation(loop.Heading) * Quaternion.Euler(0, 0, bank * motion.bankAngle);
+                var facing = Rotation(loop.Heading) * Quaternion.Euler(0, 0, bank * motion.bankAngle);
                 part.rotation = Quaternion.Slerp(part.rotation, facing, Time.unscaledDeltaTime * motion.headTurnSpeed);
                 return;
             }
-            Vector3 toward = segments[index - 1].position - part.position;
+
+            var toward = segments[index - 1].position - part.position;
             if (toward.sqrMagnitude > .01f) part.rotation = Quaternion.LookRotation(toward);
         }
 
@@ -246,13 +241,13 @@ namespace GardenSnake.Presentation
         {
             visualDigestion.Clear();
             digestionAnchors.Clear();
-            IReadOnlyList<float> pending = loop.Digestion;
-            for (int i = 0; i < pending.Count; i++)
+            var pending = loop.Digestion;
+            foreach (var progress in pending)
             {
-                float progress = pending[i];
                 visualDigestion.Add(progress);
                 digestionAnchors.Add(loop.World(loop.Body[Mathf.Clamp((int)progress, 0, loop.Body.Count - 1)]));
             }
+
             if (!finishingDigestion) return;
             visualDigestion.Add(loop.Body.Count - 1);
             digestionAnchors.Add(finishingAnchor);
@@ -267,16 +262,17 @@ namespace GardenSnake.Presentation
         /// </summary>
         private void Prewarm()
         {
-            int capacity = GameLoopManager.Columns * GameLoopManager.Rows;
+            var capacity = GameLoopManager.Columns * GameLoopManager.Rows;
             segments.Capacity = capacity;
             previousPositions.Capacity = capacity;
-            for (int i = segments.Count; i < capacity - 1; i++)
+            for (var i = segments.Count; i < capacity - 1; i++)
             {
-                Transform part = new GameObject("Body pose " + i).transform;
+                var part = new GameObject("Body pose " + i).transform;
                 part.SetParent(transform, false);
                 part.gameObject.SetActive(false);
                 segments.Add(part);
             }
+
             while (previousPositions.Count < capacity) previousPositions.Add(Vector3.zero);
         }
 
@@ -284,8 +280,8 @@ namespace GardenSnake.Presentation
         {
             previousLength = loop.Body.Count;
             finishingAnchor = loop.World(loop.Body[previousLength - 1]);
-            IReadOnlyList<Cell> body = loop.Body;
-            for (int i = 0; i < previousLength; i++) previousPositions[i] = loop.World(body[i]);
+            var body = loop.Body;
+            for (var i = 0; i < previousLength; i++) previousPositions[i] = loop.World(body[i]);
             capturedCount = previousLength;
         }
 
@@ -297,12 +293,14 @@ namespace GardenSnake.Presentation
                 previousPositions[capturedCount] = previousPositions[Mathf.Max(0, capturedCount - 1)];
                 capturedCount++;
             }
-            int live = loop.Body.Count - 1;
-            for (int i = 0; i < segments.Count; i++)
+
+            var live = loop.Body.Count - 1;
+            for (var i = 0; i < segments.Count; i++)
             {
-                bool wanted = i < live;
+                var wanted = i < live;
                 if (segments[i].gameObject.activeSelf != wanted) segments[i].gameObject.SetActive(wanted);
             }
+
             appleView.Show(loop.HasFood && loop.State != RunState.Won);
         }
 
@@ -318,13 +316,14 @@ namespace GardenSnake.Presentation
             visualDigestion.Clear();
             digestionAnchors.Clear();
             mouth.ResetPose();
-            for (int i = 0; i < loop.Body.Count - 1; i++)
+            for (var i = 0; i < loop.Body.Count - 1; i++)
             {
                 segments[i].position = loop.World(loop.Body[i]);
                 segments[i].localScale = Vector3.one * (i == 0 ? headScale : bodyScale);
             }
+
             segments[0].rotation = Rotation(loop.Heading);
-            tail.position = loop.World(loop.Body[loop.Body.Count - 1]);
+            tail.position = loop.World(loop.Body[^1]);
             tail.localScale = Vector3.one * tailScale;
             appleView.Settle();
             VisualsReset?.Invoke();
@@ -338,14 +337,12 @@ namespace GardenSnake.Presentation
         /// </summary>
         private void CollectEyeParts()
         {
-            var found = new List<Transform>();
-            foreach (Transform part in segments[0].GetComponentsInChildren<Transform>())
-                if (part.name.StartsWith("Eye white") || part.name.StartsWith("Pupil") ||
+            eyeParts = segments[0].GetComponentsInChildren<Transform>().Where(part =>
+                    part.name.StartsWith("Eye white") || part.name.StartsWith("Pupil") ||
                     part.name.StartsWith("Eye glint"))
-                    found.Add(part);
-            eyeParts = found.ToArray();
+                .ToArray();
             eyePartRestScales = new Vector3[eyeParts.Length];
-            for (int i = 0; i < eyeParts.Length; i++) eyePartRestScales[i] = eyeParts[i].localScale;
+            for (var i = 0; i < eyeParts.Length; i++) eyePartRestScales[i] = eyeParts[i].localScale;
         }
 
         private void Blink(float delta)
@@ -357,19 +354,33 @@ namespace GardenSnake.Presentation
                 blinkAge = 0;
                 nextBlink = UnityEngine.Random.Range(motion.minimumBlinkGap, motion.maximumBlinkGap);
             }
-            float open = blinkAge < nextBlink
+
+            var open = blinkAge < nextBlink
                 ? 1
                 : 1 - Mathf.Sin(Mathf.Clamp01((blinkAge - nextBlink) / Mathf.Max(.01f, motion.blinkDuration))
-                    * Mathf.PI) * motion.blinkClosure;
+                                * Mathf.PI) * motion.blinkClosure;
             // Food gets wide-eyed attention; do not blink away the anticipation pose.
             open = Mathf.Lerp(open, 1, mouth.Openness);
-            for (int i = 0; i < eyeParts.Length; i++)
+            for (var i = 0; i < eyeParts.Length; i++)
             {
-                Vector3 rest = eyePartRestScales[i];
+                var rest = eyePartRestScales[i];
                 eyeParts[i].localScale = new Vector3(rest.x, rest.y, rest.z * open);
             }
         }
 
         private static Quaternion Rotation(Direction direction) => Quaternion.Euler(0, (int)direction * 90, 0);
+
+        /// <summary>Where one segment sits and how big it is drawn, before the board's wave lifts it.</summary>
+        private readonly struct SegmentPose
+        {
+            public readonly Vector3 Position;
+            public readonly Vector3 Scale;
+
+            public SegmentPose(Vector3 position, Vector3 scale)
+            {
+                Position = position;
+                Scale = scale;
+            }
+        }
     }
 }

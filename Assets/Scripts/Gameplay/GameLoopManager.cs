@@ -55,6 +55,26 @@ namespace GardenSnake.Gameplay
     [DefaultExecutionOrder(-200)]
     public sealed class GameLoopManager : MonoBehaviour
     {
+        /// <summary>
+        /// The authored board. The scene carries exactly one grid of patches, laid out row by row
+        /// from the bottom left, and nothing rebuilds it - so this is the game's shape rather than
+        /// a setting. Changing it here would leave the rules playing on a board the garden does
+        /// not have.
+        /// </summary>
+        public const int Columns = 21;
+        public const int Rows = 12;
+        private const int Cells = Columns * Rows;
+        /// <summary>One stalled browser frame must not advance the snake through several cells unseen.</summary>
+        private const float MaximumCatchUp = .1f;
+        private const string BestKey = "GardenSnake.Best";
+        private const string PlayedKey = "GardenSnake.HasPlayed";
+        private const string MutedKey = "GardenSnake.Muted";
+        /// <summary>Food keeps its pickup cell as the snake slides over it: one body index per move.</summary>
+        private const float DigestionPerStep = 1f;
+
+        /// <summary>The board has no food on it at all.</summary>
+        private static readonly Cell NoFood = new(-1, -1);
+
         [Header("Pace")]
         [SerializeField, Range(.1f, .5f), Tooltip("Seconds per cell at the start of a run. Lower is faster.")]
         private float initialStepSeconds = .25f;
@@ -68,28 +88,6 @@ namespace GardenSnake.Gameplay
         [SerializeField] private RunRulesSettings rules;
         [Header("Scene")]
         [SerializeField] private PlayerController input;
-
-        /// <summary>
-        /// The authored board. The scene carries exactly one grid of patches, laid out row by row
-        /// from the bottom left, and nothing rebuilds it - so this is the game's shape rather than
-        /// a setting. Changing it here would leave the rules playing on a board the garden does
-        /// not have.
-        /// </summary>
-        public const int Columns = 21;
-        public const int Rows = 12;
-        private const int Cells = Columns * Rows;
-        /// <summary>One stalled browser frame must not advance the snake through several cells unseen.</summary>
-        private const float MaximumCatchUp = .1f;
-
-        private const string BestKey = "GardenSnake.Best";
-        private const string PlayedKey = "GardenSnake.HasPlayed";
-        private const string MutedKey = "GardenSnake.Muted";
-        /// <summary>Food keeps its pickup cell as the snake slides over it: one body index per move.</summary>
-        private const float DigestionPerStep = 1f;
-        /// <summary>The board has no food on it at all.</summary>
-        private static readonly Cell NoFood = new(-1, -1);
-
-        // Events
 
         /// <summary>Anything a readout could be showing has changed.</summary>
         public event Action Changed;
@@ -108,12 +106,18 @@ namespace GardenSnake.Gameplay
         /// <summary>The small confirmation every button press earns.</summary>
         public event Action Clicked;
 
-        // The snake
-
         private readonly List<Cell> body = new();
         private readonly List<float> digestion = new();
         private readonly Queue<Direction> turns = new(3);
         private System.Random random;
+        private float elapsed;
+        private float currentStep;
+        private float endTime;
+        private int best;
+        private int scoreAtLastApple;
+        private bool bestUnsaved;
+        private bool hasPlayed;
+        private bool muted;
 
         /// <summary>Head first, tail last.</summary>
         public IReadOnlyList<Cell> Body => body;
@@ -125,37 +129,10 @@ namespace GardenSnake.Gameplay
         public RunState State { get; private set; }
         public int Score { get; private set; }
         public string EndReason { get; private set; } = string.Empty;
-        /// <summary>The run has finished, won or lost, and is waiting on the results card.</summary>
-        private bool RunOver => State is RunState.Lost or RunState.Won;
-
-        private bool InBounds(Cell cell) =>
-            cell is { X: >= 0, Y: >= 0 } and { X: < Columns, Y: < Rows };
-
-        // The record
-
-        private float elapsed;
-        private float currentStep;
-        private float endTime;
-        private int best;
-        private int scoreAtLastApple;
-        private bool bestUnsaved;
-        private bool hasPlayed;
-        private bool muted;
-
         public int Best => best;
         public bool Muted => muted;
-        /// <summary>The record this run is measured against, captured when it started.</summary>
-        private int PreviousBest { get; set; }
-        /// <summary>False on a player's very first run, when there is no record to beat yet.</summary>
-        private bool RecordEligible { get; set; }
         /// <summary>This run has already passed the record it started with.</summary>
         public bool RecordBroken { get; private set; }
-
-        private int RecordCelebrations { get; set; }
-        private int RecordWhispers { get; set; }
-
-        // Timing
-
         /// <summary>Seconds per cell at the current score; the step in force may still be the last one.</summary>
         public float StepSeconds => Mathf.Max(fastestStepSeconds, initialStepSeconds - Score * speedGainPerApple);
         /// <summary>The step the snake is actually moving on right now.</summary>
@@ -167,6 +144,19 @@ namespace GardenSnake.Gameplay
         public float Pace => Mathf.InverseLerp(initialStepSeconds, fastestStepSeconds, StepSeconds);
         /// <summary>Pace of the step in force, for anything that has to move with the snake.</summary>
         public float CurrentPace => Mathf.InverseLerp(initialStepSeconds, fastestStepSeconds, currentStep);
+
+        /// <summary>The run has finished, won or lost, and is waiting on the results card.</summary>
+        private bool RunOver => State is RunState.Lost or RunState.Won;
+        /// <summary>The record this run is measured against, captured when it started.</summary>
+        private int PreviousBest { get; set; }
+        /// <summary>False on a player's very first run, when there is no record to beat yet.</summary>
+        private bool RecordEligible { get; set; }
+
+        public void Click() => Clicked?.Invoke();
+
+        /// <summary>Where a cell sits in the world. The one place board coordinates become metres.</summary>
+        public Vector3 World(Cell cell) =>
+            new (cell.X - (Columns - 1) * .5f, 0, cell.Y - (Rows - 1) * .5f);
 
         // Lifecycle
 
@@ -216,6 +206,15 @@ namespace GardenSnake.Gameplay
             if (elapsed >= currentStep) Advance();
         }
 
+        private void OnApplicationFocus(bool focused)
+        {
+            if (focused) return;
+            SaveBest();
+            if (State == RunState.Playing) TogglePause();
+        }
+
+        private void OnApplicationQuit() => SaveBest();
+
         // Player actions
 
         private void PrimaryAction()
@@ -233,7 +232,6 @@ namespace GardenSnake.Gameplay
             RecordEligible = hasPlayed;
             RecordBroken = false;
             scoreAtLastApple = 0;
-            RecordCelebrations = RecordWhispers = 0;
             hasPlayed = true;
             PlayerPrefs.SetInt(PlayedKey, 1);
             PlayerPrefs.Save();
@@ -245,7 +243,6 @@ namespace GardenSnake.Gameplay
             RunStarted?.Invoke(World(body[0]));
             Changed?.Invoke();
         }
-
 
         private void Turn(Direction wish)
         {
@@ -285,8 +282,6 @@ namespace GardenSnake.Gameplay
             Changed?.Invoke();
         }
 
-        public void Click() => Clicked?.Invoke();
-
         // The step
 
         private void Advance()
@@ -301,9 +296,7 @@ namespace GardenSnake.Gameplay
             {
                 case StepResult.Ate:
                 {
-                    var beat = ScoreRecord();
-                    if (beat == RecordBeat.Broken) RecordCelebrations++;
-                    else if (beat == RecordBeat.Extended) RecordWhispers++;
+                    RecordBeat beat = ScoreRecord();
                     UpdateBest();
                     AppleEaten?.Invoke(new AppleBeat(eatenAt, Score, beat));
                     break;
@@ -391,6 +384,9 @@ namespace GardenSnake.Gameplay
             ResetRun();
         }
 
+        private bool InBounds(Cell cell) =>
+            cell is { X: >= 0, Y: >= 0 } and { X: < Columns, Y: < Rows };
+
         // The record
 
         /// <summary>Compares this apple against the record the run started with.</summary>
@@ -420,20 +416,7 @@ namespace GardenSnake.Gameplay
             PlayerPrefs.Save();
         }
 
-        private void OnApplicationFocus(bool focused)
-        {
-            if (focused) return;
-            SaveBest();
-            if (State == RunState.Playing) TogglePause();
-        }
-
-        private void OnApplicationQuit() => SaveBest();
-
         // Board space
-
-        /// <summary>Where a cell sits in the world. The one place board coordinates become metres.</summary>
-        public Vector3 World(Cell cell) =>
-            new (cell.X - (Columns - 1) * .5f, 0, cell.Y - (Rows - 1) * .5f);
 
         private static Cell Offset(Direction direction) => direction switch
         {

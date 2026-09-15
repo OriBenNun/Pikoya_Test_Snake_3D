@@ -19,8 +19,6 @@ namespace GardenSnake.Presentation.Hud
         [Header("Tuning")]
         [SerializeField] private SpeedGaugeSettings dial;
 
-        private enum PaceBand { Idle, Cruising, Zippy, Zoomies, Paused }
-
         private GameLoopManager loop;
         private float displayed;
         private float velocity;
@@ -30,8 +28,6 @@ namespace GardenSnake.Presentation.Hud
         private float drawnKick = float.NaN;
         private int shownSpeed = -1;
         private PaceBand? shownBand;
-        public float DisplayedPace => displayed;
-        public float TargetPace => loop == null ? 0 : loop.Pace;
 
         /// <summary>The HUD hands the gauge the loop it should read; it looks nothing up itself.</summary>
         public void Bind(GameLoopManager gameLoop) => loop = gameLoop;
@@ -49,25 +45,57 @@ namespace GardenSnake.Presentation.Hud
             raycastTarget = false;
         }
 
+        protected override void OnPopulateMesh(VertexHelper vh)
+        {
+            vh.Clear();
+            var center = rectTransform.rect.center + dial.faceOffset;
+            Disc(vh, center + dial.shadowOffset, dial.outerRadius, dial.shadowColor);
+            Disc(vh, center, dial.outerRadius, dial.ink);
+            Disc(vh, center + dial.insetOffset, dial.rimRadius, dial.rimColor);
+            Disc(vh, center + dial.insetOffset, dial.faceRadius, dial.paper);
+            for (var i = 0; i < dial.paceArcCount; i++)
+            {
+                var t = i / (float)Mathf.Max(1, dial.paceArcCount - 1);
+                var color = t < .5f ? Color.Lerp(dial.mint, dial.gold, t * 2) : Color.Lerp(dial.gold, dial.coral, (t - .5f) * 2);
+                if (t > displayed + dial.litArcLead) color = Color.Lerp(color, dial.paper, dial.unfilledFade);
+                Arc(vh, center, dial.paceArcRadii.x, dial.paceArcRadii.y, Mathf.Lerp(dial.sweepAngles.x, dial.sweepAngles.y, t), dial.paceArcSweep, color);
+            }
+            for (var i = 0; i <= dial.tickIntervals; i++)
+            {
+                var a = Mathf.Lerp(dial.sweepAngles.x, dial.sweepAngles.y, i / (float)dial.tickIntervals);
+                Arc(vh, center, i % 2 == 0 ? dial.majorTickInnerRadius : dial.minorTickInnerRadius, dial.tickOuterRadius, a, dial.tickSweep, dial.ink);
+            }
+            var angle = Mathf.Lerp(dial.sweepAngles.x, dial.sweepAngles.y, displayed) * Mathf.Deg2Rad;
+            Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
+            Vector2 side = new(-direction.y, direction.x);
+            Triangle(vh, center - direction * dial.needleRearLength + side * dial.needleHalfWidth, center - direction * dial.needleRearLength - side * dial.needleHalfWidth, center + direction * dial.needleLength, dial.coral);
+            Disc(vh, center, dial.hubRadius, dial.ink);
+            Disc(vh, center + dial.hubHighlightOffset, dial.hubHighlightRadius, dial.gold);
+            // Two tiny screw heads and a specular highlight make the face read as a toy object.
+            Disc(vh, center + new Vector2(-dial.screwDistance, 0), dial.screwRadius, dial.paper);
+            Disc(vh, center + new Vector2(dial.screwDistance, 0), dial.screwRadius, dial.paper);
+            Arc(vh, center + dial.insetOffset, dial.highlightRadii.x, dial.highlightRadii.y, dial.highlightAngle, dial.highlightSweep, dial.highlightColor);
+        }
+
         private void Update()
         {
             if (loop == null) return;
-            float target = loop.Pace;
-            bool paused = loop.State == RunState.Paused;
-            float dt = paused ? 0 : Mathf.Min(Time.unscaledDeltaTime, .033f);
+            var target = loop.Pace;
+            var paused = loop.State == RunState.Paused;
+            var dt = paused ? 0 : Mathf.Min(Time.unscaledDeltaTime, .033f);
             if (target > previousPace + dial.kickThreshold && previousPace >= 0) { kick = 1; velocity += dial.kickVelocity; }
             previousPace = target;
             velocity += ((target - displayed) * spring * spring - damping * spring * velocity) * dt;
             displayed = Mathf.Clamp(displayed + velocity * dt, -dial.needleOvershoot, 1 + dial.needleOvershoot);
             kick = Mathf.MoveTowards(kick, 0, dt * dial.kickDecay);
             rectTransform.localScale = new Vector3(1 + kick * dial.kickStretch.x, 1 + kick * dial.kickStretch.y, 1);
-            int speed = Mathf.RoundToInt(10 / loop.StepSeconds);
+            var speed = Mathf.RoundToInt(10 / loop.StepSeconds);
             if (shownSpeed != speed)
             {
                 shownSpeed = speed;
                 readout.SetText("{0:1}", speed / 10f);
             }
-            PaceBand band = BandFor(target, paused);
+            var band = BandFor(target, paused);
             if (shownBand != band)
             {
                 shownBand = band;
@@ -98,52 +126,20 @@ namespace GardenSnake.Presentation.Hud
             _ => dial.idleCaption
         };
 
-        protected override void OnPopulateMesh(VertexHelper vh)
-        {
-            vh.Clear();
-            Vector2 center = rectTransform.rect.center + dial.faceOffset;
-            Disc(vh, center + dial.shadowOffset, dial.outerRadius, dial.shadowColor);
-            Disc(vh, center, dial.outerRadius, dial.ink);
-            Disc(vh, center + dial.insetOffset, dial.rimRadius, dial.rimColor);
-            Disc(vh, center + dial.insetOffset, dial.faceRadius, dial.paper);
-            for (int i = 0; i < dial.paceArcCount; i++)
-            {
-                float t = i / (float)Mathf.Max(1, dial.paceArcCount - 1);
-                Color color = t < .5f ? Color.Lerp(dial.mint, dial.gold, t * 2) : Color.Lerp(dial.gold, dial.coral, (t - .5f) * 2);
-                if (t > displayed + dial.litArcLead) color = Color.Lerp(color, dial.paper, dial.unfilledFade);
-                Arc(vh, center, dial.paceArcRadii.x, dial.paceArcRadii.y, Mathf.Lerp(dial.sweepAngles.x, dial.sweepAngles.y, t), dial.paceArcSweep, color);
-            }
-            for (int i = 0; i <= dial.tickIntervals; i++)
-            {
-                float a = Mathf.Lerp(dial.sweepAngles.x, dial.sweepAngles.y, i / (float)dial.tickIntervals);
-                Arc(vh, center, i % 2 == 0 ? dial.majorTickInnerRadius : dial.minorTickInnerRadius, dial.tickOuterRadius, a, dial.tickSweep, dial.ink);
-            }
-            float angle = Mathf.Lerp(dial.sweepAngles.x, dial.sweepAngles.y, displayed) * Mathf.Deg2Rad;
-            Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
-            Vector2 side = new(-direction.y, direction.x);
-            Triangle(vh, center - direction * dial.needleRearLength + side * dial.needleHalfWidth, center - direction * dial.needleRearLength - side * dial.needleHalfWidth, center + direction * dial.needleLength, dial.coral);
-            Disc(vh, center, dial.hubRadius, dial.ink);
-            Disc(vh, center + dial.hubHighlightOffset, dial.hubHighlightRadius, dial.gold);
-            // Two tiny screw heads and a specular highlight make the face read as a toy object.
-            Disc(vh, center + new Vector2(-dial.screwDistance, 0), dial.screwRadius, dial.paper);
-            Disc(vh, center + new Vector2(dial.screwDistance, 0), dial.screwRadius, dial.paper);
-            Arc(vh, center + dial.insetOffset, dial.highlightRadii.x, dial.highlightRadii.y, dial.highlightAngle, dial.highlightSweep, dial.highlightColor);
-        }
-
         private static void Triangle(VertexHelper vh, Vector2 a, Vector2 b, Vector2 c, Color color)
         {
-            int i = vh.currentVertCount;
+            var i = vh.currentVertCount;
             vh.AddVert(a, color, Vector2.zero); vh.AddVert(b, color, Vector2.zero); vh.AddVert(c, color, Vector2.zero);
             vh.AddTriangle(i, i + 1, i + 2);
         }
 
         private void Disc(VertexHelper vh, Vector2 center, float radius, Color color)
         {
-            int segments = Mathf.Max(3, dial.discSegments);
-            for (int i = 0; i < segments; i++)
+            var segments = Mathf.Max(3, dial.discSegments);
+            for (var i = 0; i < segments; i++)
             {
-                float a = i * Mathf.PI * 2 / segments;
-                float b = (i + 1) * Mathf.PI * 2 / segments;
+                var a = i * Mathf.PI * 2 / segments;
+                var b = (i + 1) * Mathf.PI * 2 / segments;
                 Triangle(vh, center, center + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * radius,
                     center + new Vector2(Mathf.Cos(b), Mathf.Sin(b)) * radius, color);
             }
@@ -151,15 +147,17 @@ namespace GardenSnake.Presentation.Hud
 
         private void Arc(VertexHelper vh, Vector2 center, float inner, float outer, float angle, float sweep, Color color)
         {
-            int pieces = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(sweep) / dial.arcSegmentDegrees));
-            for (int s = 0; s < pieces; s++)
+            var pieces = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(sweep) / dial.arcSegmentDegrees));
+            for (var s = 0; s < pieces; s++)
             {
-                float a = (angle + sweep * s / pieces) * Mathf.Deg2Rad;
-                float b = (angle + sweep * (s + 1) / pieces) * Mathf.Deg2Rad;
+                var a = (angle + sweep * s / pieces) * Mathf.Deg2Rad;
+                var b = (angle + sweep * (s + 1) / pieces) * Mathf.Deg2Rad;
                 Vector2 av = new(Mathf.Cos(a), Mathf.Sin(a)), bv = new(Mathf.Cos(b), Mathf.Sin(b));
                 Triangle(vh, center + av * inner, center + av * outer, center + bv * outer, color);
                 Triangle(vh, center + av * inner, center + bv * outer, center + bv * inner, color);
             }
         }
+
+        private enum PaceBand { Idle, Cruising, Zippy, Zoomies, Paused }
     }
 }

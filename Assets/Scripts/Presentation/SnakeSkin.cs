@@ -8,67 +8,17 @@ namespace GardenSnake.Presentation
     /// <summary>A continuous surface over the controller's visual poses; game cells remain authoritative.</summary>
     public sealed class SnakeSkin : MonoBehaviour
     {
-        /// <summary>How much bigger each part is drawn than the shared centerline width of 1.</summary>
-        public readonly struct SegmentScales
-        {
-            public readonly float Head;
-            public readonly float Body;
-            public readonly float Tail;
-
-            public SegmentScales(float head, float body, float tail)
-            {
-                Head = head;
-                Body = body;
-                Tail = tail;
-            }
-        }
-
-        /// <summary>The swallowed apples the skin should bulge around this frame.</summary>
-        public readonly struct Digestion
-        {
-            /// <summary>Each apple's travel along the body, measured in body indices.</summary>
-            public readonly IReadOnlyList<float> Progress;
-            /// <summary>Where each apple was swallowed, in world space, so the lump stays put.</summary>
-            public readonly IReadOnlyList<Vector3> Anchors;
-            /// <summary>How far into the current movement step the snake is, 0 to 1.</summary>
-            public readonly float StepBlend;
-            /// <summary>Fades every lump out together, so a dying snake stops digesting.</summary>
-            public readonly float Visibility;
-            /// <summary>The last entry is a lump settling into the tail cell that grew this step.</summary>
-            public readonly bool Finishing;
-
-            public Digestion(IReadOnlyList<float> progress, IReadOnlyList<Vector3> anchors,
-                float stepBlend, float visibility, bool finishing)
-            {
-                Progress = progress;
-                Anchors = anchors;
-                StepBlend = stepBlend;
-                Visibility = visibility;
-                Finishing = finishing;
-            }
-        }
-
-        /// <summary>One ring of the extruded tube: where it sits, which way it points, how wide it is.</summary>
-        private struct SurfaceFrame
-        {
-            public Vector3 center;
-            public Vector3 forward;
-            public Vector3 side;
-            public float width;
-            public float slope;
-        }
-
-        private static readonly ProfilerMarker DrawMarker = new("GardenSnake.Skin");
-
         // An oval marking is a disc of SpotRings rings, each sampled SpotSteps times around.
         private const int SpotRings = 4;
         private const int SpotSteps = 32;
         private const int SpotSamplesPerRing = SpotSteps + 1;
         private const int SpotSampleCount = (SpotRings + 1) * SpotSamplesPerRing;
 
-        [SerializeField] private SnakeSkinSettings settings;
-        private bool ownsSettings;
+        private static readonly ProfilerMarker DrawMarker = new("GardenSnake.Skin");
 
+        [SerializeField] private SnakeSkinSettings settings;
+
+        private bool ownsSettings;
         private int sides;
         private int samplesPerCell;
         private Vector2[] ringProfile;
@@ -112,13 +62,13 @@ namespace GardenSnake.Presentation
             centerline = new Vector3[capacity + 1];
             centerlineWidths = new float[capacity + 1];
             surfaceFrames = new SurfaceFrame[capacity * samplesPerCell + 1];
-            for (int s = 0; s <= sides; s++)
+            for (var s = 0; s <= sides; s++)
             {
-                float angle = s * Mathf.PI * 2 / sides;
+                var angle = s * Mathf.PI * 2 / sides;
                 ringProfile[s] = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle));
             }
             CacheSpotSamples();
-            int maxVertices = (capacity * samplesPerCell + 1) * (sides + 1) + capacity * SpotSampleCount;
+            var maxVertices = (capacity * samplesPerCell + 1) * (sides + 1) + capacity * SpotSampleCount;
             vertices.Capacity = normals.Capacity = maxVertices;
             topTriangles.Capacity = bellyTriangles.Capacity = maxVertices * 3;
             spotTriangles.Capacity = capacity * SpotRings * SpotSteps * 6;
@@ -163,8 +113,8 @@ namespace GardenSnake.Presentation
             // The skin object sits at the origin unturned, so the usual case is no transform
             // at all. Checking once beats a matrix multiply and a rotation per vertex.
             localIsWorld = worldToLocal.isIdentity;
-            bool rebuildTopology = topologyCount != bodyCount || !Mathf.Approximately(topologyBellyArc, settings.BellyArc);
-            int rings = (pointCount - 1) * samplesPerCell + 1;
+            var rebuildTopology = topologyCount != bodyCount || !Mathf.Approximately(topologyBellyArc, settings.BellyArc);
+            var rings = (pointCount - 1) * samplesPerCell + 1;
 
             SampleCenterline(poses, tail, bodyCount, scales);
             BuildTube(rebuildTopology, scales.Body, rings);
@@ -175,18 +125,18 @@ namespace GardenSnake.Presentation
         /// <summary>Reads this frame's poses into a centerline of world points and relative widths.</summary>
         private void SampleCenterline(IReadOnlyList<Transform> poses, Transform tail, int bodyCount, SegmentScales scales)
         {
-            for (int i = 0; i < bodyCount; i++)
+            for (var i = 0; i < bodyCount; i++)
             {
-                Transform pose = i == bodyCount - 1 ? tail : poses[i];
+                var pose = i == bodyCount - 1 ? tail : poses[i];
                 centerline[i] = pose.position;
                 centerlineWidths[i] = pose.localScale.x /
                     (i == bodyCount - 1 ? scales.Tail : i == 0 ? scales.Head : scales.Body);
             }
-            Vector3 tipDirection = centerline[bodyCount - 1] - centerline[bodyCount - 2];
-            float tailSpan = tipDirection.magnitude;
+            var tipDirection = centerline[bodyCount - 1] - centerline[bodyCount - 2];
+            var tailSpan = tipDirection.magnitude;
             if (bodyCount > 2 && tailSpan < .5f)
             {
-                Vector3 previousDirection = centerline[bodyCount - 1] - centerline[bodyCount - 3];
+                var previousDirection = centerline[bodyCount - 1] - centerline[bodyCount - 3];
                 tipDirection = Vector3.Lerp(previousDirection.normalized, tipDirection.normalized,
                     Mathf.SmoothStep(0, 1, tailSpan / .5f));
             }
@@ -198,10 +148,9 @@ namespace GardenSnake.Presentation
             centerline[bodyCount] = centerline[bodyCount - 1] + tipDirection.normalized * settings.TailTipLength;
             centerlineWidths[bodyCount] = 0;
             // Hide the neck's open end inside the head, and taper the final cell to a single tip.
-            // Hide the neck's open end inside the head, and taper the final cell to a single tip.
             centerlineWidths[0] *= settings.NeckWidth;
             centerlineWidths[bodyCount - 1] *= settings.TailWidth;
-            bool visible = centerlineWidths[0] > .001f || centerlineWidths[bodyCount - 1] > .001f;
+            var visible = centerlineWidths[0] > .001f || centerlineWidths[bodyCount - 1] > .001f;
             if (skinRenderer.enabled != visible) skinRenderer.enabled = visible;
         }
 
@@ -214,23 +163,23 @@ namespace GardenSnake.Presentation
         {
             vertices.Clear();
             normals.Clear();
-            bool rebuildTube = rebuildTopology &&
-                (rings < topologyRings || !Mathf.Approximately(topologyBellyArc, settings.BellyArc));
+            var rebuildTube = rebuildTopology &&
+                              (rings < topologyRings || !Mathf.Approximately(topologyBellyArc, settings.BellyArc));
             if (rebuildTube) { topTriangles.Clear(); bellyTriangles.Clear(); topologyRings = 0; }
             if (rebuildTopology) spotTriangles.Clear();
-            int firstNewRing = Mathf.Max(1, topologyRings);
+            var firstNewRing = Mathf.Max(1, topologyRings);
             // Centerline and digestion cost scales with rings, not rings multiplied by 21 vertices.
             // The bounds come from the same pass: every vertex sits within its ring's profile, so a
             // box around the centerline padded by that profile contains the whole skin.
             boundsMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             boundsMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-            float reach = Mathf.Max(shapeRadius, shapeCenterHeight + shapeHeight) * bodyScale + settings.SpotSurfaceOffset;
-            for (int ring = 0; ring < rings; ring++)
+            var reach = Mathf.Max(shapeRadius, shapeCenterHeight + shapeHeight) * bodyScale + settings.SpotSurfaceOffset;
+            for (var ring = 0; ring < rings; ring++)
             {
-                SurfaceFrame frame = EvaluateFrame(ring / (float)samplesPerCell);
+                var frame = EvaluateFrame(ring / (float)samplesPerCell);
                 surfaceFrames[ring] = frame;
-                float pad = reach * Mathf.Max(1f, frame.width);
-                Vector3 c = frame.center;
+                var pad = reach * Mathf.Max(1f, frame.Width);
+                var c = frame.Center;
                 if (c.x - pad < boundsMin.x) boundsMin.x = c.x - pad;
                 if (c.y - pad < boundsMin.y) boundsMin.y = c.y - pad;
                 if (c.z - pad < boundsMin.z) boundsMin.z = c.z - pad;
@@ -238,12 +187,12 @@ namespace GardenSnake.Presentation
                 if (c.y + pad > boundsMax.y) boundsMax.y = c.y + pad;
                 if (c.z + pad > boundsMax.z) boundsMax.z = c.z + pad;
             }
-            for (int ring = 0; ring < rings; ring++)
+            for (var ring = 0; ring < rings; ring++)
             {
-                for (int s = 0; s <= sides; s++)
+                for (var s = 0; s <= sides; s++)
                     Surface(surfaceFrames[ring], ringProfile[s].x, ringProfile[s].y, bodyScale, 0);
                 if (ring == 0 || ring < firstNewRing) continue;
-                for (int s = 0; s < sides; s++)
+                for (var s = 0; s < sides; s++)
                 {
                     int a = (ring - 1) * (sides + 1) + s, b = a + sides + 1;
                     var triangles = Mathf.Abs((s + .5f) / sides - .5f) < settings.BellyArc * .5f
@@ -258,13 +207,13 @@ namespace GardenSnake.Presentation
         /// <summary>Surface-following oval markings retain the character's original palette.</summary>
         private void BuildMarkings(bool rebuildTopology, int bodyCount, float bodyScale)
         {
-            for (int i = 1; i < bodyCount; i++)
+            for (var i = 1; i < bodyCount; i++)
             {
-                int start = vertices.Count;
-                for (int ring = 0; ring <= SpotRings; ring++)
-                for (int s = 0; s <= SpotSteps; s++)
+                var start = vertices.Count;
+                for (var ring = 0; ring <= SpotRings; ring++)
+                for (var s = 0; s <= SpotSteps; s++)
                 {
-                    Vector3 sample = spotSamples[ring * SpotSamplesPerRing + s];
+                    var sample = spotSamples[ring * SpotSamplesPerRing + s];
                     Surface(InterpolateFrame(i + sample.x), sample.y, sample.z, bodyScale, settings.SpotSurfaceOffset);
                     if (ring == 0 || s == SpotSteps || !rebuildTopology) continue;
                     int a = start + (ring - 1) * SpotSamplesPerRing + s, b = a + SpotSamplesPerRing;
@@ -291,7 +240,7 @@ namespace GardenSnake.Presentation
             }
             // Walking every vertex again just to find the box is the single most expensive
             // thing left in the draw, and the ring pass already knows the answer.
-            Vector3 centre = (boundsMin + boundsMax) * .5f;
+            var centre = (boundsMin + boundsMax) * .5f;
             if (!localIsWorld) centre = worldToLocal.MultiplyPoint3x4(centre);
             mesh.bounds = new Bounds(centre, boundsMax - boundsMin);
         }
@@ -302,12 +251,12 @@ namespace GardenSnake.Presentation
                 Mathf.Approximately(cachedSpotArc, settings.SpotArc)) return;
             cachedSpotLength = settings.SpotLength;
             cachedSpotArc = settings.SpotArc;
-            for (int ring = 0; ring <= SpotRings; ring++)
-            for (int s = 0; s <= SpotSteps; s++)
+            for (var ring = 0; ring <= SpotRings; ring++)
+            for (var s = 0; s <= SpotSteps; s++)
             {
-                float radius = Mathf.Max(.001f, ring / (float)SpotRings);
-                float angle = s * Mathf.PI * 2 / SpotSteps;
-                float theta = Mathf.Sin(angle) * settings.SpotArc * radius;
+                var radius = Mathf.Max(.001f, ring / (float)SpotRings);
+                var angle = s * Mathf.PI * 2 / SpotSteps;
+                var theta = Mathf.Sin(angle) * settings.SpotArc * radius;
                 spotSamples[ring * SpotSamplesPerRing + s] =
                     new Vector3(Mathf.Cos(angle) * settings.SpotLength * radius, Mathf.Sin(theta), Mathf.Cos(theta));
             }
@@ -317,32 +266,32 @@ namespace GardenSnake.Presentation
         private SurfaceFrame EvaluateFrame(float u)
         {
             u = Mathf.Clamp(u, 0, pointCount - 1);
-            int i = Mathf.Min(pointCount - 2, Mathf.FloorToInt(u));
-            float t = u - i;
-            Vector3 center = Center(u);
+            var i = Mathf.Min(pointCount - 2, Mathf.FloorToInt(u));
+            var t = u - i;
+            var center = Center(u);
             float before = Mathf.Max(0, u - .025f), after = Mathf.Min(pointCount - 1, u + .025f);
-            Vector3 forward = (Center(after) - Center(before)) / Mathf.Max(.001f, after - before);
+            var forward = (Center(after) - Center(before)) / Mathf.Max(.001f, after - before);
             forward.y = 0;
             if (forward.sqrMagnitude < .0001f) forward = Vector3.back;
-            Vector3 side = Vector3.Cross(Vector3.up, forward.normalized);
-            float width = Mathf.Lerp(centerlineWidths[i], centerlineWidths[i + 1], Mathf.SmoothStep(0, 1, t));
-            float widthSlope = (centerlineWidths[i + 1] - centerlineWidths[i]) * 6 * t * (1 - t);
+            var side = Vector3.Cross(Vector3.up, forward.normalized);
+            var width = Mathf.Lerp(centerlineWidths[i], centerlineWidths[i + 1], Mathf.SmoothStep(0, 1, t));
+            var widthSlope = (centerlineWidths[i + 1] - centerlineWidths[i]) * 6 * t * (1 - t);
             // Small rounded shoulders distinguish each body part without breaking the skin.
-            float bumpEnvelope = Mathf.SmoothStep(0, 1, u);
-            float bumpEnvelopeSlope = u < 1 ? 6 * u * (1 - u) : 0;
-            float bumpWave = .5f + .5f * Mathf.Cos(u * Mathf.PI * 2);
-            float bump = settings.SegmentBump * bumpEnvelope * bumpWave;
-            float bumpSlope = settings.SegmentBump *
-                (bumpEnvelopeSlope * bumpWave - bumpEnvelope * Mathf.PI * Mathf.Sin(u * Mathf.PI * 2));
+            var bumpEnvelope = Mathf.SmoothStep(0, 1, u);
+            var bumpEnvelopeSlope = u < 1 ? 6 * u * (1 - u) : 0;
+            var bumpWave = .5f + .5f * Mathf.Cos(u * Mathf.PI * 2);
+            var bump = settings.SegmentBump * bumpEnvelope * bumpWave;
+            var bumpSlope = settings.SegmentBump *
+                            (bumpEnvelopeSlope * bumpWave - bumpEnvelope * Mathf.PI * Mathf.Sin(u * Mathf.PI * 2));
             widthSlope = widthSlope * (1 + bump) + width * bumpSlope;
             width *= 1 + bump;
 
             float bulge = 0, bulgeSlope = 0;
             EvaluateBulge(u, center, forward, ref bulge, ref bulgeSlope);
-            float strength = settings.BellyBulge * digestionVisibility;
+            var strength = settings.BellyBulge * digestionVisibility;
             widthSlope = widthSlope * (1 + bulge * strength) + width * bulgeSlope * strength;
             width *= 1 + bulge * strength;
-            return new SurfaceFrame { center = center, forward = forward, side = side, width = width, slope = widthSlope };
+            return new SurfaceFrame { Center = center, Forward = forward, Side = side, Width = width, Slope = widthSlope };
         }
 
         /// <summary>
@@ -351,20 +300,20 @@ namespace GardenSnake.Presentation
         /// </summary>
         private void EvaluateBulge(float u, Vector3 center, Vector3 forward, ref float bulge, ref float bulgeSlope)
         {
-            for (int apple = 0; apple < digestion.Count; apple++)
+            for (var apple = 0; apple < digestion.Count; apple++)
             {
-                float travel = Mathf.Max(0, digestion[apple] + digestionBlend - 1);
+                var travel = Mathf.Max(0, digestion[apple] + digestionBlend - 1);
                 // A nearby parallel stretch must not inherit another stretch's apple.
                 if (Mathf.Abs(u - travel) > 2) continue;
-                Vector3 offset = center - digestionAnchors[apple];
+                var offset = center - digestionAnchors[apple];
                 offset.y = 0;
-                float halfLength = Mathf.Max(.05f, settings.BulgeHalfLength);
-                float distance = offset.magnitude / halfLength;
+                var halfLength = Mathf.Max(.05f, settings.BulgeHalfLength);
+                var distance = offset.magnitude / halfLength;
                 if (distance >= 1) continue;
-                float entrance = Mathf.SmoothStep(0, 1, travel / Mathf.Max(.05f, settings.BulgeEntranceLength));
+                var entrance = Mathf.SmoothStep(0, 1, travel / Mathf.Max(.05f, settings.BulgeEntranceLength));
                 if (finishingDigestion && apple == digestion.Count - 1)
                     entrance *= 1 - Mathf.SmoothStep(0, 1, digestionBlend);
-                float round = (.5f + .5f * Mathf.Cos(distance * Mathf.PI)) * entrance;
+                var round = (.5f + .5f * Mathf.Cos(distance * Mathf.PI)) * entrance;
                 if (round <= bulge) continue;
                 bulge = round;
                 bulgeSlope = -.5f * Mathf.PI / halfLength * Mathf.Sin(distance * Mathf.PI) *
@@ -374,17 +323,17 @@ namespace GardenSnake.Presentation
 
         private SurfaceFrame InterpolateFrame(float u)
         {
-            float sample = Mathf.Clamp(u, 0, pointCount - 1) * samplesPerCell;
-            int i = Mathf.Min((pointCount - 1) * samplesPerCell - 1, Mathf.FloorToInt(sample));
-            float t = sample - i;
+            var sample = Mathf.Clamp(u, 0, pointCount - 1) * samplesPerCell;
+            var i = Mathf.Min((pointCount - 1) * samplesPerCell - 1, Mathf.FloorToInt(sample));
+            var t = sample - i;
             SurfaceFrame a = surfaceFrames[i], b = surfaceFrames[i + 1];
             return new SurfaceFrame
             {
-                center = Vector3.LerpUnclamped(a.center, b.center, t),
-                forward = Vector3.LerpUnclamped(a.forward, b.forward, t),
-                side = Vector3.LerpUnclamped(a.side, b.side, t),
-                width = Mathf.LerpUnclamped(a.width, b.width, t),
-                slope = Mathf.LerpUnclamped(a.slope, b.slope, t)
+                Center = Vector3.LerpUnclamped(a.Center, b.Center, t),
+                Forward = Vector3.LerpUnclamped(a.Forward, b.Forward, t),
+                Side = Vector3.LerpUnclamped(a.Side, b.Side, t),
+                Width = Mathf.LerpUnclamped(a.Width, b.Width, t),
+                Slope = Mathf.LerpUnclamped(a.Slope, b.Slope, t)
             };
         }
 
@@ -392,40 +341,40 @@ namespace GardenSnake.Presentation
         /// One vertex of the tube, and its normal. This is the whole cost of the skin: it runs
         /// once per side per ring, plus once per sample of every marking, so it is written out in
         /// floats rather than Vector3 operators. The maths is unchanged.
-        /// <para>The centreline's forward and side both lie flat, so their Y is always zero.</para>
+        /// <para>The centerline's forward and side both lie flat, so their Y is always zero.</para>
         /// </summary>
         private void Surface(in SurfaceFrame frame, float sin, float cos, float size, float offset)
         {
-            float width = frame.width;
-            float scaled = size * width;
-            float radius = shapeRadius * scaled;
-            float height = shapeHeight * scaled;
-            float sideX = frame.side.x, sideZ = frame.side.z;
-            float lean = size * frame.slope;
+            var width = frame.Width;
+            var scaled = size * width;
+            var radius = shapeRadius * scaled;
+            var height = shapeHeight * scaled;
+            float sideX = frame.Side.x, sideZ = frame.Side.z;
+            var lean = size * frame.Slope;
 
             // Include the rising and falling profile in the lighting, so lumps read as round apples.
-            float radialSin = shapeRadius * sin;
-            float tangentX = frame.forward.x + lean * sideX * radialSin;
-            float tangentY = lean * (shapeCenterHeight + shapeHeight * cos);
-            float tangentZ = frame.forward.z + lean * sideZ * radialSin;
+            var radialSin = shapeRadius * sin;
+            var tangentX = frame.Forward.x + lean * sideX * radialSin;
+            var tangentY = lean * (shapeCenterHeight + shapeHeight * cos);
+            var tangentZ = frame.Forward.z + lean * sideZ * radialSin;
 
-            float radialCos = shapeRadius * cos;
-            float aroundX = sideX * radialCos;
-            float aroundY = -shapeHeight * sin;
-            float aroundZ = sideZ * radialCos;
+            var radialCos = shapeRadius * cos;
+            var aroundX = sideX * radialCos;
+            var aroundY = -shapeHeight * sin;
+            var aroundZ = sideZ * radialCos;
 
-            float nx = tangentY * aroundZ - tangentZ * aroundY;
-            float ny = tangentZ * aroundX - tangentX * aroundZ;
-            float nz = tangentX * aroundY - tangentY * aroundX;
+            var nx = tangentY * aroundZ - tangentZ * aroundY;
+            var ny = tangentZ * aroundX - tangentX * aroundZ;
+            var nz = tangentX * aroundY - tangentY * aroundX;
             // Vector3.normalized collapses to zero below this magnitude; match it exactly.
-            float length = Mathf.Sqrt(nx * nx + ny * ny + nz * nz);
-            if (length > 1e-5f) { float inv = 1f / length; nx *= inv; ny *= inv; nz *= inv; }
+            var length = Mathf.Sqrt(nx * nx + ny * ny + nz * nz);
+            if (length > 1e-5f) { var inv = 1f / length; nx *= inv; ny *= inv; nz *= inv; }
             else { nx = ny = nz = 0f; }
 
-            float push = offset * width;
-            float vx = frame.center.x + sideX * (sin * radius) + nx * push;
-            float vy = frame.center.y + shapeCenterHeight * scaled + cos * height + ny * push;
-            float vz = frame.center.z + sideZ * (sin * radius) + nz * push;
+            var push = offset * width;
+            var vx = frame.Center.x + sideX * (sin * radius) + nx * push;
+            var vy = frame.Center.y + shapeCenterHeight * scaled + cos * height + ny * push;
+            var vz = frame.Center.z + sideZ * (sin * radius) + nz * push;
 
             var vertex = new Vector3(vx, vy, vz);
             var normal = new Vector3(nx, ny, nz);
@@ -435,36 +384,36 @@ namespace GardenSnake.Presentation
 
         private Vector3 Center(float u)
         {
-            Vector3 center = RawCenter(u);
-            for (int apple = 0; apple < digestion.Count; apple++)
+            var center = RawCenter(u);
+            for (var apple = 0; apple < digestion.Count; apple++)
             {
                 // The growing tail already rests on the pickup. Pulling its collapsing
                 // neighbor back toward it would fold the newly forming shoulder.
                 if (finishingDigestion && apple == digestion.Count - 1) continue;
-                float travel = Mathf.Clamp(digestion[apple] + digestionBlend - 1, 0, pointCount - 1);
-                float distance = Mathf.Abs(u - travel) / Mathf.Max(.05f, settings.BulgeHalfLength);
+                var travel = Mathf.Clamp(digestion[apple] + digestionBlend - 1, 0, pointCount - 1);
+                var distance = Mathf.Abs(u - travel) / Mathf.Max(.05f, settings.BulgeHalfLength);
                 if (distance >= 1) continue;
                 // Rounded corners cut inside the grid path. Keep the swallowed apple
                 // pinned while the surrounding skin bends smoothly around its position.
-                float pin = Mathf.SmoothStep(0, 1, travel) * (.5f + .5f * Mathf.Cos(distance * Mathf.PI));
-                Vector3 correction = digestionAnchors[apple] - RawCenter(travel);
+                var pin = Mathf.SmoothStep(0, 1, travel) * (.5f + .5f * Mathf.Cos(distance * Mathf.PI));
+                var correction = digestionAnchors[apple] - RawCenter(travel);
                 correction.y = 0;
-                center += correction * pin * digestionVisibility;
+                center += correction * (pin * digestionVisibility);
             }
             return center;
         }
 
         private Vector3 RawCenter(float u)
         {
-            int i = Mathf.Min(pointCount - 2, Mathf.FloorToInt(u));
-            float t = u - i;
+            var i = Mathf.Min(pointCount - 2, Mathf.FloorToInt(u));
+            var t = u - i;
             Vector3 a = centerline[Mathf.Max(0, i - 1)], b = centerline[i];
             Vector3 c = centerline[i + 1], d = centerline[Mathf.Min(pointCount - 1, i + 2)];
             // Restrained Hermite tangents round corners without swinging into adjacent cells.
             Vector3 m0 = (c - a) * settings.CurveTension, m1 = (d - b) * settings.CurveTension;
             // A new tail cell initially shares its neighbor's old position. Prevent spline
             // tangents from folding that short span back through the skin during growth.
-            float span = Vector3.Distance(b, c);
+            var span = Vector3.Distance(b, c);
             m0 = Vector3.ClampMagnitude(m0, span);
             m1 = Vector3.ClampMagnitude(m1, span);
             return (2 * t * t * t - 3 * t * t + 1) * b + (t * t * t - 2 * t * t + t) * m0 +
@@ -475,6 +424,56 @@ namespace GardenSnake.Presentation
         {
             if (mesh != null) Destroy(mesh);
             if (ownsSettings && settings != null) Destroy(settings);
+        }
+
+        /// <summary>How much bigger each part is drawn than the shared centerline width of 1.</summary>
+        public readonly struct SegmentScales
+        {
+            public readonly float Head;
+            public readonly float Body;
+            public readonly float Tail;
+
+            public SegmentScales(float head, float body, float tail)
+            {
+                Head = head;
+                Body = body;
+                Tail = tail;
+            }
+        }
+
+        /// <summary>The swallowed apples the skin should bulge around this frame.</summary>
+        public readonly struct Digestion
+        {
+            /// <summary>Each apple's travel along the body, measured in body indices.</summary>
+            public readonly IReadOnlyList<float> Progress;
+            /// <summary>Where each apple was swallowed, in world space, so the lump stays put.</summary>
+            public readonly IReadOnlyList<Vector3> Anchors;
+            /// <summary>How far into the current movement step the snake is, 0 to 1.</summary>
+            public readonly float StepBlend;
+            /// <summary>Fades every lump out together, so a dying snake stops digesting.</summary>
+            public readonly float Visibility;
+            /// <summary>The last entry is a lump settling into the tail cell that grew this step.</summary>
+            public readonly bool Finishing;
+
+            public Digestion(IReadOnlyList<float> progress, IReadOnlyList<Vector3> anchors,
+                float stepBlend, float visibility, bool finishing)
+            {
+                Progress = progress;
+                Anchors = anchors;
+                StepBlend = stepBlend;
+                Visibility = visibility;
+                Finishing = finishing;
+            }
+        }
+
+        /// <summary>One ring of the extruded tube: where it sits, which way it points, how wide it is.</summary>
+        private struct SurfaceFrame
+        {
+            public Vector3 Center;
+            public Vector3 Forward;
+            public Vector3 Side;
+            public float Width;
+            public float Slope;
         }
     }
 }
