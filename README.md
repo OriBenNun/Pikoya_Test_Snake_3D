@@ -45,5 +45,6 @@ Third-party code is quarantined in `Assets/Externals`.
 ## More
 
 - `TUNING.md` — what every tunable does
-- `Docs/TechnicalNotes.md` — asset provenance, AI disclosure, next steps
+- `Docs/Technical Notes.md` — stack, asset provenance, AI usage, next steps
+- `Docs/AI Usage Documentation.md` — the full prompt log
 - `Tools/Harness/gs.py` — drives the Editor from a terminal for scripted testing

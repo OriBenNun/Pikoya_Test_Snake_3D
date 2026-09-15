@@ -61,5 +61,5 @@ MonoBehaviour:
   highlightRadii: {x: 51, y: 53}
   highlightAngle: 60
   highlightSweep: 80
-  discSegments: 40
-  arcSegmentDegrees: 5
+  discSegments: 96
+  arcSegmentDegrees: 2

@@ -76,7 +76,7 @@ UnityEngine.StackTraceUtility:ExtractStringFromExceptionInternal(Object, String&
 
 there are still visible lags, especially when growing. use profiler to diagnose and fix it
 
-### [After went out of tokens during a webgl build bash which i finished manually]:
+### [After it ran out of tokens during a webgl build bash which i finished manually]:
 
 the webgl is open at http://localhost:50784/ (open in chrome). run a final verification pass, ***fix bugs, then wrap up (including editor code tools cleanup before i start manual changes in scenes and prefabs), commit and push***
 
@@ -84,7 +84,7 @@ the webgl is open at http://localhost:50784/ (open in chrome). run a final verif
 
 it didn't happen to me when i used Build And Run, check your playwright settings first
 
-*... [Claude understanding its mistake, but claiming the index.html change to allow responsiveness is a good one, so i pushed back]*
+*... [Claude understood its mistake, but claimed the index.html change to allow responsiveness is a good one, so i pushed back]*
 
 ok, but the fix shouldn't come from changing the build output. change the player settings instead.
 
@@ -107,7 +107,7 @@ implement all improvements, test it in playmode, identify issues and possible im
 
 dont forget to commit as you go
 
-### [quick steer at 5 mins, after seeing Astra starts writing unit tests]:
+### [quick steer at 5 mins, after seeing Astra start writing unit tests]:
 
 no need for unitesting, keep it in memory, playtime tests and captures is the reliable way to verify integrity
 
@@ -176,7 +176,7 @@ the mouth should get stupidly big before eating (make it funny and silly), and t
 
 when mouth is fully open, there's a big visual gap between the body and the head that doesn't look good. fix it by setting the head pivot point correctly, or by extending the body to the head (less optimized) [Image #1]
 
-## [once i was pleased with the polish level for now and everything works as expected, I look at the project codebase architecture and re-designed it by myself. Opus 5 High]:
+## [once i was pleased with the polish level for now and everything worked as expected, i looked at the project codebase architecture and re-designed it by myself. Opus 5 High]:
 
 architectural and codebase refactor:
 
@@ -232,7 +232,7 @@ btw - Codex is working on the blender files in parallel - ignore it
 
 ## [in parallel, told Astra High to improve the models one last time]:
 
-do a 3d models sweep - go over all the⠁game's models (not the external packages' ones) one by one and look for possible improvements, then implement them using Blender⡀CLI (and Computer-Use skills when needed) and replace the current assets.
+do a 3d models sweep - go over all the game's models (not the external packages' ones) one by one and look for possible improvements, then implement them using Blender CLI (and Computer-Use skills when needed) and replace the current assets.
 
 important: Claude is working on the repo and committing in parallel. don't interfere, don't touch Unity directly, just the models.
 
@@ -250,7 +250,7 @@ also, of course you should improve the materials as well. btw - Claude is paused
 
 seperate the GardenAnimal monolith into small classes by species inheriting from abstract GardenAnimal
 
-## [more refactor after started manually going through the codebase, Opus 5 High]:
+## [more refactor after i started manually going through the codebase, Opus 5 High]:
 
 1. no need for GameCameraRig. the framing thing will be driven by the resolution settings on the player settings. just lerp zoom in and out using coroutines on the GameLoopManager (or another, more fitting manager)
 2. no need for live tuning capabilities. if it simplify things - make it work only when changing while not in play mode
@@ -295,3 +295,9 @@ change default resolution to 1080p
 ### [more polish]:
 
 i want the pickup pitch levels to increase more than 5 or 6 times. change it to 20 and make sure the logic actually supports it
+
+### [last polish]:
+speed gauge is rendered too pixelated. im trying to scale it but it shrinks down on Awake.
+
+### [continued]:
+still scales down to 1 when entering play. in the scene it's 1.5 on all axes

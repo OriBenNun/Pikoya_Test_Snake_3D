@@ -75,7 +75,9 @@ namespace GardenSnake.Presentation.Hud
         public float highlightSweep = 80;
 
         [Header("Mesh quality")]
-        [Range(8, 128)] public int discSegments = 40;
-        [Range(1, 30)] public float arcSegmentDegrees = 5;
+        [Tooltip("Sides on each circle. Raise this when the dial is scaled up, or the rim reads as a polygon.")]
+        [Range(8, 128)] public int discSegments = 96;
+        [Tooltip("Degrees per arc slice. Lower is smoother.")]
+        [Range(1, 30)] public float arcSegmentDegrees = 2;
     }
 }

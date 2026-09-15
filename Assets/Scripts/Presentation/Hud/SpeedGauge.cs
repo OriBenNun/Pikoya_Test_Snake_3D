@@ -27,6 +27,8 @@ namespace GardenSnake.Presentation.Hud
         private float drawnDisplayed = float.NaN;
         private float drawnKick = float.NaN;
         private int shownSpeed = -1;
+        private Vector3 baseScale = Vector3.one;
+        private bool stretching;
         private PaceBand? shownBand;
 
         /// <summary>The HUD hands the gauge the loop it should read; it looks nothing up itself.</summary>
@@ -88,7 +90,7 @@ namespace GardenSnake.Presentation.Hud
             velocity += ((target - displayed) * spring * spring - damping * spring * velocity) * dt;
             displayed = Mathf.Clamp(displayed + velocity * dt, -dial.needleOvershoot, 1 + dial.needleOvershoot);
             kick = Mathf.MoveTowards(kick, 0, dt * dial.kickDecay);
-            rectTransform.localScale = new Vector3(1 + kick * dial.kickStretch.x, 1 + kick * dial.kickStretch.y, 1);
+            Stretch();
             var speed = Mathf.RoundToInt(10 / loop.StepSeconds);
             if (shownSpeed != speed)
             {
@@ -108,6 +110,31 @@ namespace GardenSnake.Presentation.Hud
             drawnDisplayed = displayed;
             drawnKick = kick;
             SetVerticesDirty();
+        }
+
+        /// <summary>
+        /// Squashes the dial while a kick is ringing and then gets out of the way. The authored scale is
+        /// sampled on the first frame of a kick rather than in Awake, so whatever set it — the scene, a
+        /// layout pass, a parent rebuild — has already had its say by the time we read it.
+        /// </summary>
+        private void Stretch()
+        {
+            if (kick <= 0)
+            {
+                if (!stretching) return;
+                stretching = false;
+                rectTransform.localScale = baseScale;
+                return;
+            }
+            if (!stretching)
+            {
+                stretching = true;
+                baseScale = rectTransform.localScale;
+            }
+            rectTransform.localScale = new Vector3(
+                baseScale.x * (1 + kick * dial.kickStretch.x),
+                baseScale.y * (1 + kick * dial.kickStretch.y),
+                baseScale.z);
         }
 
         private PaceBand BandFor(float pace, bool paused) =>
