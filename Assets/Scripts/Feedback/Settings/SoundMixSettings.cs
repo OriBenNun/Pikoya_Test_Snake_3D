@@ -24,10 +24,10 @@ namespace GardenSnake
 
         [Header("Pickup")]
         [Range(.1f, 3)] public float pickupPitch = 1;
-        [Min(1), Tooltip("Pickups climb a short scale, then start it again.")]
-        public int pickupPitchCycle = 6;
+        [Min(1), Tooltip("How many pickups the scale climbs before it starts again.")]
+        public int pickupPitchCycle = 20;
         [Min(0), Tooltip("How far up that scale each apple steps.")]
-        public float pickupPitchIncrement = .045f;
+        public float pickupPitchIncrement = .03f;
         [Range(0, 1)] public float pickupVolume = .6f;
 
         [Header("Record")]
@@ -40,5 +40,17 @@ namespace GardenSnake
         [Header("Death")]
         [Range(.1f, 3)] public float losePitch = 1;
         [Range(0, 1)] public float loseVolume = .55f;
+
+        /// <summary>
+        /// The pitch the apple at this score plays at: one step per apple up a scale
+        /// <see cref="pickupPitchCycle"/> steps long, clamped to what an AudioSource can play.
+        /// </summary>
+        public float PickupPitch(int score) =>
+            Mathf.Clamp(
+                pickupPitch + Mathf.Max(0, score) % Mathf.Max(1, pickupPitchCycle) * pickupPitchIncrement,
+                MinPitch, MaxPitch);
+
+        /// <summary>AudioSource plays no slower or faster than this, so the scale stops here too.</summary>
+        private const float MinPitch = .1f, MaxPitch = 3f;
     }
 }

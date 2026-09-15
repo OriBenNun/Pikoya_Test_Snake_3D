@@ -19,8 +19,8 @@ MonoBehaviour:
   clickPitch: 1
   clickVolume: 0.35
   pickupPitch: 1
-  pickupPitchCycle: 6
-  pickupPitchIncrement: 0.045
+  pickupPitchCycle: 20
+  pickupPitchIncrement: 0.03
   pickupVolume: 0.6
   bestPitch: 1
   bestVolume: 0.45
