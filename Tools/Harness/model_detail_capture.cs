@@ -77,4 +77,4 @@ tick = () => {
     }
 };
 EditorApplication.update += tick;
-return GardenSnake.Editor.GardenPlaytest.Run("model-sweep-final", 20, 2);
+return "capturing";

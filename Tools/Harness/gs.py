@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Garden Snake playtest harness.
+"""Garden Snake editor harness.
 
 Drives the live Unity Editor through the Unity CLI pipeline: enters Play mode,
 sends real Input System events, reads simulation state, and captures the
@@ -229,23 +229,6 @@ def main():
         print(json.dumps(unwrap(cli("editor_status")), indent=1))
     elif verb == "compile":
         print(compile_project())
-    elif verb == "playtest":
-        label = args[0] if args else "run"
-        seconds = float(args[1]) if len(args) > 1 else 30
-        every = float(args[2]) if len(args) > 2 else 2.5
-        playmode(False)
-        compile_project()
-        playmode(True)
-        time.sleep(1.5)
-        print(evaluate(f'return GardenSnake.Editor.GardenPlaytest.Run("{label}", {seconds}f, {every}f);'))
-        deadline = time.time() + seconds + 40
-        while time.time() < deadline:
-            time.sleep(4)
-            report = evaluate("return GardenSnake.Editor.GardenPlaytest.Status();")
-            if report and not report.startswith("running"):
-                print(report)
-                return
-        raise SystemExit("playtest did not finish")
     elif verb == "recompile":
         print(compile_project())
     else:
