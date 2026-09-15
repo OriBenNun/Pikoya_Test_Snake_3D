@@ -1,6 +1,0 @@
-- main [ref=f1e1]:
-  - generic "Garden Snake. Use arrow keys or WASD to steer. Space starts; P pauses; M toggles sound." [ref=f1e2]
-  - generic:
-    - heading "garden snake" [level=1]
-    - paragraph: Planting your little garden...
-    - progressbar
