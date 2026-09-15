@@ -13,6 +13,7 @@ be dragged while playing, and Play Mode edits to scene components are discarded 
 | `Assets/Tuning/…` | What it holds |
 | --- | --- |
 | `Run Rules` | Starting length, turn buffer, first apple distance, frame rate, restart delay |
+| `Animal Motion` | What every garden animal shares: pace, reactions, breathing, glances, limbs |
 | `Swipe` | What counts as a swipe, in pixels and as a fraction of screen height |
 | `Snake Skin` | Head/body/tail proportions, body shape, markings, digestion bulge, mesh quality, optional material overrides |
 | `Snake Mouth` | Anticipation, jaw speed, the swallow, the excited eyes, and the geometry of every soft piece of the face |
@@ -70,10 +71,15 @@ frame moving the snake through several cells unseen.
 
 ## Framing
 
-There is no camera rig. The garden is framed by the resolution in Player Settings (1600 x 900), and
-the camera in the scene is authored to fill it - its orthographic size *is* the framing while a run
-is going. `FeedbackManager` only eases that size between two values with a coroutine: pushed in
-while playing, sitting back by `Resting Zoom` on the menus, on a pause and after a death.
+There is no camera rig. The garden is authored against the resolution in Player Settings
+(1920 x 1080), which the HUD canvas also scales from, and the camera in the scene is authored to
+fill it. `GardenCamera` owns the framing from there: it measures the board's corners and pulls the
+orthographic size back when the window is squarer than 16:9, so a resized browser or a phone in
+landscape still sees the whole board, and never sits tighter than the authored size. `Margin` is
+the headroom it keeps around the board in cells.
+
+`FeedbackManager` eases on top of that, between two values with a coroutine: pushed in while
+playing, sitting back by `Resting Zoom` on the menus, on a pause and after a death.
 
 ## Verification
 
@@ -81,13 +87,15 @@ The harness requires a connected Unity Editor.
 
 ```powershell
 python Tools/Harness/gs.py compile
-python Tools/Harness/gs.py playtest tuning 40 4
+python Tools/Harness/gs.py play
+python Tools/Harness/gs.py key Space
+python Tools/Harness/gs.py shot tuning
 ```
 
-That plays the game unattended with real Input System events and writes a filmstrip to
-`Artifacts/shots` plus a report to `Artifacts/playtest.txt`. For frame cost and garbage, run
-`Tools/Harness/perf_probe.cs` during the session; `Tools/Harness/alloc_hunt.cs` attributes
-allocation to one system at a time when the number looks wrong.
+That drives the game with real Input System events and captures the Game view to `Artifacts/shots`.
+For frame cost and garbage, run `Tools/Harness/perf_probe.cs` during the session;
+`Tools/Harness/alloc_hunt.cs` attributes allocation to one system at a time when the number looks
+wrong.
 
 The snake skin is the only thing whose cost grows with the run, so `Tools/Harness/skin_load.cs`
 stages fixed body lengths and measures it, including the frame the body grows on. Mesh quality
