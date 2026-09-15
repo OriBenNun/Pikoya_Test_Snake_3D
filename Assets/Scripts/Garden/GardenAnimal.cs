@@ -14,7 +14,6 @@ namespace GardenSnake.Garden
     /// </summary>
     public abstract class GardenAnimal : GardenDweller
     {
-        public enum Activity { Rest, Fly, Hop, Graze, Crawl, Hide }
         [Header("Rig")]
         [SerializeField] private Transform body, head;
         [SerializeField] private Transform[] limbs = System.Array.Empty<Transform>();
@@ -27,26 +26,6 @@ namespace GardenSnake.Garden
         [SerializeField] private AnimalMotionSettings motion;
         [SerializeField, Tooltip("The asset for this animal's own kind.")]
         private AnimalSpeciesSettings species;
-
-        public Activity State { get; private set; }
-        public int FlightCount { get; private set; }
-        public int RestCount { get; private set; }
-        /// <summary>Where this frame sits in whatever the animal is currently doing.</summary>
-        protected readonly struct FramePhase
-        {
-            /// <summary>0 to 1 through the current activity.</summary>
-            public readonly float T;
-            /// <summary>The animal's own tempo-scaled clock, offset so no two move in step.</summary>
-            public readonly float Clock;
-            public readonly bool Moving;
-
-            public FramePhase(float t, float clock, bool moving)
-            {
-                T = t;
-                Clock = clock;
-                Moving = moving;
-            }
-        }
 
         private Vector3 bodyScale;
         private Vector3 headScale;
@@ -67,8 +46,7 @@ namespace GardenSnake.Garden
         private Beat pendingBeat;
         private bool destinationB;
 
-        /// <summary>The animal is going somewhere, however it happens to get there.</summary>
-        private bool Moving => State is Activity.Fly or Activity.Hop or Activity.Crawl;
+        public Activity State { get; private set; }
 
         /// <summary>Where the current trip started.</summary>
         protected Vector3 From { get; private set; }
@@ -88,9 +66,6 @@ namespace GardenSnake.Garden
         /// <summary>This animal's own kind. A species reads its own asset through this.</summary>
         protected AnimalSpeciesSettings Species => species;
 
-        /// <summary>The asset this species falls back to when its slot is empty.</summary>
-        protected abstract AnimalSpeciesSettings DefaultSpecies();
-
         // Species hooks. Everything a single kind of animal does is reached through one of these.
 
         /// <summary>What this species is doing while it travels.</summary>
@@ -101,6 +76,20 @@ namespace GardenSnake.Garden
 
         /// <summary>Whether it sets off as soon as the garden loads instead of resting first.</summary>
         protected virtual bool StartsTravelling => false;
+
+        /// <summary>Where the animal stands once the trip is over.</summary>
+        protected virtual Vector3 ArrivalPosition => Destination;
+
+        /// <summary>How far the head is drawn in, 1 being fully out.</summary>
+        protected virtual float HeadTuck => 1f;
+
+        protected virtual Vector3 HeadTuckOffset => Vector3.zero;
+
+        /// <summary>The animal is going somewhere, however it happens to get there.</summary>
+        private bool Moving => State is Activity.Fly or Activity.Hop or Activity.Crawl;
+
+        /// <summary>The asset this species falls back to when its slot is empty.</summary>
+        protected abstract AnimalSpeciesSettings DefaultSpecies();
 
         /// <summary>Cache any species-specific rest pose. Runs before the first activity is chosen.</summary>
         protected virtual void OnAwake() { }
@@ -113,9 +102,6 @@ namespace GardenSnake.Garden
 
         /// <summary>Reshapes the trip length once the destination is known; a hopper counts hops.</summary>
         protected virtual float TravelDuration(float seconds) => seconds;
-
-        /// <summary>Where the animal stands once the trip is over.</summary>
-        protected virtual Vector3 ArrivalPosition => Destination;
 
         /// <summary>A beat arrived. Return true to keep this response instead of the usual bolt.</summary>
         protected virtual bool Startle(Beat beat, float strength) => false;
@@ -146,11 +132,6 @@ namespace GardenSnake.Garden
 
         protected virtual float BodyRoll(in FramePhase frame) => 0;
 
-        /// <summary>How far the head is drawn in, 1 being fully out.</summary>
-        protected virtual float HeadTuck => 1f;
-
-        protected virtual Vector3 HeadTuckOffset => Vector3.zero;
-
         /// <summary>Head pitch from feeding or idling.</summary>
         protected virtual float HeadNod(in FramePhase frame) =>
             Mathf.Sin(frame.Clock * motion.idleNodFrequency) * motion.idleNodAmplitude;
@@ -171,33 +152,6 @@ namespace GardenSnake.Garden
 
         // Shared behaviour.
 
-        private void Awake()
-        {
-            motion = Tuning.Or(motion);
-            species = species != null ? species : DefaultSpecies();
-            random = new System.Random(motion.randomSeed + Mathf.RoundToInt(phase * motion.phaseSeedMultiplier));
-            tempo = Range(motion.tempoRange.x, motion.tempoRange.y);
-            bodyScale = body.localScale;
-            bodyPosition = body.localPosition;
-            bodyRotation = body.localRotation;
-            headScale = head.localScale;
-            headPosition = head.localPosition;
-            headRotation = head.localRotation;
-            limbRest = new Quaternion[limbs.Length];
-            limbPositions = new Vector3[limbs.Length];
-            for (int i = 0; i < limbs.Length; i++)
-            {
-                limbRest[i] = limbs[i].localRotation;
-                limbPositions[i] = limbs[i].localPosition;
-            }
-            OnAwake();
-            State = Activity.Rest;
-            duration = Mathf.Max(.001f, Range(motion.initialRestMinimum, species.restSeconds * motion.initialRestMaximumMultiplier));
-            From = Destination = transform.position;
-            if (StartsTravelling) BeginTravel();
-            else RestCount++;
-        }
-
         protected override void React(Beat beat, Vector3 at, float strength)
         {
             pendingBeat = beat;
@@ -217,18 +171,31 @@ namespace GardenSnake.Garden
             duration = Mathf.Max(.001f, seconds);
         }
 
-        private void BeginTravel()
+        private void Awake()
         {
-            From = transform.position;
-            destinationB = !destinationB;
-            Destination = ChooseDestination(destinationB);
-            elapsed = 0;
-            // An excited animal covers the same ground in less time.
-            duration = species.travelSeconds * Range(motion.travelDurationRange.x, motion.travelDurationRange.y)
-                / Mathf.Max(.001f, 1 + excitement * motion.travelExcitementSpeed);
-            duration = Mathf.Max(.001f, TravelDuration(duration));
-            State = TravelActivity;
-            if (State == Activity.Fly) FlightCount++;
+            motion = Tuning.Or(motion);
+            species = species != null ? species : DefaultSpecies();
+            // Drawn per animal and per session, so the garden never replays the same choreography.
+            random = new System.Random(Random.Range(int.MinValue, int.MaxValue));
+            tempo = Range(motion.tempoRange.x, motion.tempoRange.y);
+            bodyScale = body.localScale;
+            bodyPosition = body.localPosition;
+            bodyRotation = body.localRotation;
+            headScale = head.localScale;
+            headPosition = head.localPosition;
+            headRotation = head.localRotation;
+            limbRest = new Quaternion[limbs.Length];
+            limbPositions = new Vector3[limbs.Length];
+            for (int i = 0; i < limbs.Length; i++)
+            {
+                limbRest[i] = limbs[i].localRotation;
+                limbPositions[i] = limbs[i].localPosition;
+            }
+            OnAwake();
+            State = Activity.Rest;
+            duration = Mathf.Max(.001f, Range(motion.initialRestMinimum, species.restSeconds * motion.initialRestMaximumMultiplier));
+            From = Destination = transform.position;
+            if (StartsTravelling) BeginTravel();
         }
 
         private void Update()
@@ -248,6 +215,19 @@ namespace GardenSnake.Garden
             AnimateHead(frame, pitch, delta, out float nod);
             AnimateLimbs(frame, delta);
             AnimateAppendages(frame, nod, delta);
+        }
+
+        private void BeginTravel()
+        {
+            From = transform.position;
+            destinationB = !destinationB;
+            Destination = ChooseDestination(destinationB);
+            elapsed = 0;
+            // An excited animal covers the same ground in less time.
+            duration = species.travelSeconds * Range(motion.travelDurationRange.x, motion.travelDurationRange.y)
+                / Mathf.Max(.001f, 1 + excitement * motion.travelExcitementSpeed);
+            duration = Mathf.Max(.001f, TravelDuration(duration));
+            State = TravelActivity;
         }
 
         /// <summary>A beat struck a moment ago has now travelled far enough to reach this animal.</summary>
@@ -271,7 +251,6 @@ namespace GardenSnake.Garden
             if (!Moving) { BeginTravel(); return; }
             transform.position = ArrivalPosition;
             State = RestActivity;
-            RestCount++;
             elapsed = 0;
             duration = Mathf.Max(.001f, species.restSeconds * Range(motion.restDurationRange.x, motion.restDurationRange.y));
         }
@@ -337,6 +316,25 @@ namespace GardenSnake.Garden
                 AdjustLimbPosition(ref local);
                 limbs[i].localPosition = Vector3.Lerp(limbs[i].localPosition, local,
                     1 - Mathf.Exp(-delta * motion.limbPositionResponse));
+            }
+        }
+
+        public enum Activity { Rest, Fly, Hop, Graze, Crawl, Hide }
+
+        /// <summary>Where this frame sits in whatever the animal is currently doing.</summary>
+        protected readonly struct FramePhase
+        {
+            /// <summary>0 to 1 through the current activity.</summary>
+            public readonly float T;
+            /// <summary>The animal's own tempo-scaled clock, offset so no two move in step.</summary>
+            public readonly float Clock;
+            public readonly bool Moving;
+
+            public FramePhase(float t, float clock, bool moving)
+            {
+                T = t;
+                Clock = clock;
+                Moving = moving;
             }
         }
     }

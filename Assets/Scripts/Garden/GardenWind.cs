@@ -8,9 +8,13 @@ namespace GardenSnake.Garden
     /// <summary>Position-phased wind and travelling feedback gusts, with rooted vegetation pivots.</summary>
     public sealed class GardenWind : GardenDweller
     {
-        [Header("Vegetation")]
-        [SerializeField, Tooltip("The plants that sway. Anything the garden names as a plant is added to these on start.")]
-        private Transform[] stems;
+        private const string SproutPrefix = "Sprout";
+
+        // Which objects in the scene count as vegetation. Not settings: these are the names the
+        // garden was authored with, and the wind finds nothing if they stop matching.
+        private static readonly string[] PlantNames =
+            { "Tree", "Bush", "Tulip", "Daisy", "Lavender", "Flower", "Grass tuft" };
+
         [Header("Wind")]
         [SerializeField, Range(0f, 20f), Tooltip("How far the meadow leans in the wind. 0 stills it completely.")]
         private float amplitude = 7f;
@@ -20,17 +24,31 @@ namespace GardenSnake.Garden
         [Header("Tuning")]
         [SerializeField] private WindSettings wind;
 
-        // Which objects in the scene count as vegetation. Not settings: these are the names the
-        // garden was authored with, and the wind finds nothing if they stop matching.
-        private static readonly string[] PlantNames =
-            { "Tree", "Bush", "Tulip", "Daisy", "Lavender", "Flower", "Grass tuft" };
-        private const string SproutPrefix = "Sprout";
-
+        private Transform[] stems;
         private Quaternion[] rest;
         private float[] pulseAt;
         private float[] pulseStrength;
         private float[] weight;
-        public int MovingCount => stems == null ? 0 : stems.Length;
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            if (rest == null) return;
+            for (int i = 0; i < stems.Length; i++) if (stems[i] != null) stems[i].localRotation = rest[i];
+        }
+
+        protected override void React(Beat beat, Vector3 at, float strength)
+        {
+            if (pulseAmplitude <= 0) return;
+            float signed = strength * (beat == Beat.Death ? wind.deathStrength : 1f);
+            for (int i = 0; i < stems.Length; i++)
+            {
+                if (stems[i] == null) continue;
+                float distance = Vector3.Distance(stems[i].position, at);
+                pulseAt[i] = Time.time + TravelTime(distance, wind.propagationSpeed);
+                pulseStrength[i] = Carried(signed, distance, wind.distanceFalloff);
+            }
+        }
 
         private void Awake()
         {
@@ -55,26 +73,6 @@ namespace GardenSnake.Garden
                 // Reading Transform.name marshals a fresh string out of the engine every time.
                 string plant = stems[i].name;
                 weight[i] = plant == "Tree" ? wind.treeWeight : plant == "Bush" ? wind.bushWeight : wind.plantWeight;
-            }
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            if (rest == null) return;
-            for (int i = 0; i < stems.Length; i++) if (stems[i] != null) stems[i].localRotation = rest[i];
-        }
-
-        protected override void React(Beat beat, Vector3 at, float strength)
-        {
-            if (pulseAmplitude <= 0) return;
-            float signed = strength * (beat == Beat.Death ? wind.deathStrength : 1f);
-            for (int i = 0; i < stems.Length; i++)
-            {
-                if (stems[i] == null) continue;
-                float distance = Vector3.Distance(stems[i].position, at);
-                pulseAt[i] = Time.time + TravelTime(distance, wind.propagationSpeed);
-                pulseStrength[i] = Carried(signed, distance, wind.distanceFalloff);
             }
         }
 

@@ -11,10 +11,6 @@ namespace GardenSnake.Garden
     public sealed class AnimalMotionSettings : ScriptableObject
     {
         [Header("Variation")]
-        [Tooltip("Seed every animal draws its own variation from.")]
-        public int randomSeed = 7919;
-        [Tooltip("Mixed with each animal's authored phase so no two draw the same numbers.")]
-        public int phaseSeedMultiplier = 104729;
         [Tooltip("Slowest and fastest an animal's own clock may run.")]
         public Vector2 tempoRange = new(.72f, 1.3f);
         [Min(0f), Tooltip("Shortest wait before an animal first sets off.")]

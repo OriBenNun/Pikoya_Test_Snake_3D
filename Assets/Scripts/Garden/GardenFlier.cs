@@ -1,4 +1,3 @@
-using GardenSnake.Gameplay;
 using UnityEngine;
 
 namespace GardenSnake.Garden
