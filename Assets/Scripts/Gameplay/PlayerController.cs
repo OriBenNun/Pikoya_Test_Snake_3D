@@ -59,7 +59,7 @@ namespace GardenSnake
             }
             if (trackingSwipe && pointer.press.isPressed)
             {
-                Vector2 delta = pointer.position.ReadValue() - pointerStart;
+                var delta = pointer.position.ReadValue() - pointerStart;
                 if (delta.magnitude >= Mathf.Max(swipe.minimumPixels, Screen.height * swipe.screenHeightFraction))
                 {
                     TurnRequested?.Invoke(Mathf.Abs(delta.x) > Mathf.Abs(delta.y)

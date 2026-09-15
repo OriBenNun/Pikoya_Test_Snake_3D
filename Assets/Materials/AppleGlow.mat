@@ -25,7 +25,7 @@ Material:
   - MOTIONVECTORS
   - DepthOnly
   - SHADOWCASTER
-  m_LockedProperties: 
+  m_LockedProperties: _BaseMap
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -244,8 +244,8 @@ Material:
     - _ZoomUvAmount: 0.5
     m_Colors:
     - _AlphaOutlineColor: {r: 1, g: 1, b: 1, a: 1}
-    - _BaseColor: {r: 3.3215687, g: 1.9901962, b: 0.8372549, a: 1}
-    - _Color: {r: 3.321569, g: 1.9901962, b: 0.8372549, a: 1}
+    - _BaseColor: {r: 1, g: 0.99328375, b: 0.3537736, a: 1}
+    - _Color: {r: 1, g: 0.9932837, b: 0.35377356, a: 1}
     - _ColorChangeNewCol: {r: 1, g: 1, b: 0, a: 1}
     - _ColorChangeNewCol2: {r: 1, g: 1, b: 0, a: 1}
     - _ColorChangeNewCol3: {r: 1, g: 1, b: 0, a: 1}
