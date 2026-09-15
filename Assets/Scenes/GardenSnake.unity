@@ -28456,8 +28456,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 3
       minMaxState: 3
-      scalar: 1.5
-      minScalar: 0.7
+      scalar: 2
+      minScalar: 1
       maxCurve:
         serializedVersion: 2
         m_Curve: []
@@ -28555,8 +28555,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 3
       minMaxState: 3
-      scalar: 0.3
-      minScalar: 0.15
+      scalar: 0.4
+      minScalar: 0.25
       maxCurve:
         serializedVersion: 2
         m_Curve: []
@@ -28663,7 +28663,7 @@ ParticleSystem:
     gravityModifier:
       serializedVersion: 3
       minMaxState: 0
-      scalar: -0.12
+      scalar: -0.13
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -28778,7 +28778,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 3
       minMaxState: 0
-      scalar: 10
+      scalar: 5
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -28795,7 +28795,7 @@ ParticleSystem:
     rateOverDistance:
       serializedVersion: 3
       minMaxState: 0
-      scalar: 2
+      scalar: 5
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -80269,8 +80269,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 0.99215686, b: 0.9490196, a: 0.6}
-      maxColor: {r: 1, g: 0.7882353, b: 0.23529412, a: 0.2509804}
+      minColor: {r: 1, g: 0.99215686, b: 0.9490196, a: 0.5019608}
+      maxColor: {r: 1, g: 0.7882353, b: 0.23529412, a: 0.2}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -80557,7 +80557,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 3
       minMaxState: 0
-      scalar: 15
+      scalar: 5
       minScalar: 10
       maxCurve:
         serializedVersion: 2
