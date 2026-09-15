@@ -21,16 +21,10 @@ namespace GardenSnake
     [DefaultExecutionOrder(-50)]
     public sealed class FeedbackManager : MonoBehaviour
     {
-        /// <summary>The Feel players, one per beat. Wiring, not tuning.</summary>
-        [System.Serializable]
-        public sealed class FeelPlayers
-        {
-            public MMF_Player pickup;
-            public MMF_Player death;
-            public MMF_Player runStart;
-            public MMF_Player newBest;
-            public MMF_Player recordApple;
-        }
+        /// <summary>Age given to a burst that is over, so it never replays on its own.</summary>
+        private const float Finished = 99f;
+
+        private static readonly int BaseColorProperty = Shader.PropertyToID("_BaseColor");
 
         [Header("Observed")]
         [SerializeField] private GameLoopManager loop;
@@ -65,18 +59,14 @@ namespace GardenSnake
         [SerializeField, Range(.05f, 2f), Tooltip("Seconds the camera takes to push in on a run, and to settle back after it.")]
         private float zoomSeconds = .45f;
 
-        /// <summary>Age given to a burst that is over, so it never replays on its own.</summary>
-        private const float Finished = 99f;
-
-        private static readonly int BaseColorProperty = Shader.PropertyToID("_BaseColor");
-
         private Material burstMaterial;
-        /// <summary>The ring's authored colour; only its alpha moves.</summary>
+        /// <summary>The ring's authored color; only its alpha moves.</summary>
         private Color burstTint;
         private float burstAge = Finished;
         private bool burstShown;
-        /// <summary>The framing the scene was authored at; the player settings decide the window.</summary>
+        /// <summary>The framing to play at. <see cref="GardenCamera"/> owns it; the window can move it.</summary>
         private float playingSize;
+        private GardenCamera framing;
         private float zoomTarget;
         private Coroutine zooming;
 
@@ -90,7 +80,8 @@ namespace GardenSnake
             burstTint = burstMaterial.GetColor(BaseColorProperty);
             burstShown = burstRing.gameObject.activeSelf;
             if (view == null) return;
-            playingSize = view.orthographicSize;
+            framing = view.GetComponent<GardenCamera>();
+            playingSize = framing != null ? framing.Size : view.orthographicSize;
             zoomTarget = playingSize * restingZoom;
             view.orthographicSize = zoomTarget;
         }
@@ -105,6 +96,7 @@ namespace GardenSnake
             loop.Clicked += OnClicked;
             loop.Changed += OnChanged;
             snake.VisualsReset += OnVisualsReset;
+            if (framing != null) framing.SizeChanged += OnFramingChanged;
         }
 
         private void OnDisable()
@@ -117,6 +109,7 @@ namespace GardenSnake
             loop.Clicked -= OnClicked;
             loop.Changed -= OnChanged;
             snake.VisualsReset -= OnVisualsReset;
+            if (framing != null) framing.SizeChanged -= OnFramingChanged;
         }
 
         private void Start() => musicSource.Play();
@@ -138,9 +131,7 @@ namespace GardenSnake
                     Mathf.Clamp01(apple.Score / (float)Mathf.Max(1, beats.fullPickupIntensityScore))));
             burstAge = 0;
             burstRing.position = apple.At + Vector3.up * reactions.burstHeight;
-            Play(pickupSound,
-                sound.pickupPitch + apple.Score % Mathf.Max(1, sound.pickupPitchCycle) * sound.pickupPitchIncrement,
-                sound.pickupVolume);
+            Play(pickupSound, sound.PickupPitch(apple.Score), sound.pickupVolume);
             bool extended = apple.Record == RecordBeat.Extended;
             hud.ShowPickup(extended ? "+1 <size=55%>best</size>" : "+1", apple.At, extended);
             if (apple.Record == RecordBeat.Broken)
@@ -208,8 +199,21 @@ namespace GardenSnake
         // The camera
 
         /// <summary>
-        /// The garden is framed by the player settings' resolution, so the camera only ever eases
-        /// between two sizes: pushed in while a run is going, sitting back on the menus.
+        /// The window changed shape, so the framing under both sizes moved. Snap rather than ease:
+        /// a resize is the player's doing and an easing camera would read as a wobble.
+        /// </summary>
+        private void OnFramingChanged()
+        {
+            playingSize = framing.Size;
+            if (zooming != null) StopCoroutine(zooming);
+            zooming = null;
+            zoomTarget = loop.State == RunState.Playing ? playingSize : playingSize * restingZoom;
+            view.orthographicSize = zoomTarget;
+        }
+
+        /// <summary>
+        /// <see cref="GardenCamera"/> decides how much garden the window has to show, so this only
+        /// ever eases between two sizes: pushed in while a run is going, back on the menus.
         /// </summary>
         private void ZoomTo(float size)
         {
@@ -297,6 +301,17 @@ namespace GardenSnake
         {
             audioSource.pitch = pitch;
             audioSource.PlayOneShot(clip, volume);
+        }
+
+        /// <summary>The Feel players, one per beat. Wiring, not tuning.</summary>
+        [System.Serializable]
+        public sealed class FeelPlayers
+        {
+            public MMF_Player pickup;
+            public MMF_Player death;
+            public MMF_Player runStart;
+            public MMF_Player newBest;
+            public MMF_Player recordApple;
         }
     }
 }
