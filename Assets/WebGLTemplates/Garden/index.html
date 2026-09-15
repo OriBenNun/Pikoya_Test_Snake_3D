@@ -2,15 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Garden Snake</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='19' r='11' fill='%23e8402f'/%3E%3Cpath d='M16 9c2-4 6-5 8-5-1 4-4 6-8 6z' fill='%235fbf3f'/%3E%3C/svg%3E">
   <style>
     *{box-sizing:border-box}
-    body{margin:0;background:#7faf57;color:#1e3a2a;font:16px system-ui,sans-serif;overflow:hidden}
+    html,body{height:100%;overscroll-behavior:none}
+    /* Without this the lawn is framed by the backdrop's black while full screen. */
+    html:fullscreen{background:#7faf57}
+    body{margin:0;background:#7faf57;color:#1e3a2a;font:16px system-ui,sans-serif;overflow:hidden;
+      -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;
+      -webkit-text-size-adjust:100%}
     /* The canvas is positioned, not laid out: a grid item can be grown by its own
-       content, and Unity then matches the drawing buffer to that runaway size. */
-    #unity-container{position:fixed;inset:0;overflow:hidden}
+       content, and Unity then matches the drawing buffer to that runaway size.
+       The container is inset by the safe area rather than padded, so the canvas's
+       100% and the box measured in fitCanvas() are the same rectangle - which keeps
+       the HUD's corners clear of a notch when a phone is held in landscape. */
+    #unity-container{position:fixed;overflow:hidden;
+      top:env(safe-area-inset-top,0);right:env(safe-area-inset-right,0);
+      bottom:env(safe-area-inset-bottom,0);left:env(safe-area-inset-left,0)}
     canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;outline:none;touch-action:none}
     #loading,#error{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
     #loading{text-align:center;width:min(80%,360px);pointer-events:none}
@@ -18,6 +29,20 @@
     p{color:#3f5c3f}
     progress{width:100%;height:7px;accent-color:#e2622e;border:0}
     #error{max-width:520px;padding:28px;background:#fff9ec;display:none;white-space:pre-wrap}
+    /* The page's own control, not the game's: it matches the HUD's cream pills and sits in the
+       one corner the HUD leaves empty. Hidden until the player loads, hidden again once the page
+       is full screen (the browser's own Esc is the way back out), and never shown at all on the
+       browsers that refuse element fullscreen (an iPhone, mainly). */
+    #fullscreen{position:absolute;left:18px;bottom:18px;width:44px;height:44px;padding:0;border:0;
+      border-radius:50%;background:rgba(255,249,236,.92);color:#2f5c3f;cursor:pointer;
+      display:none;place-items:center;opacity:.85;transition:opacity .15s,transform .15s;
+      box-shadow:0 2px 8px rgba(30,58,42,.18)}
+    #fullscreen.ready{display:grid}
+    #fullscreen.filling{display:none}
+    #fullscreen:hover{opacity:1;transform:scale(1.06)}
+    #fullscreen:focus-visible{outline:2px solid #e2622e;outline-offset:3px}
+    #fullscreen svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;
+      stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </head>
 <body>
@@ -25,31 +50,86 @@
     <canvas id="unity-canvas" tabindex="0" aria-label="Garden Snake. Use arrow keys or WASD to steer. Space starts; P pauses; M toggles sound."></canvas>
     <div id="loading"><h1>garden snake</h1><p>Planting your little garden...</p><progress id="progress" max="1" value="0"></progress></div>
     <div id="error" role="alert"></div>
+    <button id="fullscreen" type="button" title="Full screen" aria-label="Enter full screen">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M10 3H3v7M14 3h7v7M10 21H3v-7M14 21h7v-7"/>
+      </svg>
+    </button>
   </main>
   <script src="Build/{{{ LOADER_FILENAME }}}"></script>
   <script>
     const canvas=document.getElementById('unity-canvas');
+    const container=document.getElementById('unity-container');
+    // Phones are the reason this measures the container rather than the window: the visual
+    // viewport moves as the browser's toolbars slide away, and the safe-area padding is already
+    // taken out of the container's own box.
     function fitCanvas(){
-      canvas.style.width=window.innerWidth+'px';
-      canvas.style.height=window.innerHeight+'px';
+      const box=container.getBoundingClientRect();
+      const width=Math.max(1,Math.round(box.width));
+      const height=Math.max(1,Math.round(box.height));
+      canvas.style.width=width+'px';
+      canvas.style.height=height+'px';
     }
     fitCanvas();
     window.addEventListener('resize',fitCanvas);
-    window.addEventListener('orientationchange',fitCanvas);
+    window.addEventListener('orientationchange',()=>setTimeout(fitCanvas,250));
+    if(window.visualViewport)window.visualViewport.addEventListener('resize',fitCanvas);
+    // Full screen is the page's job rather than Unity's, and it is the document that goes
+    // fullscreen rather than the container: a browser forces position and inset onto any other
+    // fullscreen element, which would flatten the safe-area insets the container is built on.
+    // fitCanvas() then resizes the drawing buffer the way it does for any other resize.
+    // Older WebKit still needs the prefixed spelling.
+    //
+    // The button only ever goes one way. Once the page fills the screen it hides itself and the
+    // browser's own Esc is what comes back - a button that stays put there reads as part of the
+    // game's HUD, and a page cannot reliably drive the way back out of every kind of full screen
+    // (F11 and the like never tell the document about themselves at all).
+    const fullscreenButton=document.getElementById('fullscreen');
+    const fullscreenSupported=!!(document.fullscreenEnabled||document.webkitFullscreenEnabled);
+    function fillingScreen(){
+      if(document.fullscreenElement||document.webkitFullscreenElement)return true;
+      // F11 and the browser's own full screen never set fullscreenElement, so measure instead.
+      return Math.abs(window.innerWidth-screen.width)<=2&&Math.abs(window.innerHeight-screen.height)<=2;
+    }
+    function syncFullscreen(){
+      fullscreenButton.classList.toggle('filling',fillingScreen());
+      // Some browsers resize the element before they fire resize, others after.
+      fitCanvas();setTimeout(fitCanvas,120);
+    }
+    fullscreenButton.addEventListener('click',()=>{
+      const page=document.documentElement;
+      const request=page.requestFullscreen||page.webkitRequestFullscreen;
+      const entering=request.call(page);
+      // A rejected request (no gesture, or a policy block) should not break the page.
+      if(entering&&entering.catch)entering.catch(()=>{});
+      // Otherwise the button keeps the keyboard and Space presses it instead of starting a run.
+      fullscreenButton.blur();canvas.focus();
+    });
+    document.addEventListener('fullscreenchange',syncFullscreen);
+    document.addEventListener('webkitfullscreenchange',syncFullscreen);
+    // F11 only shows up as a resize, so the button has to watch for that too.
+    window.addEventListener('resize',syncFullscreen);
+    // A phone renders far more pixels than it can shade at 60fps, so it gets a lower ceiling.
+    const coarse=window.matchMedia('(pointer:coarse)').matches;
+    const pixelRatio=Math.min(window.devicePixelRatio||1,coarse?1.5:2);
     createUnityInstance(canvas,{
       dataUrl:'Build/{{{ DATA_FILENAME }}}',frameworkUrl:'Build/{{{ FRAMEWORK_FILENAME }}}',
       codeUrl:'Build/{{{ CODE_FILENAME }}}',streamingAssetsUrl:'StreamingAssets',
       companyName:'{{{ COMPANY_NAME }}}',productName:'{{{ PRODUCT_NAME }}}',productVersion:'{{{ PRODUCT_VERSION }}}',
-      matchWebGLToCanvasSize:true,devicePixelRatio:Math.min(window.devicePixelRatio||1,2)
+      matchWebGLToCanvasSize:true,devicePixelRatio:pixelRatio
     },value=>document.getElementById('progress').value=value).then(instance=>{
       document.getElementById('loading').remove();canvas.focus();fitCanvas();
       window.gardenGame=instance;
+      if(fullscreenSupported){fullscreenButton.classList.add('ready');syncFullscreen();}
     }).catch(error=>{
       document.getElementById('loading').style.display='none';
       const box=document.getElementById('error');box.style.display='block';
       box.textContent='The garden could not load. Use a browser with WebGL 2 support and serve this folder over HTTP.\n\n'+error;
     });
     canvas.addEventListener('pointerdown',()=>canvas.focus());
+    // Stop a swipe steering the snake from also dragging the page around under it.
+    document.addEventListener('touchmove',event=>{if(event.cancelable)event.preventDefault();},{passive:false});
+    document.addEventListener('gesturestart',event=>event.preventDefault());
     window.addEventListener('keydown',event=>{
       if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(event.code))event.preventDefault();
     });
